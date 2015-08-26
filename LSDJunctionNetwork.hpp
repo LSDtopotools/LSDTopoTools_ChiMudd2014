@@ -478,9 +478,24 @@ class LSDJunctionNetwork
   /// all the sources of the junction JunctionNumber
   /// @author SMM
   /// @date 26/09/2013
-  int GetChannelHeadsChiMethodFromJunction(int JunctionNumber,
+  int GetChannelHeadsChiMethodFromNode(int NodeNumber,
                               int MinSegLength, float A_0, float m_over_n,
 			      LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance, LSDRaster& ElevationRaster);
+
+  /// @brief This function generates an LSDIndexRaster of the channel that runs from
+  /// the hilltop above the furthest upslope source of the junction JunctionNumber
+  /// @param BasinOrder
+  /// @param MinSegLength
+  /// @param A_0
+  /// @param m_over_n
+  /// @param FlowInfo
+  /// @param FlowDistance
+  /// @param ElevationRaster
+  /// @return LSDIndexRaster with channel
+  /// @author FJC
+  /// @date 21/08/15
+  LSDIndexRaster GetChannelfromDreich(int NodeNumber, int MinSegLength, float A_0, float m_over_n,
+											                LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance, LSDRaster& ElevationRaster);
 
 
 
@@ -492,10 +507,10 @@ class LSDJunctionNetwork
   /// @return vector<int> a vector of node_indices of potential channel heads
   /// @author SMM
   /// @date 26/09/2013
-  vector<int> GetChannelHeadsChiMethodBasinOrder(int BasinOrder,
-                       int MinSegLength, float A_0, float m_over_n,
-		       LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance,
-		       LSDRaster& ElevationRaster);
+//   vector<int> GetChannelHeadsChiMethodBasinOrder(int BasinOrder,
+//                        int MinSegLength, float A_0, float m_over_n,
+// 		       LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance,
+// 		       LSDRaster& ElevationRaster);
 									  
   /// @brief This function returns all potential channel heads in a DEM. It looks for
   /// channel heads based on the outlet junctions of the valleys (which are identified by looking 
@@ -510,10 +525,26 @@ class LSDJunctionNetwork
   /// @return vector<int> a vector of node_indices of potential channel heads
   /// @author FC
   /// @date 31/10/2013
-  vector<int> GetChannelHeadsChiMethodFromValleys(Array2D<int>& ValleyJunctions,
+vector<int> GetChannelHeadsChiMethodFromValleys(vector<int> ValleyNodes,
                                       int MinSegLength, float A_0, float m_over_n,
-		                      LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance,
-				      LSDRaster& ElevationRaster);
+									                    LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance,
+									                    LSDRaster& ElevationRaster);
+				      
+  /// @brief This function returns all channels in the DEM that the DrEICH algorithm uses for segiment fitting.
+  /// It looks for channels based on the outlet junctions of valleys.
+  /// It returns a LSDIndexRaster with the channels.
+  /// @param ValleyNodes
+  /// @param MinSegLength
+  /// @param A_0
+  /// @param m_over_n
+  /// @param FlowInfo
+  /// @param FlowDistance
+  /// @param ElevationRaster
+  /// @return LSDIndexRaster with all channels
+  /// @author FJC
+  /// @date 21/08/15	  
+  LSDIndexRaster GetChannelsDreich(vector<int> ValleyNodes, int MinSegLength, float A_0, float m_over_n,
+									                    LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance, LSDRaster& ElevationRaster);
 
 
   /// @brief This function returns a 2D array containing the locations of all pixels identified
@@ -638,18 +669,18 @@ class LSDJunctionNetwork
   Array2D<int> find_valleys(LSDFlowInfo& FlowInfo, Array2D<float>& tan_curv_array, 
                             vector<int> sources, int no_connecting_nodes, float tan_curv_threshold = 0.1);
                             
-  /// @brief This function is used to get the outlet junctions from a vector of input source nodes
+  /// @brief This function is used to get the outlet nodes from a vector of input source nodes
   ///
-  /// @details It is used to get a list of valley junctions that can be used in the DrEICH algorithm.  
+  /// @details It is used to get a list of valley nodes that can be used in the DrEICH algorithm.  
   /// The function goes downstream from each source node until the stream order of the downstream node is greater than
-  /// that of the current node, then identifies the junction of the outlet valley node.
+  /// that of the current node
   ///
   /// @param FlowInfo LSDFlowInfo object
   /// @param sources vector with sources of channel network
-  /// @return Array2D<int> with junctions at the base of each of the valleys
+  /// @return vector<int> with node at the base of each of the valleys
   /// @author FJC
   /// @date 19/08/2015
-  Array2D<int> get_outlet_junctions_from_sources(LSDFlowInfo& FlowInfo, vector<int> sources);
+  vector<int> get_outlet_nodes_from_sources(LSDFlowInfo& FlowInfo, vector<int> sources);
                             
   /// @brief This function is used to identify concave portions of the landscape using a tangential curvature threshold 
   /// which is adaptive for each portion of the landscape

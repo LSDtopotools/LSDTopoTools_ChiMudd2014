@@ -1919,7 +1919,7 @@ class LSDRaster
   /// @author SWDG
   /// @date 5/6/15
   LSDIndexRaster CreateHilltopPatches(int minimum_patch_size);
-
+  LSDIndexRaster CreateHilltopPatchesNEW(int minimum_patch_size);
   /// @brief Simple method to flatten an LSDRaster to a text file, with a sigle value on each line. 
   /// @param FileName The name of the file to write, if no path is included it will write to the current directory. 
   /// @author SWDG
@@ -1941,6 +1941,14 @@ class LSDRaster
   /// @author SWDG
   /// @date 22/6/15
   LSDRaster RemoveBelow(float Value);
+
+  /// @brief apply a mask to a raster dataset, converts pixels to nodata where mas=k=1
+  /// @author DTM
+  /// @date 25/08/2015
+  LSDRaster apply_mask(LSDIndexRaster& mask);
+
+
+
   protected:
 
   ///Number of rows.

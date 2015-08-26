@@ -387,6 +387,13 @@ class LSDFlowInfo
   ///@author FC
   ///@date 08/10/13
   int is_node_upstream(int current_node, int test_node);
+  
+  ///@brief This function tests whether a node is a base level node
+  ///@param node
+  ///@return int which is 1 if node is base level, 0 if not
+  ///@author FJC
+  ///@date 26/08/15
+  int is_node_base_level(int node);
 
   /// @brief this function gets a list of the node indices of the donors to a particular node
   /// @param node this is the nodeindex of the node for which you want to find the donors

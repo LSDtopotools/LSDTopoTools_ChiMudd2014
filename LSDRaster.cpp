@@ -6152,11 +6152,12 @@ void LSDRaster::raster_statistics_by_index(LSDIndexRaster& IndexRaster,
     SD = get_standard_deviation(values_for_this_ID, mean);
     SErr = get_standard_error(values_for_this_ID, SD);
   }  
-  cout << "kicking out output vectors" << endl;
+  cout << "kicking out output vectors ";
   mean_vector.push_back(mean);
   SD_vector.push_back(SD);
   SErr_vector.push_back(SErr);
   NPts_vector.push_back(values_for_this_ID.size());
+  cout << "...done" << endl;
 }
 
 
@@ -10541,7 +10542,22 @@ void LSDRaster::FlattenToCSV(string FileName_prefix)
 //Requires an integer minimum_patch_size, the minimum number of pixels required for a patch to be created
 //SWDG
 //5/6/15
-//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+LSDIndexRaster LSDRaster::CreateHilltopPatchesNEW(int minimum_patch_size){
+
+  Array2D<int> hilltops(NRows,NCols,int(NoDataValue));
+  for(int i = 1; i<NRows-1; ++i){
+    for(int j = 1; j<NCols-1; ++j){
+      if(RasterData[i][j]!=NoDataValue) hilltops[i][j] = 1;
+    }
+  }
+  LSDIndexRaster HilltopPatches(NRows,NCols,XMinimum,YMinimum,DataResolution,int(NoDataValue),hilltops);
+  HilltopPatches = HilltopPatches.filter_by_connected_components(minimum_patch_size);
+  HilltopPatches = HilltopPatches.ConnectedComponents();
+  return HilltopPatches;
+}
+
 LSDIndexRaster LSDRaster::CreateHilltopPatches(int minimum_patch_size){
   
   //create array to hold patch IDs
@@ -10775,5 +10791,21 @@ LSDRaster LSDRaster::RemoveBelow(float Value){
   return Removed;  
 
 } 
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// Apply a mask to an LSDRaster.  Mask designated by LSDIndexRaster containing 1
+// values for the pixels that need to be converted to nodata
+// DTM 25/08/2015
+LSDRaster LSDRaster::apply_mask(LSDIndexRaster& mask){
+  Array2D<float> masked_data = RasterData.copy();
+  for(int i=0; i<NRows; ++i){
+    for(int j=0; j<NCols; ++j){
+	if(mask.get_data_element(i,j)==1) masked_data[i][j]=NoDataValue;
+    }
+  }
+  LSDRaster masked_raster(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,masked_data);
+  return masked_raster;
+}
+
 
 #endif

@@ -656,6 +656,42 @@ void LSDChannel::create_LSDC(int SJ, int SJN, int EJ, int EJN, LSDFlowInfo& Flow
 }
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// this function prints the LSDChannel to an LSDIndexRaster 
+//
+// FJC 21/08/15
+//
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+LSDIndexRaster LSDChannel::print_channel_to_IndexRaster(LSDFlowInfo& FlowInfo)
+{
+
+  NRows = FlowInfo.get_NRows();
+	NCols = FlowInfo.get_NCols();
+	XMinimum = FlowInfo.get_XMinimum();
+	YMinimum = FlowInfo.get_YMinimum();
+	DataResolution = FlowInfo.get_DataResolution();
+	NoDataValue = FlowInfo.get_NoDataValue();
+	GeoReferencingStrings = FlowInfo.get_GeoReferencingStrings();
+  Array2D<int> nodes_in_channel(NRows,NCols,NoDataValue);
+  
+  for (int row = 0; row<NRows; row++)
+  {
+    for (int col = 0; col<NCols; col++)
+    {
+      for (int i = 0; i < RowSequence.size(); i++)
+      {
+        if (RowSequence[i] == row && ColSequence[i] == col)
+        {
+          nodes_in_channel[row][col] = NodeSequence[i];
+        }
+      } 
+    }
+  }
+  
+  LSDIndexRaster Channel(NRows,NCols, XMinimum, YMinimum, DataResolution, NoDataValue, nodes_in_channel, GeoReferencingStrings);
+  return Channel;
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // this function uses a flow info object to calculate the chi values in the channel
 //
 // SMM 2012

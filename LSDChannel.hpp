@@ -219,6 +219,12 @@ class LSDChannel: public LSDIndexChannel
 
 	// access the data
 	// these are primarily used for fitting of the profiles
+	
+	/// @brief This function prints the channel to an LSDIndexRaster.
+  /// @return Index raster of channel nodes
+  /// @author FJC
+  /// @date 21/08/15
+  LSDIndexRaster print_channel_to_IndexRaster(LSDFlowInfo& FlowInfo);
 
   /// @return Vector of chi values.
   vector<float> get_Chi()		{ return Chi; }

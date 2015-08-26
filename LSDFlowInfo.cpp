@@ -1843,6 +1843,29 @@ int LSDFlowInfo::is_node_upstream(int current_node, int test_node)
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 //
+// This function tests whether a node is a base level node
+//
+// FC 01/06/2012
+//
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+int LSDFlowInfo::is_node_base_level(int node)
+{
+  int i = 0;
+
+  for (int j = 0; j < BaseLevelNodeList.size(); j++)
+  {
+    if (node == BaseLevelNodeList[j])
+    {
+      i = 1;
+    }
+  }
+
+  return i;
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//
 // This function redurns a vector of node indices to all the donor
 // nodes of a particular node
 //
