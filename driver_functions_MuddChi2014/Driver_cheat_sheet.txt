@@ -1,0 +1,18 @@
+Mandakini <- filename prefix
+0.0001    <- minimum slope, don't change
+300       <- N contrib pixels for a channel. Could reduce to, say 100 or even 50. 
+76        <- junction number, this will change
+0.01      <- area frac for channel pruning. 1= mainstem only, low numbers= more tribs
+1000      <- A_0 for chi analysis: probably don't need to change. 
+20	  <- minimum segment length. Should be between 5-20.
+20	  <- sigma: some estimate of uncertanty in elevation data. Smaller = more segments
+0.15      <- starting m/n for best for m/n testing
+0.025     <- increment of m/n for best for m/n testing
+20	  <- number of m/n values tested for m/n testing
+90	  <- target length of nodes to be analyzed for segments. Should be between 80-150
+250	  <- number of iterations for monte carlo analysis. 250 seems okay
+0.95	  <- Not used anymore!
+20        <- Vertical interval for sampling for S-A analysis. Should be scaled to DEM resolution
+500	  <- Horizontal interval for sampling for S-A analysis. Should be scaled to DEM resolution
+0.2	  <- An area thinning fraction for S-A analysis. 0.2 is probably about right.
+2	  <- The mean number of data nodes you skip for each node of segment analysis. For LiDAR this can be 10 or more. Nextmap can be 2-10. SRTM 0-2.
