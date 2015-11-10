@@ -1196,7 +1196,7 @@ void LSDIndexChannelTree::convert_chan_file_for_ArcMap_ingestion(string fname)
 // SMM 06/05/2015
 //
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-void LSDIndexChannelTree::convert_chan_file_for_ArcMap_ingestion(string fname, LSDRaster& Discharge)
+void LSDIndexChannelTree::convert_chan_file_for_ArcMap_ingestion(string fname, LSDRaster& DrainageArea, LSDRaster& Discharge)
 {
 
   // open the outfile

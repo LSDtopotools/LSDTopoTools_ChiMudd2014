@@ -182,13 +182,15 @@ int main (int nNumberofArgs,char *argv[])
   LSDIndexChannelTree ChannelTree(FlowInfo, ChanNetwork, junction_number, organization_switch,
                                         DistanceFromOutlet, pruning_switch, pruning_threshold);
 
-  // print a file that can be ingested bt the chi fitting algorithm
+  LSDRaster DrainageArea = FlowInfo.write_DrainageArea_to_LSDRaster();
+
+  // print a file that can be ingested by the chi fitting algorithm
   string Chan_fname = "_ChanNet";
   string Chan_ext = ".chan";
   string Chan_for_chi_ingestion_fname = path_name+DEM_name+Chan_fname+jn_name+Chan_ext;
   ChannelTree.print_LSDChannels_for_chi_network_ingestion(FlowInfo,
                              filled_topo_test, DistanceFromOutlet, Chan_for_chi_ingestion_fname,
                              Discharge);
-  ChannelTree.convert_chan_file_for_ArcMap_ingestion(Chan_for_chi_ingestion_fname,Discharge);
+  ChannelTree.convert_chan_file_for_ArcMap_ingestion(Chan_for_chi_ingestion_fname,DrainageArea,Discharge);
 
 }

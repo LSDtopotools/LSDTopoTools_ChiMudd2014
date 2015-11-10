@@ -272,10 +272,11 @@ class LSDIndexChannelTree
   /// headers that can be read into ArcMap easily
   /// @detail Includes the discharge
   /// @param fname the filename of the channel file. The function spits out a similarly named outfile
+  /// @param drainagearea a raster of the drainage area, assumed to be m^2
   /// @param Discharge a raster of the discharge, assumed to be in m^3/yr
   /// @author SMM
   /// @date 07/05/2015                   
-  void convert_chan_file_for_ArcMap_ingestion(string fname, LSDRaster& Discharge);
+  void convert_chan_file_for_ArcMap_ingestion(string fname, LSDRaster& DrainageArea, LSDRaster& Discharge);
 
   /// @brief This takes a .chan file and converts it into a comma seperated file with
   /// headers that can be read into ArcMap easily
