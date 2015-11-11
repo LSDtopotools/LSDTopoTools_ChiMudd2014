@@ -1217,7 +1217,7 @@ void LSDIndexChannelTree::convert_chan_file_for_ArcMap_ingestion(string fname, L
     ArcChan_out.precision(10);
 
   // print the first line of the arcchan. This is going to be comma seperated!
-  ArcChan_out << "id,x,y,channel,reciever_channel,node_on_reciever_channel,node,row,col,flow_distance_m,elevation_m,drainage_area_m2,discharge_m3_yr" << endl;
+  ArcChan_out << "id,x,y,channel,reciever_channel,node_on_reciever_channel,node,row,col,flow_distance_m,elevation_m,drainage_area_m2,discharge_m2_times_precipunits" << endl;
 
   // now go throught the file, collecting the data
   int id,ch,rc,norc,n,r,c;
@@ -1231,6 +1231,7 @@ void LSDIndexChannelTree::convert_chan_file_for_ArcMap_ingestion(string fname, L
   int nrows;
   int ncols;
   float this_discharge;
+  float this_da;
 
   // read in the first lines with DEM information
   channelfile_in >> nrows >> ncols >> xll >> yll >> datares >> ndv;
@@ -1244,10 +1245,11 @@ void LSDIndexChannelTree::convert_chan_file_for_ArcMap_ingestion(string fname, L
     y = yll + float(nrows-r)*datares - 0.5*datares;		// this is because the DEM starts from the top corner
 
     this_discharge = Discharge.get_data_element(r,c);
+    this_da = DrainageArea.get_data_element(r,c);
 
     ArcChan_out << id << "," << x << "," << y << "," << ch << "," << rc 
                 << "," << norc << "," << n << "," << r << "," << c << ","
-                << fd << "," << elev << "," << da << "," << this_discharge << endl;
+                << fd << "," << elev << "," << this_da << "," << this_discharge << endl;
   }
 
   channelfile_in.close();
