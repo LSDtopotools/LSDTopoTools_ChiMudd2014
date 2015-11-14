@@ -1947,7 +1947,22 @@ class LSDRaster
   /// @date 25/08/2015
   LSDRaster apply_mask(LSDIndexRaster& mask);
 
-
+  /// @brief Method to convert all values in an LSDRaster to a single value.
+  /// @param Value, an integer value that will be assigned to every non NDV cell in the raster.
+  /// @param ndv an integer no data value.
+  /// @author SWDG
+  /// @date 24/07/2015
+  LSDIndexRaster ConvertToBinary(int Value, int ndv);
+  
+  /// @brief Function to get potential floodplain patches using a slope and relief threshold
+  /// @param Relief raster with relief values
+  /// @param Slope raster with slope values
+  /// @param relief_threshold threshold value for relief (floodplain must be lower than this)
+  /// @param slope_threshold threshold value for slope (floodplain must be lower than this)
+  /// @author FJC
+  /// @date 20/10/15
+  LSDIndexRaster get_potential_floodplain_patches(LSDRaster& Relief, LSDRaster& Slope, float relief_threshold,
+                                                     float slope_threshold);
 
   protected:
 

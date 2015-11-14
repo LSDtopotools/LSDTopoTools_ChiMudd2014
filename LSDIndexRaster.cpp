@@ -236,7 +236,7 @@ void LSDIndexRaster::read_raster(string filename, string extension)
   string dot = ".";
   string_filename = filename+dot+extension;
   cout << "The filename is " << string_filename << endl;
-  int DataType;
+  int DataType = 2;
 
   if (extension == "asc")
   {
@@ -608,7 +608,7 @@ void LSDIndexRaster::read_raster(string filename, string extension)
           //cout << endl;
         }
       }
-            else if (DataType == 4)
+      else if (DataType == 4)
       {
         float temp;
         //cout << "Float size: " << sizeof(temp) << endl;
@@ -618,7 +618,25 @@ void LSDIndexRaster::read_raster(string filename, string extension)
           {
             ifs_data.read(reinterpret_cast<char*>(&temp), sizeof(temp));
             
-            data[i][j] = float(temp);
+            data[i][j] = int(temp);
+            if (data[i][j]<-1e10)
+            {
+              data[i][j] = NoDataValue;
+            }
+          }
+        }
+      } 
+      else if (DataType == 13)
+      {
+        unsigned long int temp;
+        //cout << "Float size: " << sizeof(temp) << endl;
+        for (int i=0; i<NRows; ++i)
+        {
+          for (int j=0; j<NCols; ++j)
+          {
+            ifs_data.read(reinterpret_cast<char*>(&temp), sizeof(temp));
+            
+            data[i][j] = int(temp);
             if (data[i][j]<-1e10)
             {
               data[i][j] = NoDataValue;
@@ -1095,7 +1113,7 @@ LSDIndexRaster LSDIndexRaster::clip_to_smaller_raster(LSDIndexRaster& smaller_ra
   
   for(int row = 0; row< New_NRows; row++)
   {
-    for(int col = 0; col<=New_NCols; col++)
+    for(int col = 0; col<New_NCols; col++)
     {
        NewData[row][col] = RasterData[row+YUL_row][col+XLL_col];
     }
@@ -1183,7 +1201,7 @@ LSDIndexRaster LSDIndexRaster::clip_to_smaller_raster(LSDRaster& smaller_raster)
   
   for(int row = 0; row< New_NRows; row++)
   {
-    for(int col = 0; col<=New_NCols; col++)
+    for(int col = 0; col<New_NCols; col++)
     {
        NewData[row][col] = RasterData[row+YUL_row][col+XLL_col];
     }
@@ -1840,9 +1858,10 @@ LSDIndexRaster LSDIndexRaster::ConnectedComponents()
   }
 
   // Now 
-  LSDIndexRaster ConnectedComponentsRaster(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,LabelledComponents);
+  LSDIndexRaster ConnectedComponentsRaster(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,LabelledComponents,GeoReferencingStrings);
   return ConnectedComponentsRaster;
 }
+
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // The following two functions are used to thin a multi-pixel binary feature into a single pixel skeleton.  It uses the algorithm described by Zhang and Suen (1984), A fast algorithm for thinning digital patterns, Communications of the ACM.
 // Thinning algorithm 
@@ -1918,7 +1937,7 @@ LSDIndexRaster LSDIndexRaster::thin_to_skeleton(){
     binary_old = binary_new.copy();
   }
   cout << "\nDone" << endl;
-  LSDIndexRaster skeleton(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,binary_new.copy());
+  LSDIndexRaster skeleton(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,binary_new.copy(),GeoReferencingStrings);
   return skeleton;
 }
 
@@ -1937,7 +1956,7 @@ LSDIndexRaster LSDIndexRaster::find_end_points()
       }
     }
   }
-  LSDIndexRaster Ends(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,EndPoints);
+  LSDIndexRaster Ends(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,EndPoints,GeoReferencingStrings);
   return Ends;
 }
 
@@ -1979,8 +1998,9 @@ void LSDIndexRaster::remove_downstream_endpoints(LSDIndexRaster CC, LSDRaster To
       matlab_int_reorder(end_points_row[i],index_map,end_points_row[i]);
       matlab_int_reorder(end_points_col[i],index_map,end_points_col[i]);
       // erase lowest end point to leave just the segment heads.
-      for(int k = 1; k < N; ++k){
-	FilteredEnds[ end_points_row[i][k] ][ end_points_col[i][k] ] = 1;
+      for(int k = 1; k < N; ++k)
+      {
+       FilteredEnds[ end_points_row[i][k] ][ end_points_col[i][k] ] = 1;
       }
     }
   }
@@ -1988,7 +2008,8 @@ void LSDIndexRaster::remove_downstream_endpoints(LSDIndexRaster CC, LSDRaster To
 }
 
 
-LSDIndexRaster LSDIndexRaster::filter_by_connected_components(int connected_components_threshold){
+LSDIndexRaster LSDIndexRaster::filter_by_connected_components(int connected_components_threshold)
+{
   LSDIndexRaster ConnectedComponentsRaster = ConnectedComponents();
   Array2D<int> BinaryArray = RasterData.copy();
   vector<int> IDs;
@@ -2007,14 +2028,14 @@ LSDIndexRaster LSDIndexRaster::filter_by_connected_components(int connected_comp
   for(int i = 0; i < NRows; ++i){
     for(int j = 0; j < NCols; ++j){
       if(ConnectedComponentsRaster.get_data_element(i,j) != NoDataValue){
-	if(count[ConnectedComponentsRaster.get_data_element(i,j)] >= connected_components_threshold){
-	  BinaryArray[i][j] = 1;
-	}
-	else BinaryArray[i][j]=0;
+  if(count[ConnectedComponentsRaster.get_data_element(i,j)] >= connected_components_threshold){
+    BinaryArray[i][j] = 1;
+  }
+  else BinaryArray[i][j]=0;
       }
     }
   }
-  LSDIndexRaster filtered_raster(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,BinaryArray);
+  LSDIndexRaster filtered_raster(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,BinaryArray,GeoReferencingStrings);
   return filtered_raster;
 }
 
@@ -2036,6 +2057,181 @@ LSDIndexRaster LSDIndexRaster::ConvertToBinary(int Value, int ndv){
     
   LSDIndexRaster binmask(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,binary,GeoReferencingStrings);
   return binmask;
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Method to remove patches generated by the connected components analysis that are
+// smaller than a user defined threshold, minimum_segment_size.
+// SWDG 17/9/15 
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+LSDIndexRaster LSDIndexRaster::RemoveSmallPatches(int minimum_patch_size){
+
+  Array2D<int> PatchIDs = RasterData;
+
+  //Strip out any values that only occur below the minimum_segment_size param value  
+  cout << "\tRemoving patches that have an area smaller than " << minimum_patch_size << " pixels." << endl;
+  
+  //flatten the array to make the counting easier
+  vector<int> Flat_Patches = Flatten_Without_Nodata(PatchIDs, NoDataValue);
+  
+  //get unique patch IDs
+  vector<int> Unique_Patches = Unique(PatchIDs, NoDataValue);
+  
+  //get number of instances of each value in the vector as a map
+  map<int,int> Counts; 
+  Count_Instances(Flat_Patches,Unique_Patches,Counts);
+  
+  //loop over map, get vector of keys where value < user defined limit and store patchIDs to be removed as vector  
+  vector<int> PatchesToRemove;
+  vector<int> PatchesToShorten;
+  
+  for (int w = 0; w< int(Unique_Patches.size());++w){
+  
+    if (Counts[Unique_Patches[w]] < minimum_patch_size){
+      PatchesToRemove.push_back(Unique_Patches[w]);
+    }
+  }
+  
+  //need to handle a vector of zero length (eg all patches are long enough)
+  if (!PatchesToRemove.empty()){
+  
+    //loop over PatchIDs, checking each value for membership in the vector of values to be removed, and if true, set cell value to NDV
+    for(int i = 1; i < NRows-1; ++i){
+      for(int j = 1; j < NCols-1; ++j){
+      
+        if (PatchIDs[i][j] != NoDataValue){
+          
+          if (find(PatchesToRemove.begin(), PatchesToRemove.end(), PatchIDs[i][j]) != PatchesToRemove.end()){
+            //the PatchID has been marked for removal, so change it to NDV
+            PatchIDs[i][j] = NoDataValue;  
+          }
+        }        
+      }        
+    }
+    
+    
+  }
+  else{
+    cout << "\t\tNo patches below the threshold." << endl;
+  }
+  
+  //create the final LSDIndexRaster and return it
+  LSDIndexRaster Patches(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,PatchIDs);
+  return Patches;  
+
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Method to remove small holes in patches from an integer raster (at the moment set to run on
+// a raster made up of 0s, 1s, and 2s).
+// FJC 22/10/15
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+LSDIndexRaster LSDIndexRaster::remove_holes_in_patches(int window_radius)
+{
+  int pixel_radius = int(window_radius/DataResolution);
+  if (window_radius < DataResolution) window_radius = DataResolution;
+  Array2D<int> RasterArray = RasterData;
+
+  Array2D<int> FilledRaster(NRows, NCols, 0);
+  //search the neighbours of each pixel for 0 values within the window radius
+  for (int row = 0; row < NRows; row ++)
+  {
+    for (int col = 0; col < NCols; col++)
+    {
+      if (RasterArray[row][col] == 1) FilledRaster[row][col] = 1;
+      if (RasterArray[row][col] == 0)
+      {
+        vector<int> counts(8,0);
+        for (int i = 1; i <= pixel_radius; i++)
+        {
+          //set exceptions for first or last row
+          int min_row = row-i;
+          int max_row = row+i;
+          if (min_row < 0) min_row = 0;
+          if (max_row >= NRows) max_row = NRows-1;
+          
+          //set exceptions for first or last col
+          int min_col = col-i;
+          int max_col = col+i;
+          if (min_col < 0) min_col = 0;
+          if (max_col >= NCols) max_col = NCols-1;
+          
+          //check whether surrounding pixels in all directions are equal to 0
+          if (RasterArray[min_row][min_col]  == 1) counts.at(0) = 1; 
+          if (RasterArray[row][min_col]  == 1) counts.at(1) = 1; 
+          if (RasterArray[max_row][min_col]  == 1) counts.at(2) = 1; 
+          if (RasterArray[min_row][col]  == 1) counts.at(3) = 1; 
+          if (RasterArray[min_row][max_col]  == 1) counts.at(4) = 1; 
+          if (RasterArray[row][max_col]  == 1) counts.at(5) = 1; 
+          if (RasterArray[max_row][max_col]  == 1) counts.at(6) = 1; 
+          if (RasterArray[max_row][col] == 1) counts.at(7) = 1; 
+          
+          // if 1s surround the pixel, then fill in the pixel
+          if (counts.at(0) > 0 && counts.at(1) > 0 && counts.at(2) > 0 && counts.at(3) > 0 && counts.at(4) > 0 && counts.at(5) > 0 && counts.at(6) > 0 && counts.at(7) > 0) 
+          {
+            FilledRaster[row][col] = 1;
+            i = pixel_radius+1;
+          } 
+        }
+      }
+      if (RasterArray[row][col] == 2) FilledRaster[row][col] = 2;
+    }
+  }
+  
+  //create new LSDIndexRaster with the filled patches
+  LSDIndexRaster FilledPatches(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,FilledRaster,GeoReferencingStrings);
+  return FilledPatches;  
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Method to remove checkerboard pattern from an integer raster (at the moment set to run on
+// a raster made up of 0s and 1s).
+// FJC 22/10/15
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+LSDIndexRaster LSDIndexRaster::remove_checkerboard_pattern()
+{
+  Array2D<int> RasterArray = RasterData;
+  Array2D<int> FilledArray(NRows, NCols, 0);
+  int count = 0;
+  //search the neighbours of each pixel for 1 values within the window radius
+  for (int row = 0; row < NRows; row ++)
+  {
+    for (int col = 0; col < NCols; col++)
+    {
+      if (RasterArray[row][col] == 1) FilledArray[row][col] = 1;
+      if (RasterArray[row][col] == 0)
+      {    
+        // set exceptions for end rows and cols
+        int min_row = row-1;
+        int max_row = row+1;
+        if (min_row < 0) min_row = 0;
+        if (max_row >= NRows) max_row = NRows-1;
+        
+        int min_col = col-1;
+        int max_col = col+1;
+        if (min_col < 0) min_col = 0;
+        if (max_col >= NCols) max_col = NCols-1;
+        
+        // check whether N, S, E, and W pixels are equal to 1
+        if (RasterArray[min_row][col]  == 1) count++;               //north
+        if (RasterArray[max_row][col] == 1) count++;               //south
+        if (RasterArray[row][min_col]  == 1) count++;               //east
+        if (RasterArray[row][max_col] == 1) count++;                //west
+        if (count == 4)
+        {
+          //fill in pixel
+          FilledArray[row][col] = 1;
+          cout << "Filled in pixel, woohoo" << endl;
+        }    
+        count = 0;    
+      }
+    }
+  }
+  
+  //create new LSDIndexRaster with the filled patches
+  LSDIndexRaster FilledRaster(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,FilledArray,GeoReferencingStrings);
+  return FilledRaster; 
+  
 }
 
 

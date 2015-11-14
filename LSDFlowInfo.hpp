@@ -370,6 +370,24 @@ class LSDFlowInfo
   /// @date 01/016/12
   vector<int> get_upslope_nodes(int node_number_outlet);
 
+  /// @brief This function takes a list of sources and then creates a raster
+  ///  with nodata values where points are not upslope of the sources
+  ///  and 1.0 if they are upslope
+  /// @param source_nodes a vector of node indicies into the sources
+  /// @author SMM
+  /// @date 11/11/2015
+  LSDRaster get_upslope_node_mask(vector<int> source_nodes);
+
+  /// @brief This function takes a list of sources and then creates a raster
+  ///  with nodata values where points are not upslope of the sources
+  ///  and 1node_values if they are upslope
+  /// @param source_nodes a vector of node indicies into the sources
+  /// @param node_values a vector of the value of the nodes upslope of the sources
+  ///  this vector needs to be the same size as the source_nodes vector
+  /// @author SMM
+  /// @date 12/11/2015
+  LSDRaster get_upslope_node_mask(vector<int> source_nodes, vector<float> node_values);
+
   ///@brief This function accumulates some variable from an LSDRaster
   ///The most probably use is to accumulate precipitation in order
   ///to get a discharge raster
@@ -415,7 +433,20 @@ class LSDFlowInfo
   /// @author SMM
   /// @date 01/16/2012
   vector<float> get_upslope_chi(int starting_node, float m_over_n, float A_0);
-	
+
+  /// @brief This function calculates the chi function for all the nodes upslope
+  /// of a given node.
+  /// @detail this version uses discharge rather than area
+  /// @param starting_node Integer index of node to analyse upslope of.
+  /// @param m_over_n
+  /// @param A_0  the referecen discharge
+  /// @param Discharge a raster of the discharge
+  /// @return Vector of chi values. The node indices of these values are those 
+  /// that would be retured from get_uplope_nodes
+  /// @author SMM
+  /// @date 16/10/2015
+  vector<float> get_upslope_chi(int starting_node, float m_over_n, float A_0, LSDRaster& Discharge);
+
   /// @brief This function calculates the chi function for a list of nodes
   /// it isn't really a standalone modules, but is only called from get_upslope_chi
   /// above
@@ -424,8 +455,21 @@ class LSDFlowInfo
   /// @param A_0
   /// @return Vector of chi values.
   /// @author SMM
-  /// @date 01/016/12
+  /// @date 16/01/12
   vector<float> get_upslope_chi(vector<int>& upslope_pixel_list, float m_over_n, float A_0);
+
+  /// @brief This function calculates the chi function for a list of nodes
+  /// it isn't really a standalone modules, but is only called from get_upslope_chi
+  /// above
+  /// @detail this version uses discharge rather than area  
+  /// @param upslope_pixel_list Vector of nodes to analyse.
+  /// @param m_over_n
+  /// @param A_0
+  /// @param Discharge and LSDRaster of the discharge
+  /// @return Vector of chi values.
+  /// @author SMM
+  /// @date 16/10/15
+  vector<float> get_upslope_chi(vector<int>& upslope_pixel_list, float m_over_n, float A_0, LSDRaster& Discharge);
 
   /// @brief this function takes a vector that contains the node indices of 
   /// starting nodes, and then calculates chi upslope of these nodes
@@ -450,6 +494,30 @@ class LSDFlowInfo
   LSDRaster get_upslope_chi_from_multiple_starting_nodes(vector<int>& starting_nodes, 
    float m_over_n, float A_0, float area_threshold);
 
+  /// @brief this function takes a vector that contains the node indices of 
+  /// starting nodes, and then calculates chi upslope of these nodes
+  /// to produce a chi map. A threshold drainage area can be used
+  /// to only map chi where nodes have greater than the threshold drainage area
+  /// @details this function is meant to mimic the function of the Willett et al
+  /// (2014) Science paper. You do need to extract the wanted node indices
+  /// for your starting nodes from a node index map
+  /// This version allows computation with discharge
+  /// @param starting_nodes an integer vector containing all the node indices
+  /// of the node from which you want to start the chi analysis. All of these
+  /// nodes will be considered to have a starting chi of 0
+  /// @param m_over_n the m/n ratio. Chi is quite sensitive to this
+  /// @param A_0 the reference discharge. This is arbitrary. As of 28 July 2014 we've not
+  /// done any detailed sensitivity analysis on this parameter
+  /// @param area_threshold the threshold area (in m^2) that sets the area above
+  /// which chi is recorded in the chi raster
+  /// @return this returns an LSDRaster for the chi values upslope of all of the 
+  /// nodes indicated in starting_nodes
+  /// @author SMM
+  /// @date 16/10/2015
+  LSDRaster get_upslope_chi_from_multiple_starting_nodes(vector<int>& starting_nodes, 
+   float m_over_n, float A_0, float area_threshold, LSDRaster& Discharge);
+
+
   /// @brief This function gets the chi upslope of every base level node
   /// that is, it gets the chi values of the entire DEM, assuming all 
   /// base level nodes have a chi of 0
@@ -467,6 +535,26 @@ class LSDFlowInfo
   /// @date 28/14/2014
   LSDRaster get_upslope_chi_from_all_baselevel_nodes(float m_over_n, float A_0, 
                                                 float area_threshold);
+
+  /// @brief This function gets the chi upslope of every base level node
+  /// that is, it gets the chi values of the entire DEM, assuming all 
+  /// base level nodes have a chi of 0
+  /// @detail because this assumes all base level nodes have a chi of 0, 
+  /// this function is probably only appropriate for numerical models.
+  /// This version of the function allows computation with a discharge raster
+  /// @param m_over_n the m/n ratio. Chi is quite sensitive to this
+  /// @param A_0 the reference discharge (same units as discharge. As of 28 July 2014 we've not
+  /// done any detailed sensitivity analysis on this parameter
+  /// @param area_threshold the threshold area (in m^2) that sets the area above
+  /// which chi is recorded in the chi raster
+  /// @param Discharge a raster of the discharge
+  /// @return this returns an LSDRaster for the chi values of the entire raster, 
+  /// with base level nodes assumed to have chi = 0
+  /// @author SMM
+  /// @date 16/10/2015
+  LSDRaster get_upslope_chi_from_all_baselevel_nodes(float m_over_n, float Q_0, 
+                                                float area_threshold,
+                                                LSDRaster& Discharge);
 
   /// @brief Calculates the distance from outlet of all the base level nodes.
   /// Distance is given in spatial units, not in pixels.
@@ -504,7 +592,7 @@ class LSDFlowInfo
   ///@brief A get sources version that uses the flow accumulation pixels.
   ///@param FlowPixels LSDIndexRaster of flow accumulation in pixels.
   ///@param threshold Integer flow accumulation threshold.
-  ///@return Vector of source integers.
+  ///@return Vector of source integers: these refer to the node indices of the sources.
   /// @author SMM
   /// @date 01/016/12
   vector<int> get_sources_index_threshold(LSDIndexRaster& FlowPixels, int threshold);
@@ -513,7 +601,7 @@ class LSDFlowInfo
   /// @param FlowPixels LSDIndexRaster of flow accumulation in pixels.
   /// @param Slope LSDRaster of slope values
   /// @param threshold Integer AS^2 threshold
-  /// @return Vector of source integers.
+  /// @return Vector of source integers: these refer to the node indices of the sources.
   /// @author FJC
   /// @date 11/02/14
   vector<int> get_sources_slope_area(LSDIndexRaster& FlowPixels, LSDRaster& Slope, int threshold);

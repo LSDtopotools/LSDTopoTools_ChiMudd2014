@@ -478,6 +478,26 @@ float get_standard_error(vector<float>& y_data, float standard_deviation)
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// This function gets the difference between neighbouring elements in a vector
+// Same as np.diff in Python
+// Output vector will be one element shorter than the input vector
+// FJC 10/11/15
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+vector<float> difference(vector<float>& y_data)
+{
+  vector<float> diff;
+  for (int i = 0; i < int(y_data.size())-1; i++)
+  {    
+    float difference = y_data[i+1] - y_data[i];
+    diff.push_back(difference);
+  }
+  
+  return diff;  
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // this function returns a vector with several common statistics
 // the vector has the following elements
 // 0 mean
@@ -5205,6 +5225,23 @@ void Count_Instances(vector<int> Data, vector<int> Key_Values, map<int,int>& Dat
 
 }
 
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--==
+// This gets the size of a file. 
+// From http://stackoverflow.com/questions/5840148/how-can-i-get-a-files-size-in-c
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--==
+int get_file_size(string filename) // path to file
+{
+    //cout << "Opening file: " << filename << endl;
+    FILE *p_file = NULL;
+    p_file = fopen(filename.c_str(),"rb");
+    fseek(p_file,0,SEEK_END);
+    //cout << "Getting the end" << endl;
+    int size = ftell(p_file);
+    fclose(p_file);
+    return size;
+}
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--==
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--==
 // Given a filestream object, read the file into memory and return

@@ -83,6 +83,10 @@ float get_standard_error(vector<float>& y_data, float standard_deviation);
 vector<float> get_common_statistics(vector<float>& y_data);
 float get_percentile(vector<float>& data, float percentile);
 
+// this function gets the difference between nearest neighbours in a vector of y data
+// FJC 10/11/15
+vector<float> difference(vector<float>& y_data);
+
 // sorts data; produces quartile-quantile comparison against standard normal variate, returning
 // an (evenly spaced) sorted subsample of N_points, their corresponding normal variate and the
 // reference value  from the standard normal distribution.  Test for departures from normality
@@ -462,6 +466,10 @@ void rank_vector_with_groups(vector<float> sorted_data,
 // No error handling.
 // SWDG 16/07/14
 string ReadTextFile(ifstream& File);
+
+// THis gets the size of a file
+// SMM 16/10/2015
+int get_file_size(string filename);
 
 //Takes an integer vector of data and an integer vector of key values and 
 //returns a map of the counts of each value tied to its key.
