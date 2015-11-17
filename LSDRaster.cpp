@@ -8518,6 +8518,25 @@ vector<float> LSDRaster::get_XY_MinMax()
   
 }
 
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= 
+// This function gets the raster data into a vector 
+// FJC 06/11/15 
+// 
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= 
+vector<float> LSDRaster::get_RasterData_vector() 
+{ 
+  vector<float> Raster_vector; 
+  for (int row = 0; row < NRows; row++) 
+  { 
+    for (int col = 0; col < NCols; col++) 
+    { 
+      Raster_vector.push_back(RasterData[row][col]); 
+    } 
+  } 
+	 	   
+  return Raster_vector; 
+}
+
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // THis clips to a smaller raster. The smaller raster does not need
 // to have the same data resolution as the old raster
@@ -10937,5 +10956,40 @@ LSDIndexRaster LSDRaster::get_potential_floodplain_patches(LSDRaster& Relief, LS
   LSDIndexRaster FloodplainRaster(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,FloodplainArray,GeoReferencingStrings);
   return FloodplainRaster;
 } 
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Function to set the threshold value to use in floodplain extraction
+// FJC 16/11/15
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+float LSDRaster::get_threshold_for_floodplain(float bin_width, float peak_threshold, int peak_distance)
+{
+  //get vector of raster data
+  vector<float> raster_vector; 
+  for (int row = 0; row < NRows; row++) 
+  { 
+    for (int col = 0; col < NCols; col++) 
+    { 
+      if(RasterData[row][col] >= 0) raster_vector.push_back(RasterData[row][col]); 
+    } 
+  }
+  
+  //get histogram of the raster values
+  vector<float> Midpoints;
+  vector<float> LLims;
+  vector<float> ULims;
+  vector<int> Count;
+  vector<float> ProbabilityDensity;
+  calculate_histogram(raster_vector, bin_width, Midpoints, LLims, ULims, Count, ProbabilityDensity);
+  
+  //get peaks from histogram
+  vector<int> peak_indices;
+  get_peak_indices(ProbabilityDensity, peak_threshold, peak_distance, peak_indices);
+  
+  //first peak is the floodplain: get the midpoint of the bin with the peak
+  float threshold = Midpoints[peak_indices[0]];
+  cout << "Threshold value: " << threshold << endl;
+    
+  return threshold;  
+}
 
 #endif

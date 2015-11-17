@@ -387,6 +387,12 @@ class LSDRaster
   /// @date 3/7/2015
   vector<float> get_XY_MinMax();
   
+  ///@brief This function returns the raster data as a vector 
+  ///@return vector<float> with raster data 
+  ///@author FJC 
+  ///@date 06/11/15 
+  vector<float> get_RasterData_vector(); 
+  
   /// @brief rewrite all the data array values with random numbers (with a 
   /// uniform distribution). 
   /// @param range is the range of values.
@@ -1963,6 +1969,17 @@ class LSDRaster
   /// @date 20/10/15
   LSDIndexRaster get_potential_floodplain_patches(LSDRaster& Relief, LSDRaster& Slope, float relief_threshold,
                                                      float slope_threshold);
+                                                     
+  /// @brief Function to get threshold from a raster using a histogram of Probability-Density
+  /// values. The function identifies the peaks in the PDF, and sets the threshold to
+  /// the peak with the lowest value.  This can be used to set the floodplain threshold.
+  /// @param bin_width Bin width for histogram
+  /// @param peak_threshold Threshold probability-density value above which peaks will be selected
+  /// @param peak_distance Threshold distance between identified peaks (will remove smaller peaks close to
+  /// the largest ones)
+  /// @author FJC
+  /// @date 16/11/15                                                  
+  float get_threshold_for_floodplain(float bin_width, float peak_threshold, int peak_distance);
 
   protected:
 
