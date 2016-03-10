@@ -1438,7 +1438,34 @@ int LSDJunctionNetwork::get_Receiver_of_Junction(int junction) const
     junction = 0;
   }
   return ReceiverVector[junction];
-}	  
+}	
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=
+// Function to get the junction downstream of the next
+// Added by FJC 08/10/15
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=  
+int LSDJunctionNetwork::get_downstream_junction(int starting_junction, LSDFlowInfo& FlowInfo)
+{
+    int start_node = get_Node_of_Junction(starting_junction);
+    int receiver_node, receiver_row, receiver_col, receiver_junction;
+    int i = 0;
+    while (i == 0)
+    {
+      FlowInfo.retrieve_receiver_information(start_node, receiver_node, receiver_row, receiver_col);
+      receiver_junction = get_Junction_of_Node(receiver_node, FlowInfo);
+      if (receiver_junction == NoDataValue)
+      {
+        start_node = receiver_node;
+      }
+      else
+      {
+        //cout << "Reached downstream junction" << endl;
+        i=1;
+      }
+    }
+    
+    return receiver_junction;    
+}   
   
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=
 // This function extracts the junctions of a given basin order that are the lowermost
@@ -1694,17 +1721,77 @@ int LSDJunctionNetwork::GetChannelHeadsChiMethodFromNode(int NodeNumber,
 	//vector<int> ChannelHeadNodes;
 	float downslope_chi = 0;
 	
+	// get the second order junction from this node
+	int node_at_junction = FlowInfo.ReceiverVector[NodeNumber];
+	int first_order_junction = get_Junction_of_Node (node_at_junction, FlowInfo);
+	int second_order_junction = get_Receiver_of_Junction(first_order_junction);
+	int second_order_node = get_Node_of_Junction(second_order_junction);
+	
 	// get the hilltop node from this junction
 	int hilltop_node = FlowInfo.find_farthest_upslope_node(NodeNumber, FlowDistance);
 	
 	//perform chi segment fitting
-	LSDChannel new_channel(hilltop_node, NodeNumber, downslope_chi, m_over_n, A_0, FlowInfo,  ElevationRaster);
+	LSDChannel new_channel(hilltop_node, second_order_node, downslope_chi, m_over_n, A_0, FlowInfo,  ElevationRaster);
   int channel_head_node = new_channel.calculate_channel_heads(MinSegLength, A_0, m_over_n, FlowInfo);
 
 	// get the nodes of the hilltops.
 	//vector<int> hilltop_nodes = FindFarthestUpslopeHilltopsFromSources(JunctionNumber,
   //                                        FlowInfo, FlowDistance);
 
+  return channel_head_node;
+}       
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-
+// This function returns a vector of nodeindex values of potential channel heads
+// above a given junction
+//
+// SMM 26/09/2013
+//
+// Modified by FC 26/09/2013 to extract the node of the predicted channel heads for each
+// hilltop node; now returns a vector of integers.
+// Modified by FC 18/11/13 to extract the channel head from the outlet junction rather than from
+// the sources.
+//
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-
+int LSDJunctionNetwork::GetChannelHeadsChiMethodFromSourceNode(int NodeNumber,
+                                      int MinSegLength, float A_0, float m_over_n,
+											                LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance, LSDRaster& ElevationRaster, int NJunctions)
+{
+	int channel_head_node;
+  //vector<int> ChannelHeadNodes;
+	float downslope_chi = 0;
+	
+	// get the hilltop node from this source node
+	int hilltop_node = FlowInfo.find_farthest_upslope_node(NodeNumber, FlowDistance);
+	
+	//get the junction at the source node
+	int source_junction = get_Junction_of_Node(NodeNumber, FlowInfo);
+	
+	if (NJunctions == 0)
+	{
+    LSDChannel new_channel(hilltop_node, NodeNumber, downslope_chi, m_over_n, A_0, FlowInfo,  ElevationRaster);
+    channel_head_node = new_channel.calculate_channel_heads(MinSegLength, A_0, m_over_n, FlowInfo);   
+  }
+  else if (NJunctions > 0)
+  {
+    int count = 0;
+	  // get the nth junction downstream
+	  for (int i = 0; i < NJunctions; i++)
+	  {
+      //cout << "Source junction: " << source_junction << endl;
+      int downstream_junction = get_downstream_junction(source_junction, FlowInfo);
+      //cout << "downstream junction: " << downstream_junction << endl;
+      source_junction = downstream_junction;
+      count++;
+      //cout << "Moved " << count << " junctions downstream from source" << endl;
+    } 
+    int final_node = get_Node_of_Junction(source_junction);
+    //cout << "Node of downstream junction: " << final_node << endl;
+    //cout << "Start node of channel: " << hilltop_node << endl;
+    //perform chi segment fitting
+	  LSDChannel new_channel(hilltop_node, final_node, downslope_chi, m_over_n, A_0, FlowInfo,  ElevationRaster);
+    channel_head_node = new_channel.calculate_channel_heads(MinSegLength, A_0, m_over_n, FlowInfo);
+  }
   return channel_head_node;
 }      
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-
@@ -1723,16 +1810,30 @@ int LSDJunctionNetwork::GetChannelHeadsChiMethodFromNode(int NodeNumber,
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-
 LSDIndexRaster LSDJunctionNetwork::GetChannelfromDreich(int NodeNumber,
                                       int MinSegLength, float A_0, float m_over_n,
-											                LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance, LSDRaster& ElevationRaster)
+											                LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance, LSDRaster& ElevationRaster, string path_name, int NJunctions)
 {
 	//vector<int> ChannelHeadNodes;
 	float downslope_chi = 0;
 	
-	// get the hilltop node from this junction
+	//get the junction at the source node
+  int Junction = get_Junction_of_Node(NodeNumber, FlowInfo);
+		// get the hilltop node from this junction
 	int hilltop_node = FlowInfo.find_farthest_upslope_node(NodeNumber, FlowDistance);
 	
+	// get the nth junction downstream
+	for (int i = 0; i < NJunctions; i++)
+	{
+    int downstream_junction = get_Receiver_of_Junction(Junction);
+    Junction = downstream_junction;
+  }
+  int final_node = get_Node_of_Junction(Junction);
+	
 	//perform chi segment fitting
-	LSDChannel new_channel(hilltop_node, NodeNumber, downslope_chi, m_over_n, A_0, FlowInfo,  ElevationRaster);
+	LSDChannel new_channel(hilltop_node, final_node, downslope_chi, m_over_n, A_0, FlowInfo,  ElevationRaster);	
+	//string node = static_cast<ostringstream*>( &(ostringstream() << NodeNumber) )->str();
+	//string file_name = "full_profile_"+node;
+	//int channel_head_node = new_channel.calculate_channel_heads_with_profile(MinSegLength, A_0, m_over_n, FlowInfo, node);
+	//new_channel.write_channel_to_csv(path_name, file_name, FlowDistance);
 	LSDIndexRaster ChannelRaster = new_channel.print_channel_to_IndexRaster(FlowInfo);
 
   return ChannelRaster;
@@ -1852,11 +1953,11 @@ vector<int> LSDJunctionNetwork::GetChannelHeadsChiMethodFromValleys(vector<int> 
 	int upstream_test = 0;
 	vector<int>::iterator find_it;
 	
-	for (int node = 0; node < ChannelHeadNodes_temp.size(); node++)
+	for (int node = 0; node < int(ChannelHeadNodes_temp.size()); node++)
 	{
     vector<int> tests;
     int current_node = ChannelHeadNodes_temp[node];
-    for (int i = 0; i < ChannelHeadNodes_temp.size(); i++)
+    for (int i = 0; i < int(ChannelHeadNodes_temp.size()); i++)
     {
       if (ChannelHeadNodes_temp[i] != current_node)
       {
@@ -1880,20 +1981,89 @@ vector<int> LSDJunctionNetwork::GetChannelHeadsChiMethodFromValleys(vector<int> 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-
+// This function returns all potential channel heads in a DEM. It looks for
+// channel heads based on the sources from the valley network which identifies concave portions
+// of the landscape.  The channel profiles are run from the furthest upslope hilltop to a downstream
+// junction: the length of the channel profile can be set by the number of junctions downstream (NJunctions)
+//
+// FC 10/09/15
+//
+//
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-
+vector<int> LSDJunctionNetwork::GetChannelHeadsChiMethodFromSources(vector<int> ValleySources,
+                                      int MinSegLength, float A_0, float m_over_n,
+									                    LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance,
+									                    LSDRaster& ElevationRaster, int NJunctions)
+{
+	vector<int> ChannelHeadNodes;
+	vector<int> ChannelHeadNodes_temp;
+  
+  int max_nodes = ValleySources.size();
+  int node_number = 0;
+  
+  //loop through junctions collecting channel heads
+  for (int i = 0; i < max_nodes; i++)
+  {
+	  cout << flush << "Node = " << i+1 << " of " << max_nodes << "\r";
+
+    // get the junction number
+	  node_number = ValleySources[i];
+  
+    // get a local list of channel heads
+	  int channel_head_node = GetChannelHeadsChiMethodFromSourceNode(node_number,
+                                      			MinSegLength, A_0, m_over_n, FlowInfo,
+                                       			FlowDistance, ElevationRaster, NJunctions);                                   			
+
+     // now append these channel heads to the master list
+	  ChannelHeadNodes_temp.push_back(channel_head_node);
+	}
+	
+	//removing any nodes that are not the furthest upstream
+	int upstream_test = 0;
+	vector<int>::iterator find_it;
+	
+	for (int node = 0; node < int(ChannelHeadNodes_temp.size()); node++)
+	{
+    vector<int> tests;
+    int current_node = ChannelHeadNodes_temp[node];
+    for (int i = 0; i < int(ChannelHeadNodes_temp.size()); i++)
+    {
+      if (ChannelHeadNodes_temp[i] != current_node)
+      {
+        int test_node = ChannelHeadNodes_temp[i];
+        upstream_test = FlowInfo.is_node_upstream(current_node, test_node); 
+        tests.push_back(upstream_test);  
+      }  
+    }
+    find_it = find(tests.begin(), tests.end(), 1); 
+    if (find_it == tests.end())
+    {
+      ChannelHeadNodes.push_back(current_node); 
+    }
+    
+  }
+	    
+  cout << "No of source nodes: " << ChannelHeadNodes.size() << endl;   
+
+  return ChannelHeadNodes;
+}                       
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-
 // This function returns all channels in the DEM that the DrEICH algorithm uses for segiment fitting.
 // It looks for channels based on the outlet junctions of valleys.
 // It returns a LSDIndexRaster with the channels.
 //
 // FC 21/08/15
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-
-LSDIndexRaster LSDJunctionNetwork::GetChannelsDreich(vector<int> ValleyNodes,
+LSDIndexRaster LSDJunctionNetwork::GetChannelsDreich(vector<int> ValleySources,
                                       int MinSegLength, float A_0, float m_over_n,
 									                    LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance,
-									                    LSDRaster& ElevationRaster)
+									                    LSDRaster& ElevationRaster, string path_name, int NJunctions)
 {
 	Array2D<int> channel_nodes(NRows,NCols,NoDataValue);
   
-  int max_nodes = ValleyNodes.size();
+  int max_nodes = ValleySources.size();
   int node_number = 0;
   
   //loop through junctions collecting channels
@@ -1902,11 +2072,11 @@ LSDIndexRaster LSDJunctionNetwork::GetChannelsDreich(vector<int> ValleyNodes,
 	  cout << flush << "Node = " << i+1 << " of " << max_nodes << "\r";
 
     // get the junction number
-	  node_number = ValleyNodes[i];
+	  node_number = ValleySources[i];
   
     // get an index raster with the channel data
 	  LSDIndexRaster Channel = GetChannelfromDreich(node_number, MinSegLength, A_0, m_over_n,
-											               FlowInfo, FlowDistance, ElevationRaster);
+											               FlowInfo, FlowDistance, ElevationRaster, path_name, NJunctions);
 		Array2D<int> ChannelData = Channel.get_RasterData();
     
     									               
@@ -1927,7 +2097,6 @@ LSDIndexRaster LSDJunctionNetwork::GetChannelsDreich(vector<int> ValleyNodes,
 	LSDIndexRaster AllChannels(NRows,NCols, XMinimum, YMinimum, DataResolution, NoDataValue, channel_nodes, GeoReferencingStrings);
 	return AllChannels;
 }
-//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-
@@ -1971,7 +2140,7 @@ Array2D<int> LSDJunctionNetwork::GetChannelHeadsChiMethodAllPixels(int JunctionN
 	chi_profile_all.open(string_filename_all.c_str());
 	//cout << "The filename is " << string_filename_all << endl;
 
-  for (unsigned int node=0; node < upslope_nodes.size(); node++)
+  for (int node=0; node < int(upslope_nodes.size()); node++)
   {
     FlowInfo.retrieve_current_row_and_col(upslope_nodes[node], row, col);
     float elev = ElevationRaster.get_data_element(row,col);
@@ -2048,7 +2217,7 @@ Array2D<int> LSDJunctionNetwork::GetChannelHeadsChiMethodAllPixels(int JunctionN
   elev_regression.resize(range_min.size());
   float regression_pointer = 0;
 
-  for (unsigned int i=0; i<range_min.size(); i++)
+  for (int i=0; i<int(range_min.size()); i++)
   {
     if (range_min[i] <= elev_limit)
     {
@@ -2096,7 +2265,7 @@ Array2D<int> LSDJunctionNetwork::GetChannelHeadsChiMethodAllPixels(int JunctionN
   vector<int> source_nodes;
   vector<int>::iterator iterator_find;
 
-  for (unsigned int i=0; i < upslope_nodes.size(); i++)
+  for (int i=0; i < int(upslope_nodes.size()); i++)
   {
     int bin_id = int((upslope_chi[i]-lower_limit)/bin_width);
     FlowInfo.retrieve_current_row_and_col(upslope_nodes[i], row, col);
@@ -2148,7 +2317,7 @@ vector<int> LSDJunctionNetwork::GetSourceNodesChiMethodAllPixels(int JunctionNum
   vector<float> elevation;
   int row,col;
 
-  for (unsigned int node=0; node < upslope_nodes.size(); node++)
+  for (int node=0; node < int(upslope_nodes.size()); node++)
   {
     FlowInfo.retrieve_current_row_and_col(upslope_nodes[node], row, col);
     float elev = ElevationRaster.get_data_element(row,col);
@@ -2216,7 +2385,7 @@ vector<int> LSDJunctionNetwork::GetSourceNodesChiMethodAllPixels(int JunctionNum
   elev_regression.resize(range_min.size());
   float regression_pointer = 0;
 
-  for (unsigned int i=0; i<range_min.size(); i++)
+  for (int i=0; i< int(range_min.size()); i++)
   {
     if (range_min[i] <= elev_limit)
     {
@@ -2748,7 +2917,7 @@ vector<int> LSDJunctionNetwork::get_outlet_nodes_from_sources(LSDFlowInfo& FlowI
   Array2D<int> NodesVisitedBeforeTemp(NRows,NCols,0);   
   vector<int> valley_nodes;  
   
-  for (int i = 0; i < sources.size(); i++)
+  for (int i = 0; i < int(sources.size()); i++)
   {
     int this_node = sources[i];
     int current_row,current_col,downslope_node,downslope_row,downslope_col,current_SO,downslope_SO;
@@ -4765,7 +4934,128 @@ void LSDJunctionNetwork::couple_hillslope_nodes_to_channel_nodes(LSDRaster& Elev
 // 
 // }
 
+//----------------------------------------------------------------------------------------
+// This function removes patches of floodplain that are not connected to the channel network.
+// It must be passed an LSDIndexRaster with the floodplain patches labelled with a specific ID
+// number (done using Dave's connected components algorithm). Return is a connected components index
+// raster with the hillslope patches removed.
+// FJC 21/10/15
+//---------------------------------------------------------------------------------------- 
+LSDIndexRaster LSDJunctionNetwork::remove_hillslope_patches_from_floodplain_mask(LSDIndexRaster& FloodplainPatches, float threshold_SO)
+{
+  Array2D<int> FloodplainPatches_array(NRows,NCols,NoDataValue);
+  vector<int> patch_ids_channel;
+  
+  //loop through the DEM and get the ID of all patches connected to the channel network
+  for (int row = 0; row < NRows; row++)
+  {
+    for (int col = 0; col < NCols; col++)
+    {
+      //if (StreamOrderArray[row][col] > 0)
+      //{
+      //  FloodplainPatches_array[row][col] = 2;  
+      //}
+      if (FloodplainPatches.get_data_element(row, col) != NoDataValue)
+      {
+      //check if the pixel is part of the channel network
+        if (StreamOrderArray[row][col] >= threshold_SO)
+        {
+          patch_ids_channel.push_back(FloodplainPatches.get_data_element(row,col));
+        }
+      }
+    }
+  }
+  
+  //for each pixel, find if it is in a patch with an ID in patch_ids_channel vector
+  vector<int>::iterator find_it;
+  for (int row = 0; row < NRows; row++)
+  {
+    for (int col = 0; col < NCols; col++)
+    {
+      if (FloodplainPatches.get_data_element(row, col) != NoDataValue)
+      {
+        int patch_id = FloodplainPatches.get_data_element(row, col);
+        find_it = find(patch_ids_channel.begin(), patch_ids_channel.end(), patch_id);   //search ID vector for patch ID of pixel
+        if (find_it != patch_ids_channel.end())
+        {
+          FloodplainPatches_array[row][col] = patch_id;                
+        }
+      }      
+    }
+  }
+  
+  //get the LSDIndexRaster from floodplain patches array
+  LSDIndexRaster FloodplainPatches_final(NRows,NCols, XMinimum, YMinimum, DataResolution, NoDataValue, FloodplainPatches_array, GeoReferencingStrings);
+  return FloodplainPatches_final;  
+}
 
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+//
+// Calculate relief relative to channel
+// This calculates relief of each pixel compared to the nearest channel pixel 
+// Uses a threshold stream order to avoid small tributaries
+//
+// FJC 17/11/15
+//
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+LSDRaster LSDJunctionNetwork::calculate_relief_from_channel(LSDRaster& ElevationRaster, LSDFlowInfo& FlowInfo, int threshold_SO)
+{
+  Array2D<float> ReliefArray(NRows, NCols, NoDataValue);
+  
+  for (int row = 0; row < NRows; row++)
+  {
+    for (int col = 0; col < NCols; col++)
+    {
+      float this_elevation = ElevationRaster.get_data_element(row,col);
+      if (this_elevation != NoDataValue)
+      {
+        //get the nearest channel pixel 
+        int CurrentNode = FlowInfo.retrieve_node_from_row_and_column(row,col);
+        int BaseLevel = FlowInfo.is_node_base_level(CurrentNode);
+        //if already at a channel then set relief to 0
+        if (StreamOrderArray[row][col] != NoDataValue && StreamOrderArray[row][col] >= threshold_SO
+        && BaseLevel == 0) 
+        {
+          ReliefArray[row][col] = 0;
+        }
+        //if not at a channel, move downstream
+        else
+        {
+          bool ReachedChannel = false;
+          while (ReachedChannel == false)
+          {
+            //get receiver information
+            int ReceiverNode, ReceiverRow, ReceiverCol;
+            FlowInfo.retrieve_receiver_information(CurrentNode, ReceiverNode, ReceiverRow, ReceiverCol); 
+            //if node is at baselevel then exit
+            if (CurrentNode == ReceiverNode)
+            {
+              ReachedChannel = true;
+            }          
+            //if receiver is a channel > threshold then get the relief
+            if (StreamOrderArray[ReceiverRow][ReceiverCol] != NoDataValue &&
+            StreamOrderArray[ReceiverRow][ReceiverCol] >= threshold_SO)
+            {
+              ReachedChannel = true;
+              float channel_elevation = ElevationRaster.get_data_element(ReceiverRow, ReceiverCol);
+              //get the relief of the pixel (Pixel Elevation - Channel Elevation)
+              ReliefArray[row][col] = (this_elevation - channel_elevation);
+            } 
+            else
+            {
+              //move downstream
+              CurrentNode = ReceiverNode;
+            }
+          }         
+        }
+      }         
+    }
+  }
+  
+  LSDRaster Relief(NRows,NCols, XMinimum, YMinimum, DataResolution, NoDataValue, ReliefArray, GeoReferencingStrings);
+  return Relief;
+}
 
 
 #endif

@@ -77,6 +77,7 @@ float get_mean_ignore_ndv(Array2D<float>& data, float ndv);
 float get_SST(vector<float>& y_data, float mean);
 float get_variance_ignore_ndv(Array2D<float>& data, float ndv, float mean); 
 float get_range_ignore_ndv(Array2D<float>& data, float ndv);
+float get_range_from_vector(vector<float>& y_data, float ndv);
 float get_durbin_watson_statistic(vector<float> residuals);
 float get_standard_deviation(vector<float>& y_data, float mean);
 float get_standard_error(vector<float>& y_data, float standard_deviation);
@@ -87,6 +88,10 @@ float get_percentile(vector<float>& data, float percentile);
 // FJC 10/11/15
 vector<float> difference(vector<float>& y_data);
 
+// this function gets the main peaks from a vector of y data using the first order difference
+// FJC 13/11/15
+void get_peak_indices(vector<float>& y_data, float threshold, int distance, vector<int>& peak_indices);
+
 // sorts data; produces quartile-quantile comparison against standard normal variate, returning
 // an (evenly spaced) sorted subsample of N_points, their corresponding normal variate and the
 // reference value  from the standard normal distribution.  Test for departures from normality
@@ -95,6 +100,10 @@ void generate_q_q_plot(vector<float>& data, vector<float>& values, vector<float>
 
 // declaration of the quantile_quantile analysis
 void quantile_quantile_analysis(vector<float>& data, vector<float>& values, vector<float>& standard_normal_variates, vector<float>& mn_values, int N_points);
+
+// declaration of the quantile_quantile analysis
+// modified to pass in percentiles as arguments
+void quantile_quantile_analysis_defined_percentiles(vector<float>& data, vector<float>& values, vector<float>& standard_normal_variates, vector<float>& mn_values, int N_points, int lower_percentile, int upper_percentile);
 
 // calculates least squares linear regression for two datasets, returning
 // gradient and intercept of regression line, alongside the R-squared value. 
@@ -391,6 +400,16 @@ double rad(double degree);
 // conversion from radians to degrees
 float deg(float radians);
 double deg(double radians);
+
+// Get the data for a boxplot from an unsorted vector of floats, which does not
+// contain any NDV values.
+//
+// Returns a vector which contains (in this order):
+//
+// 2Percentile 25Percentile median mean 75Percentile 98Percentile minimum maximum
+//
+// SWDG 12/11/15
+vector<float> BoxPlot(vector<float> data);
 
 //Method to generate Statistical distribution. - DTM
 void get_distribution_stats(vector<float>& y_data, float& mean, float& median, float& UpperQuartile, float& LowerQuartile, float& MaxValue);

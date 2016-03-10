@@ -175,6 +175,37 @@ void LSDRaster::create(int nrows, int ncols, float xmin, float ymin,
 }
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// this overloaded function creates a raster filled with no data values, 
+// but the data type is double-precision floating point numbers
+// DAV 2015
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+void LSDRaster::create(int nrows, int ncols, double xmin, double ymin,
+            double cellsize, double ndv, Array2D<double> data)
+{
+  NRows = nrows;
+  NCols = ncols;
+  XMinimum = xmin;
+  YMinimum = ymin;
+  DataResolution = cellsize;
+  NoDataValue = ndv;
+  
+  // Using the <double> data member
+  RasterData_dbl = data.copy();
+
+  if (RasterData_dbl.dim1() != NRows)
+  {
+    cout << "LSDRaster line 89 dimension of data is not the same as stated in NRows!" << endl;
+    exit(EXIT_FAILURE);
+  }
+  if (RasterData_dbl.dim2() != NCols)
+  {
+    cout << "LSDRaster line 94 dimension of data is not the same as stated in NRows!" << endl;
+    exit(EXIT_FAILURE);
+  }
+
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // Like the above function, but copies the GeoReferencing
 // SMM 2012
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -633,6 +664,24 @@ void LSDRaster::read_raster(string filename, string extension)
           }
         }
       }
+      else if (DataType == 5)
+      {
+        double temp;
+        cout << "I am trying to load a double precision raster. Wish me luck!" << endl;
+        for (int i=0; i<NRows; ++i)
+        {
+          for (int j=0; j<NCols; ++j)
+          {
+            ifs_data.read(reinterpret_cast<char*>(&temp), sizeof(temp));
+            
+            data[i][j] = double(temp);
+            if (data[i][j]<-1e10)
+            {
+              data[i][j] = NoDataValue;
+            }
+          }
+        }
+      }
       else if (DataType == 13)
       {
         unsigned long int temp;
@@ -814,8 +863,8 @@ void LSDRaster::write_raster(string filename, string extension)
        << "\nyllcorner\t" << setprecision(14) << YMinimum
        << "\ncellsize\t" << DataResolution
        << "\nNODATA_value\t" << NoDataValue << endl;
-
-
+    
+    
     for (int i=0; i<NRows; ++i)
     {
       for (int j=0; j<NCols; ++j)
@@ -946,6 +995,58 @@ void LSDRaster::write_raster(string filename, string extension)
   {
     cout << "You did not enter and approprate extension!" << endl
     << "You entered: " << extension << " options are flt, bil and asc" << endl;
+    exit(EXIT_FAILURE);
+   }
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// write_double_raster
+// this function writes a raster. One has to give the filename and extension
+// currently the options are for .asc files only (Sorry!)
+//
+// DAV 2015
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+void LSDRaster::write_double_raster(string filename, string extension)
+{
+  string string_filename;
+  string dot = ".";
+  string_filename = filename+dot+extension;
+  cout << "The filename is " << string_filename << endl;
+
+  // this first bit of logic is for the asc file.
+  if (extension == "asc")
+  {
+    // open the data file
+    ofstream data_out(string_filename.c_str());
+
+    if( data_out.fail() )
+    {
+      cout << "\nFATAL ERROR: unable to write to " << string_filename << endl;
+      exit(EXIT_FAILURE);
+    }
+
+    data_out <<  "ncols\t" << NCols
+       << "\nnrows\t" << NRows
+       << "\nxllcorner\t" << setprecision(14) << XMinimum
+       << "\nyllcorner\t" << setprecision(14) << YMinimum
+       << "\ncellsize\t" << DataResolution
+       << "\nNODATA_value\t" << NoDataValue << endl;
+    
+    
+    for (int i=0; i<NRows; ++i)
+    {
+      for (int j=0; j<NCols; ++j)
+      {
+        data_out << setprecision(6) << RasterData_dbl[i][j] << " ";
+      }
+      if (i != NRows-1) data_out << endl;
+    }
+    data_out.close();
+  }
+  else
+  {
+    cout << "You did not enter and approprate extension!" << endl
+    << "You entered: " << extension << " options are asc" << endl;
     exit(EXIT_FAILURE);
    }
 }
@@ -1509,6 +1610,40 @@ bool LSDRaster::check_if_point_is_in_raster(float X_coordinate,float Y_coordinat
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+//
+// Gets the row and column of a point
+//
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+void LSDRaster::get_row_and_col_of_a_point(float X_coordinate,float Y_coordinate,int& row, int& col)
+{
+  int this_row = NoDataValue;
+  int this_col = NoDataValue;
+  
+  // Shift origin to that of dataset
+  float X_coordinate_shifted_origin = X_coordinate - XMinimum;
+  float Y_coordinate_shifted_origin = Y_coordinate - YMinimum;
+
+  // Get row and column of point
+  int col_point = int(X_coordinate_shifted_origin/DataResolution);
+  int row_point = (NRows - 1) - int(round(Y_coordinate_shifted_origin/DataResolution));
+  
+  //cout << "Getting row and col, " << row_point << " " << col_point << endl;
+
+  if(col_point > 0 && col_point < NCols-1)
+  {
+    this_col = col_point;
+  }
+  if(row_point > 0 && row_point < NRows -1)
+  {
+    this_row = row_point;
+  }
+
+  row = this_row;
+  col = this_col;
+}
+
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // rewrite_with_random_values
 // This overwrites existing data with random values
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -1896,26 +2031,26 @@ void LSDRaster::DSSampleDiamond(int row, int col, int size, float value)
 
     if (a == -9999 || b == -9999 || c == -9999 || d == -9999)
     {
-		  cout << "got a nodata DSSampleDiamond; row: " << row << " and col: " << col << endl;
+      cout << "got a nodata DSSampleDiamond; row: " << row << " and col: " << col << endl;
 
-		  if (a == -9999)
-		  {
-			  cout << "col - hs: " << col - hs << " and row: " << row << endl;
-		  }
-		  if (b == -9999)
-		  {
-			  cout << "col + hs: " << col + hs << " and row: " << row << endl;
-		  }
-		  if (c == -9999)
-		  {
-			  cout << "col: " << col << " and row - hs: " << row - hs << endl;
-		  }
-		  if (d == -9999)
-		  {
-			  cout << "col: " << col << " and row + hs: " << row + hs << endl;
-		  }
+      if (a == -9999)
+      {
+        cout << "col - hs: " << col - hs << " and row: " << row << endl;
+      }
+      if (b == -9999)
+      {
+        cout << "col + hs: " << col + hs << " and row: " << row << endl;
+      }
+      if (c == -9999)
+      {
+        cout << "col: " << col << " and row - hs: " << row - hs << endl;
+      }
+      if (d == -9999)
+      {
+        cout << "col: " << col << " and row + hs: " << row + hs << endl;
+      }
 
-	  }
+    }
 
     SetWrapSample(row, col, ((a + b + c + d) / 4.0) + value);
 }
@@ -2699,7 +2834,7 @@ vector<LSDRaster> LSDRaster::calculate_polyfit_surface_metrics(float window_radi
       // distance from centre to this point.
       radial_dist = sqrt(y_kernel[i][j]*y_kernel[i][j] + x_kernel[i][j]*x_kernel[i][j]);
 
-//       if (floor(radial_dist) <= window_radius)
+      //if (floor(radial_dist) <= window_radius)
       if (radial_dist <= window_radius)
       {
         mask[i][j] = 1;
@@ -2766,11 +2901,11 @@ vector<LSDRaster> LSDRaster::calculate_polyfit_surface_metrics(float window_radi
     }
   }
 
-	// Move window over DEM, fitting 2nd order polynomial surface to the
-	// elevations within the window.
-	cout << "\n\tRunning 2nd order polynomial fitting" << endl;
-	cout << "\t\tDEM size = " << NRows << " x " << NCols << endl;
-	int ndv_present = 0;
+  // Move window over DEM, fitting 2nd order polynomial surface to the
+  // elevations within the window.
+  cout << "\n\tRunning 2nd order polynomial fitting" << endl;
+  cout << "\t\tDEM size = " << NRows << " x " << NCols << endl;
+  int ndv_present = 0;
 
   for(int i=0;i<NRows;++i)
   {
@@ -2805,7 +2940,9 @@ vector<LSDRaster> LSDRaster::calculate_polyfit_surface_metrics(float window_radi
             }
           }
         }
-        // Fit polynomial surface, avoiding nodata values          ==================> Could change this, as can fit polynomial surface as long as there are 6 data points.
+        // Fit polynomial surface, avoiding nodata values
+        // ==================> Could change this, 
+        // as can fit polynomial surface as long as there are 6 data points.
         if(ndv_present == 0)  // test for nodata values within the selection
         {
           Array1D<float> bb(6,0.0);
@@ -3030,28 +3167,27 @@ vector<LSDRaster> LSDRaster::calculate_polyfit_roughness_metrics(float window_ra
       // distance from centre to this point.
       radial_dist = sqrt(y_kernel[i][j]*y_kernel[i][j] + x_kernel[i][j]*x_kernel[i][j]);
 
-//       if (floor(radial_dist) <= window_radius1)
       if (radial_dist <= window_radius1)
       {
         mask[i][j] = 1;
       }
     }
-	}
-	// FIT POLYNOMIAL SURFACE BY LEAST SQUARES REGRESSION AND USE COEFFICIENTS TO
-	// DETERMINE TOPOGRAPHIC METRICS
-	// Have N simultaneous linear equations, and N unknowns.
-	// => b = Ax, where x is a 1xN array containing the coefficients we need for
-	// surface fitting.
-	// A is constructed using different combinations of x and y, thus we only need
-	// to compute this once, since the window size does not change.
-	// For 2nd order surface fitting, there are 6 coefficients, therefore A is a
-	// 6x6 matrix
-	Array2D<float> A(6,6,0.0);
-	for (int i=0; i<kw; ++i)
-	{
-		for (int j=0; j<kw; ++j)
-		{
-			if (mask[i][j] == 1)
+  }
+  // FIT POLYNOMIAL SURFACE BY LEAST SQUARES REGRESSION AND USE COEFFICIENTS TO
+  // DETERMINE TOPOGRAPHIC METRICS
+  // Have N simultaneous linear equations, and N unknowns.
+  // => b = Ax, where x is a 1xN array containing the coefficients we need for
+  // surface fitting.
+  // A is constructed using different combinations of x and y, thus we only need
+  // to compute this once, since the window size does not change.
+  // For 2nd order surface fitting, there are 6 coefficients, therefore A is a
+  // 6x6 matrix
+  Array2D<float> A(6,6,0.0);
+  for (int i=0; i<kw; ++i)
+  {
+    for (int j=0; j<kw; ++j)
+    {
+      if (mask[i][j] == 1)
       {
         x = x_kernel[i][j];
         y = y_kernel[i][j];
@@ -3097,90 +3233,90 @@ vector<LSDRaster> LSDRaster::calculate_polyfit_roughness_metrics(float window_ra
     }
   }
 
-	// Move window over DEM, fitting 2nd order polynomial surface to the
-	// elevations within the window.
-	cout << "\n\tRunning 2nd order polynomial fitting" << endl;
-	cout << "\t\tDEM size = " << NRows << " x " << NCols << endl;
-	int ndv_present = 0;
+  // Move window over DEM, fitting 2nd order polynomial surface to the
+  // elevations within the window.
+  cout << "\n\tRunning 2nd order polynomial fitting" << endl;
+  cout << "\t\tDEM size = " << NRows << " x " << NCols << endl;
+  int ndv_present = 0;
 
-	for(int i=0;i<NRows;++i)
-	{
-		cout << flush << "\tRow = " << i+1 << " / " << NRows << "    \r";
-		for(int j=0;j<NCols;++j)
-		{
-			// Avoid edges
-			if((i-kr < 0) || (i+kr+1 > NRows) || (j-kr < 0) || (j+kr+1 > NCols) || RasterData[i][j]==NoDataValue)
-			{
+  for(int i=0;i<NRows;++i)
+  {
+    cout << flush << "\tRow = " << i+1 << " / " << NRows << "    \r";
+    for(int j=0;j<NCols;++j)
+    {
+      // Avoid edges
+      if((i-kr < 0) || (i+kr+1 > NRows) || (j-kr < 0) || (j+kr+1 > NCols) || RasterData[i][j]==NoDataValue)
+      {
         pheta[i][j]=NoDataValue;
         phi[i][j]=NoDataValue;
-			}
-			else
-			{
-				// clip DEM
-				//zeta_sampler=zeta.copy();
-				for(int i_kernel=0;i_kernel<kw;++i_kernel)
-				{
-			  	for(int j_kernel=0;j_kernel<kw;++j_kernel)
-			  	{
-						data_kernel[i_kernel][j_kernel] =
-									RasterData[i-kr+i_kernel][j-kr+j_kernel];
-						// check for nodata values nearby
-						if(data_kernel[i_kernel][j_kernel]==NoDataValue)
-						{
-							ndv_present=1;
-						}
-			  	}
-				}
-				// Fit polynomial surface, avoiding nodata values          ==================> Could change this, as can fit polynomial surface as long as there are 6 data points.
-				if(ndv_present == 0)  // test for nodata values within the selection
-				{
-					Array1D<float> bb(6,0.0);
-					Array1D<float> coeffs(6);
-					for (int krow=0; krow<kw; ++krow)
-					{
-						for (int kcol=0; kcol<kw; ++kcol)
-						{
-							if (mask[krow][kcol] == 1)
+      }
+      else
+      {
+        // clip DEM
+        //zeta_sampler=zeta.copy();
+        for(int i_kernel=0;i_kernel<kw;++i_kernel)
+        {
+          for(int j_kernel=0;j_kernel<kw;++j_kernel)
+          {
+            data_kernel[i_kernel][j_kernel] =
+                  RasterData[i-kr+i_kernel][j-kr+j_kernel];
+            // check for nodata values nearby
+            if(data_kernel[i_kernel][j_kernel]==NoDataValue)
+            {
+              ndv_present=1;
+            }
+          }
+        }
+        // Fit polynomial surface, avoiding nodata values          ==================> Could change this, as can fit polynomial surface as long as there are 6 data points.
+        if(ndv_present == 0)  // test for nodata values within the selection
+        {
+          Array1D<float> bb(6,0.0);
+          Array1D<float> coeffs(6);
+          for (int krow=0; krow<kw; ++krow)
+          {
+            for (int kcol=0; kcol<kw; ++kcol)
+            {
+              if (mask[krow][kcol] == 1)
               {
                 x = x_kernel[krow][kcol];
-					      y = y_kernel[krow][kcol];
-					      zeta = data_kernel[krow][kcol];
-					      // Generate vector bb
-					      bb[0] += zeta*x*x;
-					      bb[1] += zeta*y*y;
-					      bb[2] += zeta*x*y;
-					      bb[3] += zeta*x;
-					      bb[4] += zeta*y;
-					      bb[5] += zeta;
-					    }		// end mask
-            }			// end kernal column
-					}				// end kernal row
-					// Solve matrix equations using LU decomposition using the TNT JAMA
-					// package:
+                y = y_kernel[krow][kcol];
+                zeta = data_kernel[krow][kcol];
+                // Generate vector bb
+                bb[0] += zeta*x*x;
+                bb[1] += zeta*y*y;
+                bb[2] += zeta*x*y;
+                bb[3] += zeta*x;
+                bb[4] += zeta*y;
+                bb[5] += zeta;
+              }    // end mask
+            }      // end kernal column
+          }        // end kernal row
+          // Solve matrix equations using LU decomposition using the TNT JAMA
+          // package:
           // A.coefs = b, where coefs is the coefficients vector.
-					LU<float> sol_A(A);  // Create LU object
-					coeffs = sol_A.solve(bb);
+          LU<float> sol_A(A);  // Create LU object
+          coeffs = sol_A.solve(bb);
 
-			  	//a=coeffs[0];
-			  	//b=coeffs[1];
-			  	//c=coeffs[2];
-			  	d=coeffs[3];
-			  	e=coeffs[4];
-			  	//f=coeffs[5];
-			  	
-			  	// COMPUTING SURFACE NORMAL in spherical polar coordinate (ignore
+          //a=coeffs[0];
+          //b=coeffs[1];
+          //c=coeffs[2];
+          d=coeffs[3];
+          e=coeffs[4];
+          //f=coeffs[5];
+          
+          // COMPUTING SURFACE NORMAL in spherical polar coordinate (ignore
           // radial component)
           pheta[i][j] = atan(sqrt(pow(d,2) + pow(e,2)));
           if(d==0 && e==0) phi[i][j] = NoDataValue;
-    			else if(d==0 && e>0) phi[i][j] = acos(-1)/2;
+          else if(d==0 && e>0) phi[i][j] = acos(-1)/2;
           else if(d==0 && e<0) phi[i][j] = 3*acos(-1)/2;
           else phi[i][j]=atan(e/d);
-				}					// end if statement for no data value
-				ndv_present = 0;
-			}
-		}
-	}
-	// 2) DETERMINE ORIENTATION MATRIX AT EACH POINT, AND THEN SOLVE FOR THE
+        }        // end if statement for no data value
+        ndv_present = 0;
+      }
+    }
+  }
+  // 2) DETERMINE ORIENTATION MATRIX AT EACH POINT, AND THEN SOLVE FOR THE
   // EIGENVALUES.
   // Prepare new kernel
   kr=ceil(window_radius2/DataResolution);      // Set radius of kernel as >= specified radius
@@ -3188,23 +3324,23 @@ vector<LSDRaster> LSDRaster::calculate_polyfit_roughness_metrics(float window_ra
   // Declare kernel arrays
   Array2D<float> pheta_kernel(kw,kw);
   Array2D<float> phi_kernel(kw,kw);
-	// Build circular mask
-	Array2D<int> mask2(kw,kw,0);
-	float x_kernel_ref,y_kernel_ref;
+  // Build circular mask
+  Array2D<int> mask2(kw,kw,0);
+  float x_kernel_ref,y_kernel_ref;
   for(int i=0;i<kw;++i)
   {
     for(int j=0;j<kw;++j)
     {
-  		x_kernel_ref=(i-kr)*DataResolution;
-     	y_kernel_ref=(j-kr)*DataResolution;
-     	radial_dist = sqrt(y_kernel_ref*y_kernel_ref + x_kernel_ref*x_kernel_ref); // distance from centre to this point.
-//      	if (floor(radial_dist) <= window_radius2)
-     	if (radial_dist <= window_radius2)
-     	{
+      x_kernel_ref=(i-kr)*DataResolution;
+      y_kernel_ref=(j-kr)*DataResolution;
+      radial_dist = sqrt(y_kernel_ref*y_kernel_ref + x_kernel_ref*x_kernel_ref); // distance from centre to this point.
+
+      if (radial_dist <= window_radius2)
+      {
         mask2[i][j] = 1;
-  		}
+      }
     }
-	}
+  }
   
   // Loop over DEM again, this time looking at variability of surface normals
   cout << "Finding eigenvalues for local surface. Search radius = " << kr << "m" << endl;
@@ -3232,15 +3368,15 @@ vector<LSDRaster> LSDRaster::calculate_polyfit_roughness_metrics(float window_ra
             pheta_kernel[i_kernel][j_kernel]=pheta[i-kr+i_kernel][j-kr+j_kernel];
             phi_kernel[i_kernel][j_kernel]=phi[i-kr+i_kernel][j-kr+j_kernel];
             // check for nodata values nearby
-						if(phi_kernel[i_kernel][j_kernel]==NoDataValue)
-						{
-							ndv_present=1;
-						}
+            if(phi_kernel[i_kernel][j_kernel]==NoDataValue)
+            {
+            	ndv_present=1;
+            }
           }
         }        
         int N=0;
         //         if(ndv_present == 0)  // test for nodata values within the selection
-// 				{
+
           for(int i_kernel=0;i_kernel<kw;++i_kernel)
           {
             for(int j_kernel=0;j_kernel<kw;++j_kernel)
@@ -3282,10 +3418,9 @@ vector<LSDRaster> LSDRaster::calculate_polyfit_roughness_metrics(float window_ra
       } 
     }
   }
-	
-	
-	// Now create LSDRasters and load into output vector
-	vector<LSDRaster> output_rasters_temp(3,VOID);
+  
+  // Now create LSDRasters and load into output vector
+  vector<LSDRaster> output_rasters_temp(3,VOID);
   vector<LSDRaster> raster_output = output_rasters_temp;
   if(raster_selection[0]==1)
   {
@@ -3681,42 +3816,40 @@ LSDRaster LSDRaster::calculate_polyfit_planform_curvature(Array2D<float>& a, Arr
                                                           Array2D<float>& c, Array2D<float>& d,
                                                           Array2D<float>& e)
 {
-	// create the new planform curvature raster
-	Array2D<float> pl_curvature_data(NRows,NCols,NoDataValue);
-  	float fx, fy, fxx, fyy, fxy, p, q;
+  // create the new planform curvature raster
+  Array2D<float> pl_curvature_data(NRows,NCols,NoDataValue);
+                            float fx, fy, fxx, fyy, fxy, p, q;
 
-	for (int row = 0; row<NRows; row++)
-	{
+  for (int row = 0; row<NRows; row++)
+  {
+    for(int col = 0; col<NCols; col++)
+    {
+      if (a[row][col] != NoDataValue)
+      {
+        fx = d[row][col];
+        fy = e[row][col];
+        fxx = 2*a[row][col];
+        fyy = 2*b[row][col];
+        fxy = c[row][col];
+        p = fx*fx + fy*fy;
+        q = p + 1;
 
-		for(int col = 0; col<NCols; col++)
-		{
-
-			if (a[row][col] != NoDataValue)
-			{
-				fx = d[row][col];
-			  	fy = e[row][col];
-			  	fxx = 2*a[row][col];
-			  	fyy = 2*b[row][col];
-			  	fxy = c[row][col];
-			  	p = fx*fx + fy*fy;
-			  	q = p + 1;
-
-			  	if (q > 0)
-			  	{
-					pl_curvature_data[row][col] = (fxx*fy*fy - 2*fxy*fx*fy + fyy*fx*fx)/(sqrt(q*q*q));
-				}
-				else
-				{
-					pl_curvature_data[row][col] = NoDataValue;
-				}
-			}
-		}
-	}
+        if (q > 0)
+        {
+          pl_curvature_data[row][col] = (fxx*fy*fy - 2*fxy*fx*fy + fyy*fx*fx)/(sqrt(q*q*q));
+        }
+        else
+        {
+          pl_curvature_data[row][col] = NoDataValue;
+        }
+      }
+    }
+  }
 
 
-	LSDRaster planform_curvature_raster(NRows,NCols,XMinimum,YMinimum,DataResolution,
-	                           NoDataValue,pl_curvature_data,GeoReferencingStrings);
-	return planform_curvature_raster;
+  LSDRaster planform_curvature_raster(NRows,NCols,XMinimum,YMinimum,DataResolution,
+                             NoDataValue,pl_curvature_data,GeoReferencingStrings);
+  return planform_curvature_raster;
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
@@ -8432,6 +8565,8 @@ LSDRaster LSDRaster::clip_to_smaller_raster(LSDRaster& smaller_raster)
   
   cout << "Small Xmin: " << SR_XMinimum << " YMin: " << SR_YMinimum << " Xmax: "
        << SR_XMaximum << " YMax: " << SR_YMaximum << endl;
+       
+  cout << "This data resolution: " << DataResolution << " and smaller raster data resolution: " << SR_DataR << endl;
   
   
   // find the col of old raster that has the same Xlocations as the XLL of smaller raster
@@ -8455,6 +8590,21 @@ LSDRaster LSDRaster::clip_to_smaller_raster(LSDRaster& smaller_raster)
   int YLL_row = NRows - int((SR_YMinimum-YMinimum+0.5*DataResolution)/DataResolution);
   int YUL_row = NRows - int((SR_YMaximum-YMinimum+0.5*DataResolution)/DataResolution);
   
+  // check on the lower row:
+  cout << "Checking lower left row." << endl;
+  cout << "integer subtraction: " << int((SR_YMinimum-YMinimum+0.5*DataResolution)/DataResolution) << endl;
+  cout << "float subtraction: " <<  (SR_YMinimum-YMinimum+0.5*DataResolution)/DataResolution << endl;
+  
+  // this catches a weird rounding error. 
+  double int_sub =  double(int((SR_YMinimum-YMinimum+0.5*DataResolution)/DataResolution));
+  double flt_sub =  (SR_YMinimum-YMinimum+0.5*DataResolution)/DataResolution;
+  
+  if ((flt_sub- int_sub) > 0.9975)
+  {
+    YUL_row = YUL_row+1;
+  }
+  
+  
   // check these rows
   if (YLL_row < 0)
   {
@@ -8465,7 +8615,7 @@ LSDRaster LSDRaster::clip_to_smaller_raster(LSDRaster& smaller_raster)
     YUL_row = NRows-1;
   }
   
-  cout << "Small XLLCol: " << XLL_col << " XLR_col: " << XUL_col << " XLLrow: "
+  cout << "Small XLLCol: " << XLL_col << " XLR_col: " << XUL_col << " YLLrow: "
        << YLL_row << " YUL_row: " << YUL_row << endl;
 
 
@@ -8516,6 +8666,25 @@ vector<float> LSDRaster::get_XY_MinMax()
   
   return XYMaxMin;
   
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= 
+// This function gets the raster data into a vector 
+// FJC 06/11/15 
+// 
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= 
+vector<float> LSDRaster::get_RasterData_vector() 
+{ 
+  vector<float> Raster_vector; 
+  for (int row = 0; row < NRows; row++) 
+  { 
+    for (int col = 0; col < NCols; col++) 
+    { 
+      Raster_vector.push_back(RasterData[row][col]); 
+    } 
+  } 
+	 	   
+  return Raster_vector; 
 }
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -8981,9 +9150,9 @@ LSDRaster LSDRaster::GaussianFilter(float sigma, int kr)
 //  geometric framework for channel network extraction from lidar: Nonlinear
 //  diffusion and geodesic paths, J. Geophys. Res., 115(F1), F01002,
 // doi:10.1029/2009JF001254.
-//  See also  Catté et al. (1992), Image Selective
+//  See also  Catte et al. (1992), Image Selective
 //  Smoothing and Edge Detection by Nonlinear Diffusion, SIAM J. Numer. Anal.,
-//  29(1), 182–193, doi:10.1137/0729012.
+//  29(1), 182-193, doi:10.1137/0729012.
 //
 //  David Milodowski, Feb 2015
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -9021,7 +9190,7 @@ LSDRaster LSDRaster::PeronaMalikFilter(int timesteps, float percentile_for_lambd
   cout << "lambda " << lambda << endl;
   // Now do the nonlinear filtering
   Array2D<float> Topography = get_RasterData();
-  LSDRaster PM_FilteredTopo(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,Topography.copy());
+  LSDRaster PM_FilteredTopo(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,Topography.copy(),GeoReferencingStrings);
   
   for(int t = 0; t<timesteps; ++t)
   {
@@ -10872,6 +11041,33 @@ LSDRaster LSDRaster::RemoveBelow(float Value){
 
 } 
 
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Simple method to remove any values above a user supplied value from an LSDRaster. 
+//
+// Value is a float of the threshold above which values will be removed.
+// SWDG 25/11/15
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+LSDRaster LSDRaster::RemoveAbove(float Value){
+
+  Array2D<float> Data = RasterData.copy();
+
+    for(int i = 1; i < NRows-1; ++i){
+      for(int j = 1; j < NCols-1; ++j){
+
+        if (Data[i][j] != NoDataValue && Data[i][j] > Value){
+
+          Data[i][j] = NoDataValue;
+
+        }
+      }
+    }
+
+  LSDRaster Removed(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,Data,GeoReferencingStrings);
+  return Removed;
+
+}
+
+
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // Apply a mask to an LSDRaster.  Mask designated by LSDIndexRaster containing 1
 // values for the pixels that need to be converted to nodata
@@ -10937,5 +11133,191 @@ LSDIndexRaster LSDRaster::get_potential_floodplain_patches(LSDRaster& Relief, LS
   LSDIndexRaster FloodplainRaster(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,FloodplainArray,GeoReferencingStrings);
   return FloodplainRaster;
 } 
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Function to set the threshold value to use in floodplain extraction
+// FJC 16/11/15
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+float LSDRaster::get_threshold_for_floodplain(float bin_width, float peak_threshold, int peak_distance)
+{
+  //get vector of raster data
+  vector<float> raster_vector; 
+  for (int row = 0; row < NRows; row++) 
+  { 
+    for (int col = 0; col < NCols; col++) 
+    { 
+      if(RasterData[row][col] >= 0) raster_vector.push_back(RasterData[row][col]); 
+    } 
+  }
+  
+  //get histogram of the raster values
+  vector<float> Midpoints;
+  vector<float> LLims;
+  vector<float> ULims;
+  vector<int> Count;
+  vector<float> ProbabilityDensity;
+  calculate_histogram(raster_vector, bin_width, Midpoints, LLims, ULims, Count, ProbabilityDensity);
+  
+  //get peaks from histogram
+  vector<int> peak_indices;
+  get_peak_indices(ProbabilityDensity, peak_threshold, peak_distance, peak_indices);
+  
+  //using second peak as the floodplain: get the midpoint of the bin with the peak
+  float threshold = Midpoints[peak_indices[1]];
+  cout << "Threshold value: " << threshold << endl;
+    
+  return threshold;  
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Function to set the threshold value to use in floodplain extraction using QQ plots
+// FJC 16/11/15
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+float LSDRaster::get_threshold_for_floodplain_QQ(string q_q_filename, float threshold_condition, int lower_percentile, int upper_percentile)
+{
+  //get vector of raster data
+  vector<float> raster_vector; 
+  for (int row = 0; row < NRows; row++) 
+  { 
+    for (int col = 0; col < NCols; col++) 
+    { 
+      if(RasterData[row][col] >= 0) raster_vector.push_back(RasterData[row][col]); 
+    } 
+  }
+  
+  vector<float> quantile_values,normal_variates,mn_values;
+  int N_points = 10000;//values.size();
+  quantile_quantile_analysis_defined_percentiles(raster_vector, quantile_values, normal_variates, mn_values, N_points, lower_percentile, upper_percentile);
+  ofstream ofs;
+  ofs.open(q_q_filename.c_str());
+  
+  if(ofs.fail())
+  {
+    cout << "\nFATAL ERROR: unable to write output_file" << endl;
+    exit(EXIT_FAILURE);
+  }
+  ofs << "normal_variate value\n";
+  int n_values = quantile_values.size();
+  for(int i = 0; i<n_values;++i)
+  {
+    ofs << normal_variates[i] << " " << quantile_values[i] << " " << mn_values[i] << "\n";
+  }
+  ofs.close();
+  
+  //get range of values - used to get the threshold value
+  float range = get_range_from_vector(quantile_values, NoDataValue);
+	cout << "Range: " << range << endl;
+    
+  // Find q-q threshold
+  cout << "\t finding deviation from Gaussian distribution to define q-q threshold" << endl;
+  int flag = 0;
+  float threshold=0;
+	float min_length=200;
+
+	for (int i =0; i < n_values; i++)
+  {
+    if (normal_variates[i] <= 0)
+    {
+			// get difference between real and normal distributions	
+    	float diff = abs(quantile_values[i] - mn_values[i]);
+			// express as fraction of the range of data
+			float frac_diff = diff/range;
+			if (frac_diff < threshold_condition)
+			{
+				// first time the condition is fulfilled
+				if (flag == 0)
+				{
+					flag = 1; 
+					int count = 0;
+					//search next points to check if they also fulfil the condition
+					for (int j = 1; j <= min_length; j++)
+					{
+						float next_diff = abs(quantile_values[i+j] - mn_values[i+j]);
+						float next_frac = next_diff/range;
+						if (next_frac < threshold_condition) count++;											
+					}
+					//cout << "Count is: " << count << endl;
+					if (count == min_length) 
+					{
+						threshold = quantile_values[i];
+						cout << "Quantile value at threshold: " << quantile_values[i] << " Normal variate: " <<  normal_variates[i] << endl;
+					}
+					else flag = 0;
+				}
+			}
+    }
+  }
+  
+  return threshold;
+}
+
+// Get the lengths in spatial units of each part of the channel network, divided by strahler order.
+// Returns a string containing the comma separated lengths
+// SWDG 17/1/16      
+string LSDRaster::ChannelLengthByOrder(LSDIndexRaster& StreamNetwork, Array2D<int> FlowDir){
+
+  //Declare all the variables needed in this method
+  float two_times_root2 = 2.828427;
+  vector<float> Lengths;
+  vector<float> SortedLengths;
+  vector<int> IDs;
+  vector<int> IDs_sorted;
+  vector<size_t> index_map;
+  int q = 0;
+  float length_sum = 0;
+  map <int,float> Order_Length; //structure to hold pairs of length values with a basin ID as a key
+
+  //Loop over every pixel and record it's stream length and order in two vectors
+  for (int i = 0; i < NRows; ++i){
+    for (int j = 0; j < NCols; ++j){
+
+      if (StreamNetwork.get_data_element(i,j) != NoDataValue){
+        if ((FlowDir[i][j] % 2) != 0 && (FlowDir[i][j] != -1 )){ //is odd but not -1
+          Lengths.push_back(DataResolution * two_times_root2); //diagonal
+          IDs.push_back(StreamNetwork.get_data_element(i,j));
+        }
+        else if (FlowDir[i][j] % 2 == 0){  //is even
+          Lengths.push_back(DataResolution); //cardinal
+          IDs.push_back(StreamNetwork.get_data_element(i,j));
+        }
+      }
+    }
+  }
+
+  //sort our two vectors based on the Basin IDs: has the effect of grouping each order together in 1D space
+  matlab_int_sort(IDs, IDs_sorted, index_map);
+  matlab_float_reorder(Lengths, index_map, SortedLengths);
+
+  // get the first order
+  int start_id = IDs_sorted[0];
+
+  while (q < int(IDs_sorted.size())){
+    if (start_id == IDs_sorted[q]){
+      length_sum += SortedLengths[q];
+      ++q;
+    }
+    else{
+      Order_Length[start_id]=(length_sum);   //record the total length the order as a key
+      length_sum = 0;
+      start_id = IDs_sorted[q];
+    }
+  }
+
+  // Process the final order once the loop is completed
+  Order_Length[start_id]=(length_sum);
+
+
+  // set up iterator to cycle through the map
+  map<int, float>::iterator it;
+
+  stringstream Output;
+
+  for (it = Order_Length.begin(); it != Order_Length.end(); it++){
+    Output << it->second << ",";
+  }
+
+  return Output.str();
+
+}
 
 #endif
