@@ -1,0 +1,15 @@
+DATADIR /home/s1143956/DTMDataStore/data/FR/fr_data/
+OUTPUTDIR /home/s1143956/DTMDataStore/data/FR/DivideMigration/ChiGradientMap_with_1_basins/
+
+DEMFILE fr_5m
+CHEADSFILE fr_CH_dreich_nodeindices_for_Arc
+DEM_ext flt
+BasinOrder 2
+MinSlope 0.0001
+A_0 1000
+m_ov_n 0.30
+number_of_mc_iterations 500
+TargetNodes 80
+MinSegLength 10
+Sigma 10.0
+Skip 0
