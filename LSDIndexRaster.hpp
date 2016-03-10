@@ -144,7 +144,7 @@ class LSDIndexRaster
   /// @author MDH
   /// @date 17/02/15
   LSDIndexRaster(LSDRaster& NonIntLSDRaster)   {create(NonIntLSDRaster); }
-  
+
   // Get functions
 
   /// @return Number of rows as an integer.
@@ -219,7 +219,7 @@ class LSDIndexRaster
   /// @return The raster value at the position (row, column).
   /// @author SMM
   /// @date 18/03/15
-  void set_data_element(int row, int column, int data) 
+  void set_data_element(int row, int column, int data)
                                    { RasterData[row][column] = data; }
 
   /// @brief this gets the x and y location of a node at row and column
@@ -231,12 +231,12 @@ class LSDIndexRaster
   /// @date 22/12/2014
   void get_x_and_y_locations(int row, int col, float& x_loc, float& y_loc);
 
-  /// @brief Method to flatten an LSDRaster to a text file, with a sigle value on each line. 
+  /// @brief Method to flatten an LSDRaster to a text file, with a sigle value on each line.
   /// @brief Method to flatten an LSDRaster and place the non NDV values in a csv file.
   /// @detail Each value is placed on its own line, so that it can be read more quickly in python etc.
   ///   It includes the x and y locations so it can be read by GIS software
-  /// @param FileName_prefix The prefix of the file to write, if no path is included it will write to the current directory. 
-  ///  The csv extension is added automatically. 
+  /// @param FileName_prefix The prefix of the file to write, if no path is included it will write to the current directory.
+  ///  The csv extension is added automatically.
   /// @author SMM
   /// @date 29/6/15
   void FlattenToCSV(string FileName);
@@ -244,26 +244,26 @@ class LSDIndexRaster
 
   /// @brief Checks to see if two rasters have the same dimensions
   /// @detail Does NOT check georeferencing
-  /// @param Compare_raster: the raster to compare 
+  /// @param Compare_raster: the raster to compare
   /// @author SMM
   /// @date 04/05/2015
   bool does_raster_have_same_dimensions(LSDRaster& Compare_raster);
 
   /// @brief Checks to see if two rasters have the same dimensions
   /// @detail Does NOT check georeferencing
-  /// @param Compare_raster: the raster to compare 
+  /// @param Compare_raster: the raster to compare
   /// @author SMM
   /// @date 04/05/2015
   bool does_raster_have_same_dimensions(LSDIndexRaster& Compare_raster);
 
   /// @brief Checks to see if two rasters have the same georeferencing
-  /// @param Compare_raster: the raster to compare 
+  /// @param Compare_raster: the raster to compare
   /// @author SMM
   /// @date 02/03/2015
   bool does_raster_have_same_dimensions_and_georeferencing(LSDRaster& Compare_raster);
 
   /// @brief Checks to see if two rasters have the same georeferencing
-  /// @param Compare_raster: the raster to compare 
+  /// @param Compare_raster: the raster to compare
   /// @author SMM
   /// @date 02/03/2015
   bool does_raster_have_same_dimensions_and_georeferencing(LSDIndexRaster& Compare_raster);
@@ -288,7 +288,7 @@ class LSDIndexRaster
   /// @brief Method which takes a new xmin and ymax value and modifys the GeoReferencingStrings
   /// map_info line to contain these new values.
   ///
-  /// @details Intended for use in the rastertrimmer methods and is called from within these methods. 
+  /// @details Intended for use in the rastertrimmer methods and is called from within these methods.
   /// Modifying georeferencing information by hand is messy and should be avoided if
   /// at all possible.
   /// @param NewXmin floating point value of the new minimum x value in the raster.
@@ -351,29 +351,29 @@ class LSDIndexRaster
   /// @author SWDG
   /// @date 02/9/13
   LSDIndexRaster LSDRasterTemplate(Array2D<int> InputData);
-  
-  /// @brief Method to resample an LSDIndexRaster to a lower resolution. 
+
+  /// @brief Method to resample an LSDIndexRaster to a lower resolution.
   /// @param OutputResolution the resolution in spatial units to be resampled to.
   /// @return An LSDIndexRaster resampled to the OutputResolution.
   /// @author SWDG
-  /// @date 17/3/14   
+  /// @date 17/3/14
   LSDIndexRaster Resample(float OutputResolution);
 
-  /// @brief Method to combine two rasters, ignoring nodata.  
+  /// @brief Method to combine two rasters, ignoring nodata.
   /// @param Network1 The first raster to be combined.
   /// @param Network2 The second raster to be combined.
   /// @return An LSDIndexRaster of the combined inputs.
   /// @author SWDG
   /// @date 17/6/14
   LSDIndexRaster CombineBinaryNetwork(LSDIndexRaster& Network1, LSDIndexRaster& Network2);
-    
-  /// @brief Method to merge a floodplain raster with a channel raster. 
+
+  /// @brief Method to merge a floodplain raster with a channel raster.
   ///
-  /// @details Creates an output LSDIndexRaster which is coded coded 
+  /// @details Creates an output LSDIndexRaster which is coded coded
   /// channel == input channel index, floodplain == 500, NDV == hillslopes.
   /// This allows the preservation of the stream order in addition to the floodplain geometry.
   /// @param FloodPlain an LSDIndexRaster of the floodplains coded with any integer value.
-  /// @return An LSDIndexRaster of the merged channels and floodplains.     
+  /// @return An LSDIndexRaster of the merged channels and floodplains.
   /// @author SWDG
   /// @date 05/03/15
   LSDIndexRaster MergeChannelWithFloodplain(LSDIndexRaster FloodPlain);
@@ -419,32 +419,32 @@ class LSDIndexRaster
   /// @author SWDG
   /// @date 24/07/2015
   LSDIndexRaster ConvertToBinary(int Value, int ndv);
-  
+
   /// @brief Method to remove patches generated by the connected components analysis that are
   /// smaller than a user defined threshold.
   /// @param minimum_segment_size Size in pixels below which a patch should be removed.
   /// @author SWDG
-  /// @date 17/9/15 
+  /// @date 17/9/15
   LSDIndexRaster RemoveSmallPatches(int minimum_segment_size);
-  
+
   /// @brief Method to remove small holes in patches from a binary raster.
   /// @param window_radius radius over which to search to remove holes (size of hole)
   /// @author FJC
   /// @date 22/10/15
   LSDIndexRaster remove_holes_in_patches(int window_radius);
-  
+
   /// @brief Method to remove small holes in patches from a connected components raster. Holes
   /// will only be filled if surrounded by pixels with the same CC value.
   /// @param window_radius radius over which to search to remove holes (size of hole)
   /// @author FJC
   /// @date 20/01/16
-  LSDIndexRaster remove_holes_in_patches_connected_components(int window_radius); 
-  
+  LSDIndexRaster remove_holes_in_patches_connected_components(int window_radius);
+
   /// @brief Method to fill in checkerboard pattern from a binary raster.
   /// @author FJC
   /// @date 30/10/15
   LSDIndexRaster remove_checkerboard_pattern();
-  
+
   protected:
   ///Number of rows.
   int NRows;
@@ -472,9 +472,9 @@ class LSDIndexRaster
   void create(int ncols, int nrows, float xmin, float ymin,
               float cellsize, int ndv, Array2D<int> data);
   void create(int ncols, int nrows, float xmin, float ymin,
-              float cellsize, int ndv, Array2D<int> data, 
+              float cellsize, int ndv, Array2D<int> data,
               map<string,string> GRS_map);
-  void create(LSDRaster& NonIntLSDRaster);            
+  void create(LSDRaster& NonIntLSDRaster);
 
 };
 
