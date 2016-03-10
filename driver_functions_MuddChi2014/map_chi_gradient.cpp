@@ -137,8 +137,23 @@ int main (int nNumberofArgs,char *argv[])
 
   cout << "\t Loading Sources..." << endl;
   // load the sources
-  vector<int> sources = FlowInfo.Ingest_Channel_Heads((DATA_DIR+CHeads_file), "csv",2);;
-  cout << "\t Got sources!" << endl;
+  vector<int> sources;
+  if (CHeads_file == "NULL" || CHeads_file == "Null" || CHeads_file != "null")
+  {
+      cout << endl << endl << endl << "==================================" << endl;
+	  cout << "The channel head file is null. Getting sources from a deafault threshold of 10 pixels." <<endl;
+	  cout << "If you want to change the threshold you need to go into map_chi_gradient.cpp," << endl;
+	  cout << "and change it. Search for LeighGriffiths in the source code, the threshold is two lines below that." << endl;
+	  LSDIndexRaster FlowAcc = FlowInfo.write_NContributingNodes_to_LSDIndexRaster();
+	  int threshold = 10;
+	  sources = FlowInfo.get_sources_index_threshold(FlowAcc, threshold);
+  }
+  else
+  {
+    cout << "Loading channel heads from the file: " << DATA_DIR+CHeads_file << endl;
+    sources = FlowInfo.Ingest_Channel_Heads((DATA_DIR+CHeads_file), "csv",2);
+    cout << "\t Got sources!" << endl;
+  }
 
   // now get the junction network
   LSDJunctionNetwork JunctionNetwork(sources, FlowInfo);
