@@ -24,7 +24,6 @@
 #include "../LSDStatsTools.hpp"
 #include "../LSDChiNetwork.hpp"
 #include "../LSDRaster.hpp"
-#include "../LSDRasterSpectral.hpp"
 #include "../LSDIndexRaster.hpp"
 #include "../LSDFlowInfo.hpp"
 #include "../LSDJunctionNetwork.hpp"
