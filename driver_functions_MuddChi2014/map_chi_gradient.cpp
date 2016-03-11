@@ -51,7 +51,7 @@ int main (int nNumberofArgs,char *argv[])
   file_info_in.open(full_name.c_str());
   if( file_info_in.fail() )
   {
-    cout << "\nFATAL ERROR: the header file \"" << full_name
+    cout << "\nFATAL ERROR: The parameter \"" << full_name
          << "\" doesn't exist" << endl;
     exit(EXIT_FAILURE);
   }
@@ -94,6 +94,10 @@ int main (int nNumberofArgs,char *argv[])
   file_info_in.close();
 
   cout << "PARAMETERS FOR SENSITIVITY ANALYSIS\n\t DEM_ID = " << DEM_ID
+               << "\n\t DATA_DIR " << DATA_DIR
+               << "\n\t OUTPUT_DIR " << OUTPUT_DIR
+               << "\n\t CHeads_file " << CHeads_file
+               << "\n\t raster_ext " << raster_ext
                << "\n\t Basin Stream Order " << minimum_stream_order
                << "\n\t Minimum Slope (for fill function) " << Minimum_Slope
                << "\n\t A_0 " <<  A_0
@@ -102,12 +106,14 @@ int main (int nNumberofArgs,char *argv[])
                << "\n\t min segment length: " <<  minimum_segment_length
                << "\n\t target nodes: " <<  target_nodes
                << "\n\t sigma: " <<  sigma
-               << "\n\t Skip: " <<  skip;
+               << "\n\t Skip: " <<  skip << endl << endl;
 
   // Additional parameters for chi analysis
   int organization_switch = 1;
   int pruning_switch = 3;
   float pruning_threshold;// = target_stream_order - 1;
+  
+  cout << "Setting boundary conditions" << endl;
 
   // set no flux boundary conditions
   vector<string> boundary_conditions(4);
@@ -117,8 +123,10 @@ int main (int nNumberofArgs,char *argv[])
   boundary_conditions[3] = "No flux";
 
   // load the  DEM
-  LSDRaster topography_raster((DATA_DIR+DEM_ID+dem_ext), raster_ext);
-
+  LSDRaster topography_raster((DATA_DIR+DEM_ID), raster_ext);
+  cout << "Got the dem: " <<  DATA_DIR+DEM_ID << endl;
+  
+  
   int NRows = topography_raster.get_NRows();
   int NCols = topography_raster.get_NCols();
   float NoData = topography_raster.get_NoDataValue();
@@ -126,6 +134,7 @@ int main (int nNumberofArgs,char *argv[])
   float YMin = topography_raster.get_YMinimum();
   float Resolution = topography_raster.get_DataResolution();
 
+  cout << "Filling topography." << endl;
   LSDRaster filled_topography = topography_raster.fill(Minimum_Slope);
   cout << "\t Flow routing..." << endl;
 	// get a flow info object
@@ -144,7 +153,7 @@ int main (int nNumberofArgs,char *argv[])
 	  cout << "If you want to change the threshold you need to go into map_chi_gradient.cpp," << endl;
 	  cout << "and change it. Search for LeighGriffiths in the source code, the threshold is two lines below that." << endl;
 	  LSDIndexRaster FlowAcc = FlowInfo.write_NContributingNodes_to_LSDIndexRaster();
-	  int threshold = 10;
+	  int threshold = 50;
 	  sources = FlowInfo.get_sources_index_threshold(FlowAcc, threshold);
   }
   else
