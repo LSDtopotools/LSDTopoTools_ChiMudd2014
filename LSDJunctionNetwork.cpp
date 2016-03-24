@@ -848,6 +848,35 @@ int LSDJunctionNetwork::get_maximum_stream_order()
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// this function returns the number of streams of a given stream order
+//
+// FJC 15/03/16
+//
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+int LSDJunctionNetwork::get_number_of_streams(LSDFlowInfo& FlowInfo, int stream_order)
+{
+	int count = 0;
+	for (int CurrentJN = 0; CurrentJN<NJunctions; ++CurrentJN)
+	{
+		int CurrentSO = get_StreamOrder_of_Junction(FlowInfo, CurrentJN);
+		int ReceiverJN = get_Receiver_of_Junction(CurrentJN);
+		if (CurrentSO == stream_order && CurrentJN != ReceiverJN)
+		{
+			int ReceiverSO = get_StreamOrder_of_Junction(FlowInfo, ReceiverJN);
+		  //check that you have increased SO downstream
+			if (ReceiverSO > CurrentSO)
+			{
+				//reached end of stream segment, count
+				count++;		
+			}
+		}
+	}
+	return count;
+}
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // this function gets the junction index of a node.  If there is not a junction at this node
@@ -4446,27 +4475,39 @@ bool LSDJunctionNetwork::node_tester(LSDFlowInfo& FlowInfo, int input_junction)
       
   //get reciever junction of the input junction
   int receiver_junc = ReceiverVector[input_junction];
-      
-  // Create channel segement from input junction down to receiver junction 
-  LSDIndexChannel StreamLinkVector = LSDIndexChannel(input_junction, JunctionVector[input_junction],
+  
+  // This is the node where I will check all the upstream nodes 
+  int basin_outlet;
+  
+  
+  // Now see if it is the reciever junction
+  if(input_junction == receiver_junc)
+  {
+    basin_outlet = JunctionVector[input_junction];
+  }
+  else   // this is a bit more complux but saves masses of computational time
+  {
+    //cout << "input junction:" << input_junction << " and reciever junction " << receiver_junc << endl;
+    // Create channel segement from input junction down to receiver junction 
+    LSDIndexChannel StreamLinkVector = LSDIndexChannel(input_junction, JunctionVector[input_junction],
                                                      receiver_junc, JunctionVector[receiver_junc], FlowInfo);
                 
-  // Get the number of nodes (DEM Cells) that make up the channel segment
-  int n_nodes_in_channel = StreamLinkVector.get_n_nodes_in_channel();
+    // Get the number of nodes (DEM Cells) that make up the channel segment
+    int n_nodes_in_channel = StreamLinkVector.get_n_nodes_in_channel();
        
-  // get the penultimate node in the channel. Eg one pixel upstream from the outlet node of a basin.
-  // -2 is used due to zero indexing.
-  int basin_outlet;
-//   if(n_nodes_in_channel == 1) basin_outlet = StreamLinkVector.get_node_in_channel(0); // test for 1 pixel tributary
-//   else basin_outlet = StreamLinkVector.get_node_in_channel(n_nodes_in_channel-2);     
-  basin_outlet = StreamLinkVector.get_node_in_channel(n_nodes_in_channel-2);     
+    // get the penultimate node in the channel. Eg one pixel upstream from the outlet node of a basin.
+    // -2 is used due to zero indexing.
+    //   if(n_nodes_in_channel == 1) basin_outlet = StreamLinkVector.get_node_in_channel(0); // test for 1 pixel tributary
+    //   else basin_outlet = StreamLinkVector.get_node_in_channel(n_nodes_in_channel-2);     
+    basin_outlet = StreamLinkVector.get_node_in_channel(n_nodes_in_channel-2);
+  }    
 
   //Get all cells upslope of a junction - eg every cell of the drainage basin of interest
   vector<int> upslope_nodes = FlowInfo.get_upslope_nodes(basin_outlet);
 
   //loop over each cell in the basin and test for No Data values
-  for(vector<int>::iterator it = upslope_nodes.begin(); it != upslope_nodes.end(); ++it){
-
+  for(vector<int>::iterator it = upslope_nodes.begin(); it != upslope_nodes.end(); ++it)
+  {
     int i;
     int j;
     FlowInfo.retrieve_current_row_and_col(*it,i,j);
@@ -4771,6 +4812,44 @@ int LSDJunctionNetwork::find_upstream_junction_from_channel_nodeindex(int Channe
   }
 
   return UpstreamJunction;
+}
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// 
+// This function checks the upslope nodes of a junction to test if any of them
+// are the same stream order as the junction
+// FJC and MAH 18/03/16
+//
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+int LSDJunctionNetwork::check_stream_order_of_upstream_nodes(int junction, LSDFlowInfo& FlowInfo)
+{
+  int same_SO = 0;
+  //get the node of the current junction
+  int CurrentNode = get_Node_of_Junction(junction);
+  int CurrentRow, CurrentCol, UpstreamRow, UpstreamCol;
+  // get the current row and column
+  FlowInfo.retrieve_current_row_and_col(CurrentNode,CurrentRow,CurrentCol);
+  
+  // get the stream order
+  int CurrentSO = StreamOrderArray[CurrentRow][CurrentCol];
+	//cout << "Current SO: " << CurrentSO << endl;
+  
+  //loop through all the donor nodes and check the stream order
+  vector<int> donors = FlowInfo.get_donor_nodes(CurrentNode);
+  for(int i = 0; i < int(donors.size()); i++)
+  {
+    // get the upstream row and column
+    FlowInfo.retrieve_current_row_and_col(donors[i],UpstreamRow,UpstreamCol);        
+    // get the stream order
+    int UpstreamSO = StreamOrderArray[UpstreamRow][UpstreamCol];
+		//cout << "Upstream stream order: " << UpstreamSO << endl;
+    if(UpstreamSO == CurrentSO)
+    {
+      same_SO = 1;
+    }   
+  }  
+  return same_SO;  
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

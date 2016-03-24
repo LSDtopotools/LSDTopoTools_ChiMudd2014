@@ -136,9 +136,14 @@ int main (int nNumberofArgs,char *argv[])
 
   cout << "Filling topography." << endl;
   LSDRaster filled_topography = topography_raster.fill(Minimum_Slope);
+  
+  string filled_raster_name = DATA_DIR+DEM_ID+"_Fill";
+  
+  //filled_topography.write_raster(filled_raster_name,raster_ext);
+  
   cout << "\t Flow routing..." << endl;
-	// get a flow info object
- 	LSDFlowInfo FlowInfo(boundary_conditions,filled_topography);
+  // get a flow info object
+  LSDFlowInfo FlowInfo(boundary_conditions,filled_topography);
 
   // calcualte the distance from outlet
   LSDRaster DistanceFromOutlet = FlowInfo.distance_from_outlet();
@@ -149,12 +154,15 @@ int main (int nNumberofArgs,char *argv[])
   if (CHeads_file == "NULL" || CHeads_file == "Null" || CHeads_file != "null")
   {
       cout << endl << endl << endl << "==================================" << endl;
-	  cout << "The channel head file is null. Getting sources from a deafault threshold of 10 pixels." <<endl;
-	  cout << "If you want to change the threshold you need to go into map_chi_gradient.cpp," << endl;
-	  cout << "and change it. Search for LeighGriffiths in the source code, the threshold is two lines below that." << endl;
-	  LSDIndexRaster FlowAcc = FlowInfo.write_NContributingNodes_to_LSDIndexRaster();
-	  int threshold = 50;
-	  sources = FlowInfo.get_sources_index_threshold(FlowAcc, threshold);
+    cout << "The channel head file is null. Getting sources from a deafault threshold of 50 pixels." <<endl;
+    cout << "If you want to change the threshold you need to go into map_chi_gradient.cpp," << endl;
+    cout << "and change it. Search for LeighGriffiths in the source code, the threshold is two lines below that." << endl;
+    LSDIndexRaster FlowAcc = FlowInfo.write_NContributingNodes_to_LSDIndexRaster();
+    int threshold = 50;
+    sources = FlowInfo.get_sources_index_threshold(FlowAcc, threshold);
+    
+    cout << "The number of sources is: " << sources.size() << endl;
+    
   }
   else
   {
@@ -174,32 +182,53 @@ int main (int nNumberofArgs,char *argv[])
   JIArray.write_raster((OUTPUT_DIR+DEM_ID+JI_ext),raster_ext);
   int max_stream_order = JunctionNetwork.get_maximum_stream_order();
   Array2D<float> ChiGradientArray(NRows,NCols,NoData);
+  
+  cout << "The maximum stream order is: " << max_stream_order << endl;
 
   // need to get base-level nodes , otherwise these catchments will be missed!
   vector< int > BaseLevelJunctions_Initial = JunctionNetwork.get_BaseLevel_DonorJunctions();
   vector< int > BaseLevelJunctions;
   int N_BaseLevelJuncs = BaseLevelJunctions_Initial.size();
+  cout << "The number of base level junctions is: " << N_BaseLevelJuncs << endl; 
   // remove base level junctions for which catchment is truncated
   for(int i = 0; i < N_BaseLevelJuncs; ++i)
   {
+    //cout << "I'm checking node " << i << " to see if it is truncated." << endl;
+    bool keep_base_level_node = true;
+    
     // get donor nodes to base level nodes node
     vector<int> DonorJunctions = JunctionNetwork.get_donor_nodes(BaseLevelJunctions_Initial[i]);
     int N_Donors = DonorJunctions.size();
-    // check to see if either donor nodes are truncated - basically want to keep
-    // basins that flow onto edge of DEM
-    bool keep_base_level_node = true;
-    for(int i_donor = 0; i_donor < N_Donors; ++ i_donor)
+    //cout << "It has " << N_Donors << " donor junctions." << endl;
+    
+    if (N_Donors == 1)    // this is a tiny base level node with no donors, we won't keep it. 
     {
-      bool IsTruncated = JunctionNetwork.node_tester(FlowInfo,DonorJunctions[i_donor]);
-      if(IsTruncated == true)
+      //cout << "This is a base level junction! Junction is: " << BaseLevelJunctions_Initial[i] << endl
+      //     << "and donor is: " << DonorJunctions[0] << endl;
+      keep_base_level_node = false; 
+    }
+    else
+    {
+      // check to see if either donor nodes are truncated - basically want to keep
+      // basins that flow onto edge of DEM
+      
+      for(int i_donor = 0; i_donor < N_Donors; ++ i_donor)
       {
-        keep_base_level_node = false;
+        bool IsTruncated = JunctionNetwork.node_tester(FlowInfo,DonorJunctions[i_donor]);
+        if(IsTruncated == true)
+        {
+          keep_base_level_node = false;
+        }
       }
     }
     if(keep_base_level_node == true) BaseLevelJunctions.push_back(BaseLevelJunctions_Initial[i]);
   }
   // Correct number of base level junctions
   N_BaseLevelJuncs = BaseLevelJunctions.size();
+  cout << "I had removed the channels that are drainaing from the edge of the DEM." << endl;
+  cout << "I now have " << N_BaseLevelJuncs << " base level junctions" << endl;
+  
+  
   for(int target_stream_order_this_iter = minimum_stream_order; target_stream_order_this_iter<=max_stream_order; ++target_stream_order_this_iter)
   {
     pruning_threshold = target_stream_order_this_iter - 1;

@@ -150,6 +150,14 @@ class LSDJunctionNetwork
   /// @author SMM
   /// @date 01/09/12
   int get_maximum_stream_order();
+	
+	/// @brief This function returns the number of streams of a given stream order
+	/// @param FlowInfo LSDFlowInfo object
+	/// @param stream_order Stream order of interest
+  /// @return integer with number of streams.
+  /// @author FJC
+  /// @date 15/03/16
+	int get_number_of_streams(LSDFlowInfo& FlowInfo, int stream_order);
   
   /// @brief This gets the junction number of a given node.
   /// @param Node
@@ -925,6 +933,16 @@ vector<int> GetChannelHeadsChiMethodFromValleys(vector<int> ValleyNodes,
   /// @author SMM
   /// @date 21/10/2013
   int find_upstream_junction_from_channel_nodeindex(int ChannelNodeIndex, LSDFlowInfo& FlowInfo);
+	
+	/// @brief This function checks whether any of the upstream nodes of a given junction are the same
+  /// steam order as the junction itself. It returns an integer value which is 1 if the SO is the same 
+  /// and 0 if it is not the same.
+  /// @param junction junction of interest
+  /// @param FlowInfo LSDFlowInfo object.
+  /// @return integer value 0 or 1
+  /// @author FJC and MAH
+  /// @date 18/03/16  
+  int check_stream_order_of_upstream_nodes(int junction, LSDFlowInfo& FlowInfo);
 
   /// @brief this function is a wrapper that takes a list of x and y locations, 
   ///  filters them to make sure they are in the data bounds, 
