@@ -93,7 +93,7 @@ int main (int nNumberofArgs,char *argv[])
 
   file_info_in.close();
 
-  cout << "PARAMETERS FOR SENSITIVITY ANALYSIS\n\t DEM_ID = " << DEM_ID
+  cout << "PARAMETERS FOR Chi mapping\n\t DEM_ID = " << DEM_ID
                << "\n\t DATA_DIR " << DATA_DIR
                << "\n\t OUTPUT_DIR " << OUTPUT_DIR
                << "\n\t CHeads_file " << CHeads_file
@@ -121,6 +121,9 @@ int main (int nNumberofArgs,char *argv[])
   boundary_conditions[1] = "no flux";
   boundary_conditions[2] = "no flux";
   boundary_conditions[3] = "No flux";
+  
+  // check the DEM
+  cout << "I am checking to make sure the DEM exists." << endl;
 
   // load the  DEM
   LSDRaster topography_raster((DATA_DIR+DEM_ID), raster_ext);
