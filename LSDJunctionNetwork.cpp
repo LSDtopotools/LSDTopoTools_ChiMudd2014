@@ -4919,6 +4919,12 @@ void LSDJunctionNetwork::snap_point_locations_to_channels(vector<float> x_locs,
       //cout << "channel node index is: " << this_chan_node << " and receiver_junc is: " 
       //     << this_junc << endl;
     }
+    else
+    {
+      cout << "WARNING LSDJunctionNetwork::snap_point_locations_to_channels." << endl;
+      cout << "This point at location: " << x_loc << " " << y_loc << endl 
+           << "does not seem to be in the raster!" << endl;
+    }                                                   
   }
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

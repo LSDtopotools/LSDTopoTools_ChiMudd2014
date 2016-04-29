@@ -29,6 +29,7 @@
 #include "../LSDJunctionNetwork.hpp"
 #include "../LSDIndexChannelTree.hpp"
 #include "../LSDBasin.hpp"
+#include "../LSDShapeTools.hpp"
 
 
 int main (int nNumberofArgs,char *argv[])
@@ -75,6 +76,8 @@ int main (int nNumberofArgs,char *argv[])
   float sigma;
   int target_nodes;
   int skip;
+  int threshold_pixels_for_chi;
+  bool test_drainage_boundaries = true;
 
   file_info_in >> temp >> DATA_DIR
                >> temp >> OUTPUT_DIR
@@ -89,7 +92,9 @@ int main (int nNumberofArgs,char *argv[])
                >> temp >> target_nodes
                >> temp >> minimum_segment_length
                >> temp >> sigma
-               >> temp >> skip;
+               >> temp >> skip
+               >> temp >> threshold_pixels_for_chi
+               >> temp >> test_drainage_boundaries;
 
   file_info_in.close();
 
@@ -106,7 +111,10 @@ int main (int nNumberofArgs,char *argv[])
                << "\n\t min segment length: " <<  minimum_segment_length
                << "\n\t target nodes: " <<  target_nodes
                << "\n\t sigma: " <<  sigma
-               << "\n\t Skip: " <<  skip << endl << endl;
+               << "\n\t Skip: " <<  skip 
+               << "\n\t threshold_pixels_for_chi: " << threshold_pixels_for_chi 
+               << "\n\t test_drainage_boundaries: " << test_drainage_boundaries 
+               << endl << endl;
 
   // Additional parameters for chi analysis
   int organization_switch = 1;
@@ -136,6 +144,7 @@ int main (int nNumberofArgs,char *argv[])
   float XMin =topography_raster.get_XMinimum();
   float YMin = topography_raster.get_YMinimum();
   float Resolution = topography_raster.get_DataResolution();
+  map<string,string> GRS = topography_raster.get_GeoReferencingStrings();
 
   cout << "Filling topography." << endl;
   LSDRaster filled_topography = topography_raster.fill(Minimum_Slope);
@@ -161,8 +170,7 @@ int main (int nNumberofArgs,char *argv[])
     cout << "If you want to change the threshold you need to go into map_chi_gradient.cpp," << endl;
     cout << "and change it. Search for LeighGriffiths in the source code, the threshold is two lines below that." << endl;
     LSDIndexRaster FlowAcc = FlowInfo.write_NContributingNodes_to_LSDIndexRaster();
-    int threshold = 50;
-    sources = FlowInfo.get_sources_index_threshold(FlowAcc, threshold);
+    sources = FlowInfo.get_sources_index_threshold(FlowAcc, threshold_pixels_for_chi);
     
     cout << "The number of sources is: " << sources.size() << endl;
     
@@ -193,44 +201,75 @@ int main (int nNumberofArgs,char *argv[])
   vector< int > BaseLevelJunctions;
   int N_BaseLevelJuncs = BaseLevelJunctions_Initial.size();
   cout << "The number of base level junctions is: " << N_BaseLevelJuncs << endl; 
+  
+  
   // remove base level junctions for which catchment is truncated
-  for(int i = 0; i < N_BaseLevelJuncs; ++i)
+  if (test_drainage_boundaries)
   {
-    //cout << "I'm checking node " << i << " to see if it is truncated." << endl;
-    bool keep_base_level_node = true;
-    
-    // get donor nodes to base level nodes node
-    vector<int> DonorJunctions = JunctionNetwork.get_donor_nodes(BaseLevelJunctions_Initial[i]);
-    int N_Donors = DonorJunctions.size();
-    //cout << "It has " << N_Donors << " donor junctions." << endl;
-    
-    if (N_Donors == 1)    // this is a tiny base level node with no donors, we won't keep it. 
+    cout << endl << endl << "I am going to remove any basins draining to the edge." << endl;
+  
+    for(int i = 0; i < N_BaseLevelJuncs; ++i)
     {
-      //cout << "This is a base level junction! Junction is: " << BaseLevelJunctions_Initial[i] << endl
-      //     << "and donor is: " << DonorJunctions[0] << endl;
-      keep_base_level_node = false; 
-    }
-    else
-    {
-      // check to see if either donor nodes are truncated - basically want to keep
-      // basins that flow onto edge of DEM
+      //cout << "I'm checking node " << i << " to see if it is truncated." << endl;
+      bool keep_base_level_node = true;
       
-      for(int i_donor = 0; i_donor < N_Donors; ++ i_donor)
+      // get donor nodes to base level nodes node
+      vector<int> DonorJunctions = JunctionNetwork.get_donor_nodes(BaseLevelJunctions_Initial[i]);
+      int N_Donors = DonorJunctions.size();
+      //cout << "It has " << N_Donors << " donor junctions." << endl;
+      
+      if (N_Donors == 1)    // this is a tiny base level node with no donors, we won't keep it. 
       {
-        bool IsTruncated = JunctionNetwork.node_tester(FlowInfo,DonorJunctions[i_donor]);
-        if(IsTruncated == true)
+        //cout << "This is a base level junction! Junction is: " << BaseLevelJunctions_Initial[i] << endl
+        //     << "and donor is: " << DonorJunctions[0] << endl;
+        keep_base_level_node = false; 
+      }
+      else
+      {
+        // check to see if either donor nodes are truncated - basically want to keep
+        // basins that flow onto edge of DEM
+        
+        for(int i_donor = 0; i_donor < N_Donors; ++ i_donor)
         {
-          keep_base_level_node = false;
+          bool IsTruncated = JunctionNetwork.node_tester(FlowInfo,DonorJunctions[i_donor]);
+          if(IsTruncated == true)
+          {
+            keep_base_level_node = false;
+          }
         }
       }
+      if(keep_base_level_node == true) BaseLevelJunctions.push_back(BaseLevelJunctions_Initial[i]);
     }
-    if(keep_base_level_node == true) BaseLevelJunctions.push_back(BaseLevelJunctions_Initial[i]);
+    
+    cout << "I have removed the channels that are draining from the edge of the DEM." << endl;
+    cout << "I now have " << N_BaseLevelJuncs << " base level junctions" << endl;
   }
+  else
+  {
+    BaseLevelJunctions =BaseLevelJunctions_Initial;
+  }
+  
   // Correct number of base level junctions
   N_BaseLevelJuncs = BaseLevelJunctions.size();
-  cout << "I had removed the channels that are drainaing from the edge of the DEM." << endl;
-  cout << "I now have " << N_BaseLevelJuncs << " base level junctions" << endl;
+
+  // calculate chi for the entire DEM
+  float threshold_area_for_chi = Resolution*Resolution*float(threshold_pixels_for_chi);
+  LSDRaster chi_coordinate = FlowInfo.get_upslope_chi_from_all_baselevel_nodes(movern,A_0,threshold_area_for_chi);
   
+  string chi_coord_string = OUTPUT_DIR+DEM_ID+"chi_coord";
+  chi_coordinate.write_raster(chi_coord_string,raster_ext);
+
+  string csv_fname = OUTPUT_DIR+DEM_ID+"_FullChi_tree.csv";
+  ofstream chitree_out;
+  
+  // the precision needs to be high for the lat long and UTM coordinates to acutally
+  // give a reasonable number of significant digits. 
+  chitree_out.precision(12);
+  chitree_out.open(csv_fname.c_str());
+  chitree_out << "id,x,y,lat,long,chi,mean_chi_gradient" << endl;
+  
+    // initilise the converter
+  LSDCoordinateConverterLLandUTM Converter;
   
   for(int target_stream_order_this_iter = minimum_stream_order; target_stream_order_this_iter<=max_stream_order; ++target_stream_order_this_iter)
   {
@@ -305,7 +344,7 @@ int main (int nNumberofArgs,char *argv[])
 
       int N_channels = NetworkNodes.size();
       vector<float> ChannelChiGradient;
-
+      
       for(int i_channel = 0; i_channel < N_channels; ++i_channel)
       {
         int N_nodes = NetworkNodes[i_channel].size();
@@ -317,10 +356,22 @@ int main (int nNumberofArgs,char *argv[])
           {
             ChiGradientArray[row][col]=NetworkChiGradients[i_channel][i_node];
             ChannelChiGradient.push_back(NetworkChiGradients[i_channel][i_node]);
+            
+            float x_loc, y_loc; 
+            double lat,longitude;
+            chi_coordinate.get_x_and_y_locations(row, col, x_loc, y_loc);
+            chi_coordinate.get_lat_and_long_locations(row, col, lat, longitude, Converter);
+            
+            // now print to the csv file
+            chitree_out << NetworkNodes[i_channel][i_node] << "," <<  x_loc << "," << y_loc << ","
+                        << lat << "," << longitude << "," << chi_coordinate.get_data_element(row,col) << "," 
+                        << NetworkChiGradients[i_channel][i_node] << endl;
+
           }
         }
       }
       MeanChiGradient.push_back(get_mean(ChannelChiGradient));
+
     }
     // Now write output rasters - a raster of the outlet junction number for the catchment, and a raster of the mean chi gradient for that catchment
     Array2D<float> BasinAverageChiGradients(NRows,NCols,NoData);
@@ -343,13 +394,18 @@ int main (int nNumberofArgs,char *argv[])
     string output_ext_1 = "_" + stream_order_string + "_basin_steepness";
     string output_ext_2 = "_" + stream_order_string + "_basin_ID";
 
-    LSDRaster BasinChiGradients(NRows,NCols,XMin,YMin,Resolution,NoData,BasinAverageChiGradients);
-    LSDIndexRaster BasinJunctions(NRows,NCols,XMin,YMin,Resolution,NoData,BasinJunctionNumbers);
+    LSDRaster BasinChiGradients(NRows,NCols,XMin,YMin,Resolution,NoData,BasinAverageChiGradients, GRS);
+    LSDIndexRaster BasinJunctions(NRows,NCols,XMin,YMin,Resolution,NoData,BasinJunctionNumbers, GRS);
     BasinChiGradients.write_raster((OUTPUT_DIR+DEM_ID+output_ext_1),raster_ext);
     BasinJunctions.write_raster((OUTPUT_DIR+DEM_ID+output_ext_2),raster_ext);
+    
+    cout << "Done with stream order: " << target_stream_order_this_iter << endl;
+    
   }
   string output_ext_3 = "_chi_gradient";
-  LSDRaster BasinChiGradients(NRows,NCols,XMin,YMin,Resolution,NoData,ChiGradientArray);
-  BasinChiGradients.write_raster((OUTPUT_DIR+DEM_ID+output_ext_3),raster_ext);
+  LSDRaster ChiGradients(NRows,NCols,XMin,YMin,Resolution,NoData,ChiGradientArray,GRS);
+  ChiGradients.write_raster((OUTPUT_DIR+DEM_ID+output_ext_3),raster_ext);
+  
+  chitree_out.close();
 
 }

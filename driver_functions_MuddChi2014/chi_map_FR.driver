@@ -13,3 +13,5 @@ TargetNodes 80
 MinSegLength 10
 Sigma 10.0
 Skip 0
+threshold_pixels_for_chi 250
+test_drainage_boundaries false
