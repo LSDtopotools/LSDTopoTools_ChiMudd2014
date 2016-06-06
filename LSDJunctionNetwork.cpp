@@ -4750,7 +4750,7 @@ vector<int> LSDJunctionNetwork::Prune_Junctions_Largest(vector<int>& BaseLevelJu
     if (Acc > largest_ncontrib)
     {
       largest_ncontrib = Acc;
-      largest_junc = current_node;
+      largest_junc = BaseLevelJunctions_Initial[i];
     }
   }
   
@@ -5394,9 +5394,12 @@ void LSDJunctionNetwork::get_overlapping_channels(LSDFlowInfo& FlowInfo,
   for (int BL = 0; BL < N_baselevel_nodes; BL++)
   {
     int outlet_node = JunctionVector[BaseLevel_Junctions[BL] ];
+    cout << "The outlet node is: " << outlet_node << endl;
     
     // get all the source nodes of the base level
     vector<int> source_nodes = get_all_source_nodes_of_an_outlet_junction(BaseLevel_Junctions[BL]);
+    cout << "The number of sources is: " << source_nodes.size() << endl;
+    
     
     // sort the nodes by flow distance in ascending order
     vector<int> SortedSources = FlowInfo.sort_node_list_based_on_raster(source_nodes, DistanceFromOutlet);
@@ -5406,6 +5409,7 @@ void LSDJunctionNetwork::get_overlapping_channels(LSDFlowInfo& FlowInfo,
     
     // now loop through the sorted sources
     int n_sources = int(SortedSources.size());
+    
     for(int s = 0; s<n_sources; s++)
     {
       // get the channel from this source and mark up the covered raster
