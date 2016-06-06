@@ -101,27 +101,27 @@ using namespace TNT;
 void LSDChannel::create_LSDC(LSDIndexChannel& InChann)
 {
 
-	vector<float> empty_vec;
-	Elevation = empty_vec;
-	Chi = empty_vec;
-	DrainageArea = empty_vec;
+  vector<float> empty_vec;
+  Elevation = empty_vec;
+  Chi = empty_vec;
+  DrainageArea = empty_vec;
 
-	StartJunction = InChann.get_StartJunction();
-	EndJunction = InChann.get_EndJunction();
-	StartNode = InChann.get_StartNode();
-	EndNode = InChann.get_EndNode();
+  StartJunction = InChann.get_StartJunction();
+  EndJunction = InChann.get_EndJunction();
+  StartNode = InChann.get_StartNode();
+  EndNode = InChann.get_EndNode();
 
-	NRows = InChann.get_NRows();
-	NCols = InChann.get_NCols();
-	XMinimum = InChann.get_XMinimum();
-	YMinimum = InChann.get_YMinimum();
-	DataResolution = InChann.get_DataResolution();
-	NoDataValue = InChann.get_NoDataValue();
-	GeoReferencingStrings = InChann.get_GeoReferencingStrings();
+  NRows = InChann.get_NRows();
+  NCols = InChann.get_NCols();
+  XMinimum = InChann.get_XMinimum();
+  YMinimum = InChann.get_YMinimum();
+  DataResolution = InChann.get_DataResolution();
+  NoDataValue = InChann.get_NoDataValue();
+  GeoReferencingStrings = InChann.get_GeoReferencingStrings();
 
-	RowSequence =  InChann.get_RowSequence();
-	ColSequence =  InChann.get_ColSequence();
-	NodeSequence =  InChann.get_NodeSequence();
+  RowSequence =  InChann.get_RowSequence();
+  ColSequence =  InChann.get_ColSequence();
+  NodeSequence =  InChann.get_NodeSequence();
 }
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -136,124 +136,124 @@ void LSDChannel::create_LSDC(int SJN, int EJN, float downslope_chi,
                              LSDRaster& Elevation_Raster)
 {
 
-	NRows = FlowInfo.get_NRows();
-	NCols = FlowInfo.get_NCols();
-	XMinimum = FlowInfo.get_XMinimum();
-	YMinimum = FlowInfo.get_YMinimum();
-	DataResolution = FlowInfo.get_DataResolution();
-	NoDataValue = FlowInfo.get_NoDataValue();
+  NRows = FlowInfo.get_NRows();
+  NCols = FlowInfo.get_NCols();
+  XMinimum = FlowInfo.get_XMinimum();
+  YMinimum = FlowInfo.get_YMinimum();
+  DataResolution = FlowInfo.get_DataResolution();
+  NoDataValue = FlowInfo.get_NoDataValue();
   GeoReferencingStrings = FlowInfo.get_GeoReferencingStrings();
 
-	float root2 = 1.41421356;
-	float diag_length = root2*DataResolution;
-	float dx;
-	float pixel_area = DataResolution*DataResolution;
+  float root2 = 1.41421356;
+  float diag_length = root2*DataResolution;
+  float dx;
+  float pixel_area = DataResolution*DataResolution;
 
 
 
-	StartJunction = -1;
-	EndJunction = -1;
-	StartNode = SJN;
-	EndNode = EJN;
+  StartJunction = -1;
+  EndJunction = -1;
+  StartNode = SJN;
+  EndNode = EJN;
 
-	vector<int> RowI;
-	vector<int> ColI;
-	vector<int> NdI;
+  vector<int> RowI;
+  vector<int> ColI;
+  vector<int> NdI;
 
-	int curr_node = StartNode;
+  int curr_node = StartNode;
 
-	// push back the data vecotors with the starting node
-	int curr_row, curr_col;
-	FlowInfo.retrieve_current_row_and_col(curr_node,curr_row,curr_col);
-	NdI.push_back(StartNode);
-	RowI.push_back(curr_row);
-	ColI.push_back(curr_col);
+  // push back the data vecotors with the starting node
+  int curr_row, curr_col;
+  FlowInfo.retrieve_current_row_and_col(curr_node,curr_row,curr_col);
+  NdI.push_back(StartNode);
+  RowI.push_back(curr_row);
+  ColI.push_back(curr_col);
 
-	int receive_node = -99;
-	int receive_row, receive_col;
+  int receive_node = -99;
+  int receive_row, receive_col;
 
-	// loop through receivers until you get to EndNode
-	while(curr_node != EndNode)
-	{
-		FlowInfo.retrieve_receiver_information(curr_node, receive_node, receive_row,
+  // loop through receivers until you get to EndNode
+  while(curr_node != EndNode)
+  {
+    FlowInfo.retrieve_receiver_information(curr_node, receive_node, receive_row,
                                               receive_col);
 
-		NdI.push_back(receive_node);
-		RowI.push_back(receive_row);
-		ColI.push_back(receive_col);
+    NdI.push_back(receive_node);
+    RowI.push_back(receive_row);
+    ColI.push_back(receive_col);
 
-		if (receive_node == curr_node)
-		{
-			EndNode = curr_node;
-			cout << "Warning, the channel has come to a baselevel node before it has"
-			     << endl << "reached the end node" << endl;
-		}
-		else
-		{
-			curr_node = receive_node;
-		}
-	}
+    if (receive_node == curr_node)
+    {
+      EndNode = curr_node;
+      cout << "Warning, the channel has come to a baselevel node before it has"
+           << endl << "reached the end node" << endl;
+    }
+    else
+    {
+      curr_node = receive_node;
+    }
+  }
 
-	RowSequence = RowI;
-	ColSequence = ColI;
-	NodeSequence = NdI;
+  RowSequence = RowI;
+  ColSequence = ColI;
+  NodeSequence = NdI;
 
-	// get the number of nodes in the channel
-	int n_nodes_in_channel = int(NodeSequence.size());
+  // get the number of nodes in the channel
+  int n_nodes_in_channel = int(NodeSequence.size());
 
-	// the bottom node is at chi of downslope_chi
-	// initiate the chi vector
-	vector<float> empty_vec;
-
-
-	vector<float> chi_temp(n_nodes_in_channel,downslope_chi);
+  // the bottom node is at chi of downslope_chi
+  // initiate the chi vector
+  vector<float> empty_vec;
 
 
-	vector<float> elev_temp(n_nodes_in_channel,float(NoDataValue));
-	vector<float> area_temp(n_nodes_in_channel,float(NoDataValue));
+  vector<float> chi_temp(n_nodes_in_channel,downslope_chi);
 
-	// get the first node
-	float curr_area;
 
-	curr_node = NodeSequence[n_nodes_in_channel-1];
-	curr_row = RowI[n_nodes_in_channel-1];
-	curr_col = ColI[n_nodes_in_channel-1];
-	curr_area = float(FlowInfo.retrieve_contributing_pixels_of_node(curr_node))*pixel_area;
-	area_temp[n_nodes_in_channel-1] = curr_area;
-	elev_temp[n_nodes_in_channel-1] = Elevation_Raster.get_data_element(curr_row,curr_col);
+  vector<float> elev_temp(n_nodes_in_channel,float(NoDataValue));
+  vector<float> area_temp(n_nodes_in_channel,float(NoDataValue));
 
-	// now loop up through the channel, adding chi values
-	// note, the channel index are arranges with upstream element first, so you need to go through the channel
-	// in reverse order
-	for (int ChIndex = n_nodes_in_channel-2; ChIndex>=0; ChIndex--)
-	{
-	 	//cout << "ChIndex is: " << ChIndex << endl;
-		curr_node = NodeSequence[ChIndex];
-		FlowInfo.retrieve_current_row_and_col(curr_node,curr_row,
+  // get the first node
+  float curr_area;
+
+  curr_node = NodeSequence[n_nodes_in_channel-1];
+  curr_row = RowI[n_nodes_in_channel-1];
+  curr_col = ColI[n_nodes_in_channel-1];
+  curr_area = float(FlowInfo.retrieve_contributing_pixels_of_node(curr_node))*pixel_area;
+  area_temp[n_nodes_in_channel-1] = curr_area;
+  elev_temp[n_nodes_in_channel-1] = Elevation_Raster.get_data_element(curr_row,curr_col);
+
+  // now loop up through the channel, adding chi values
+  // note, the channel index are arranges with upstream element first, so you need to go through the channel
+  // in reverse order
+  for (int ChIndex = n_nodes_in_channel-2; ChIndex>=0; ChIndex--)
+  {
+     //cout << "ChIndex is: " << ChIndex << endl;
+    curr_node = NodeSequence[ChIndex];
+    FlowInfo.retrieve_current_row_and_col(curr_node,curr_row,
                                              curr_col);
-		if (FlowInfo.retrieve_flow_length_code_of_node(curr_node) == 2)
-		{
-			dx = diag_length;
-		}
-		else
-		{
-			dx = DataResolution;
-		}
-		//cout << "dx is: " << dx << endl;
+    if (FlowInfo.retrieve_flow_length_code_of_node(curr_node) == 2)
+    {
+      dx = diag_length;
+    }
+    else
+    {
+      dx = DataResolution;
+    }
+    //cout << "dx is: " << dx << endl;
 
-		curr_area = float(FlowInfo.retrieve_contributing_pixels_of_node(curr_node))*pixel_area;
-		area_temp[ChIndex] = curr_area;
-		elev_temp[ChIndex] = Elevation_Raster.get_data_element(curr_row,curr_col);
-		chi_temp[ChIndex] = dx*(pow( (A_0/curr_area ),
-			                    m_over_n))
-		                       + chi_temp[ChIndex+1];
-		//cout << "link 0, node " << curr_node << " and chi: " << chi_temp[ChIndex]
-		//     << " and chi_temp+1: " << chi_temp[ChIndex+1] << endl;
-	}
+    curr_area = float(FlowInfo.retrieve_contributing_pixels_of_node(curr_node))*pixel_area;
+    area_temp[ChIndex] = curr_area;
+    elev_temp[ChIndex] = Elevation_Raster.get_data_element(curr_row,curr_col);
+    chi_temp[ChIndex] = dx*(pow( (A_0/curr_area ),
+                          m_over_n))
+                           + chi_temp[ChIndex+1];
+    //cout << "link 0, node " << curr_node << " and chi: " << chi_temp[ChIndex]
+    //     << " and chi_temp+1: " << chi_temp[ChIndex+1] << endl;
+  }
 
-	Chi = chi_temp;
-	Elevation = elev_temp;
-	DrainageArea = area_temp;
+  Chi = chi_temp;
+  Elevation = elev_temp;
+  DrainageArea = area_temp;
 
 }
 
@@ -271,122 +271,122 @@ void LSDChannel::create_LSDC(int SJN, int EJN, float downslope_chi,
                              LSDRaster& Elevation_Raster, LSDRaster& Drainage_Area_Raster)
 {
 
-	NRows = FlowInfo.get_NRows();
-	NCols = FlowInfo.get_NCols();
-	XMinimum = FlowInfo.get_XMinimum();
-	YMinimum = FlowInfo.get_YMinimum();
-	DataResolution = FlowInfo.get_DataResolution();
-	NoDataValue = FlowInfo.get_NoDataValue();
+  NRows = FlowInfo.get_NRows();
+  NCols = FlowInfo.get_NCols();
+  XMinimum = FlowInfo.get_XMinimum();
+  YMinimum = FlowInfo.get_YMinimum();
+  DataResolution = FlowInfo.get_DataResolution();
+  NoDataValue = FlowInfo.get_NoDataValue();
   GeoReferencingStrings = FlowInfo.get_GeoReferencingStrings();
 
-	float root2 = 1.41421356;
-	float diag_length = root2*DataResolution;
-	float dx;
-	//float pixel_area = DataResolution*DataResolution;
+  float root2 = 1.41421356;
+  float diag_length = root2*DataResolution;
+  float dx;
+  //float pixel_area = DataResolution*DataResolution;
 
-	StartJunction = -1;
-	EndJunction = -1;
-	StartNode = SJN;
-	EndNode = EJN;
+  StartJunction = -1;
+  EndJunction = -1;
+  StartNode = SJN;
+  EndNode = EJN;
 
-	vector<int> RowI;
-	vector<int> ColI;
-	vector<int> NdI;
+  vector<int> RowI;
+  vector<int> ColI;
+  vector<int> NdI;
 
-	int curr_node = StartNode;
+  int curr_node = StartNode;
 
-	// push back the data vecotors with the starting node
-	int curr_row, curr_col;
-	FlowInfo.retrieve_current_row_and_col(curr_node,curr_row,curr_col);
-	NdI.push_back(StartNode);
-	RowI.push_back(curr_row);
-	ColI.push_back(curr_col);
+  // push back the data vecotors with the starting node
+  int curr_row, curr_col;
+  FlowInfo.retrieve_current_row_and_col(curr_node,curr_row,curr_col);
+  NdI.push_back(StartNode);
+  RowI.push_back(curr_row);
+  ColI.push_back(curr_col);
 
-	int receive_node = -99;
-	int receive_row, receive_col;
+  int receive_node = -99;
+  int receive_row, receive_col;
 
-	// loop through receivers until you get to EndNode
-	while(curr_node != EndNode)
-	{
-		FlowInfo.retrieve_receiver_information(curr_node, receive_node, receive_row,
+  // loop through receivers until you get to EndNode
+  while(curr_node != EndNode)
+  {
+    FlowInfo.retrieve_receiver_information(curr_node, receive_node, receive_row,
                                               receive_col);
 
-		NdI.push_back(receive_node);
-		RowI.push_back(receive_row);
-		ColI.push_back(receive_col);
+    NdI.push_back(receive_node);
+    RowI.push_back(receive_row);
+    ColI.push_back(receive_col);
 
-		if (receive_node == curr_node)
-		{
-			EndNode = curr_node;
-			cout << "Warning, the channel has come to a baselevel node before it has"
-			     << endl << "reached the end node" << endl;
-		}
-		else
-		{
-			curr_node = receive_node;
-		}
-	}
+    if (receive_node == curr_node)
+    {
+      EndNode = curr_node;
+      cout << "Warning, the channel has come to a baselevel node before it has"
+           << endl << "reached the end node" << endl;
+    }
+    else
+    {
+      curr_node = receive_node;
+    }
+  }
 
-	RowSequence = RowI;
-	ColSequence = ColI;
-	NodeSequence = NdI;
+  RowSequence = RowI;
+  ColSequence = ColI;
+  NodeSequence = NdI;
 
-	// get the number of nodes in the channel
-	int n_nodes_in_channel = int(NodeSequence.size());
+  // get the number of nodes in the channel
+  int n_nodes_in_channel = int(NodeSequence.size());
 
-	// the bottom node is at chi of downslope_chi
-	// initiate the chi vector
-	vector<float> empty_vec;
-
-
-	vector<float> chi_temp(n_nodes_in_channel,downslope_chi);
+  // the bottom node is at chi of downslope_chi
+  // initiate the chi vector
+  vector<float> empty_vec;
 
 
-	vector<float> elev_temp(n_nodes_in_channel,float(NoDataValue));
-	vector<float> area_temp(n_nodes_in_channel,float(NoDataValue));
+  vector<float> chi_temp(n_nodes_in_channel,downslope_chi);
 
-	// get the first node
-	float curr_area;
 
-	curr_node = NodeSequence[n_nodes_in_channel-1];
-	curr_row = RowI[n_nodes_in_channel-1];
-	curr_col = ColI[n_nodes_in_channel-1];
-	curr_area = Drainage_Area_Raster.get_data_element(curr_row,curr_col);
-	area_temp[n_nodes_in_channel-1] = curr_area;
-	elev_temp[n_nodes_in_channel-1] = Elevation_Raster.get_data_element(curr_row,curr_col);
+  vector<float> elev_temp(n_nodes_in_channel,float(NoDataValue));
+  vector<float> area_temp(n_nodes_in_channel,float(NoDataValue));
 
-	// now loop up through the channel, adding chi values
-	// note, the channel index are arranges with upstream element first, so you need to go through the channel
-	// in reverse order
-	for (int ChIndex = n_nodes_in_channel-2; ChIndex>=0; ChIndex--)
-	{
-	 	//cout << "ChIndex is: " << ChIndex << endl;
-		curr_node = NodeSequence[ChIndex];
-		FlowInfo.retrieve_current_row_and_col(curr_node,curr_row,
+  // get the first node
+  float curr_area;
+
+  curr_node = NodeSequence[n_nodes_in_channel-1];
+  curr_row = RowI[n_nodes_in_channel-1];
+  curr_col = ColI[n_nodes_in_channel-1];
+  curr_area = Drainage_Area_Raster.get_data_element(curr_row,curr_col);
+  area_temp[n_nodes_in_channel-1] = curr_area;
+  elev_temp[n_nodes_in_channel-1] = Elevation_Raster.get_data_element(curr_row,curr_col);
+
+  // now loop up through the channel, adding chi values
+  // note, the channel index are arranges with upstream element first, so you need to go through the channel
+  // in reverse order
+  for (int ChIndex = n_nodes_in_channel-2; ChIndex>=0; ChIndex--)
+  {
+     //cout << "ChIndex is: " << ChIndex << endl;
+    curr_node = NodeSequence[ChIndex];
+    FlowInfo.retrieve_current_row_and_col(curr_node,curr_row,
                                              curr_col);
-		if (FlowInfo.retrieve_flow_length_code_of_node(curr_node) == 2)
-		{
-			dx = diag_length;
-		}
-		else
-		{
-			dx = DataResolution;
-		}
-		//cout << "dx is: " << dx << endl;
+    if (FlowInfo.retrieve_flow_length_code_of_node(curr_node) == 2)
+    {
+      dx = diag_length;
+    }
+    else
+    {
+      dx = DataResolution;
+    }
+    //cout << "dx is: " << dx << endl;
 
-		curr_area = Drainage_Area_Raster.get_data_element(curr_row,curr_col);
-		area_temp[ChIndex] = curr_area;
-		elev_temp[ChIndex] = Elevation_Raster.get_data_element(curr_row,curr_col);
-		chi_temp[ChIndex] = dx*(pow( (A_0/curr_area ),
-			                    m_over_n))
-		                       + chi_temp[ChIndex+1];
-		//cout << "link 0, node " << curr_node << " and chi: " << chi_temp[ChIndex]
-		//     << " and chi_temp+1: " << chi_temp[ChIndex+1] << endl;
-	}
+    curr_area = Drainage_Area_Raster.get_data_element(curr_row,curr_col);
+    area_temp[ChIndex] = curr_area;
+    elev_temp[ChIndex] = Elevation_Raster.get_data_element(curr_row,curr_col);
+    chi_temp[ChIndex] = dx*(pow( (A_0/curr_area ),
+                          m_over_n))
+                           + chi_temp[ChIndex+1];
+    //cout << "link 0, node " << curr_node << " and chi: " << chi_temp[ChIndex]
+    //     << " and chi_temp+1: " << chi_temp[ChIndex+1] << endl;
+  }
 
-	Chi = chi_temp;
-	Elevation = elev_temp;
-	DrainageArea = area_temp;
+  Chi = chi_temp;
+  Elevation = elev_temp;
+  DrainageArea = area_temp;
 
 }
 
@@ -404,94 +404,94 @@ void LSDChannel::create_LSDC(float downslope_chi,
 {
 
 
-	NRows = FlowInfo.get_NRows();
-	NCols = FlowInfo.get_NCols();
-	XMinimum = FlowInfo.get_XMinimum();
-	YMinimum = FlowInfo.get_YMinimum();
-	DataResolution = FlowInfo.get_DataResolution();
-	NoDataValue = FlowInfo.get_NoDataValue();
-	GeoReferencingStrings = FlowInfo.get_GeoReferencingStrings();
+  NRows = FlowInfo.get_NRows();
+  NCols = FlowInfo.get_NCols();
+  XMinimum = FlowInfo.get_XMinimum();
+  YMinimum = FlowInfo.get_YMinimum();
+  DataResolution = FlowInfo.get_DataResolution();
+  NoDataValue = FlowInfo.get_NoDataValue();
+  GeoReferencingStrings = FlowInfo.get_GeoReferencingStrings();
 
-	float root2 = 1.41421356;
-	float diag_length = root2*DataResolution;
-	float dx;
-	float pixel_area = DataResolution*DataResolution;
-	//cout << "data res: " << DataResolution << endl;
+  float root2 = 1.41421356;
+  float diag_length = root2*DataResolution;
+  float dx;
+  float pixel_area = DataResolution*DataResolution;
+  //cout << "data res: " << DataResolution << endl;
 
 
 
-	StartJunction = InChann.get_StartJunction();
-	EndJunction = InChann.get_EndJunction();
-	StartNode = InChann.get_StartNode();
-	EndNode = InChann.get_EndNode();
+  StartJunction = InChann.get_StartJunction();
+  EndJunction = InChann.get_EndJunction();
+  StartNode = InChann.get_StartNode();
+  EndNode = InChann.get_EndNode();
 
-	RowSequence =  InChann.get_RowSequence();
-	ColSequence =  InChann.get_ColSequence();
-	NodeSequence =  InChann.get_NodeSequence();
+  RowSequence =  InChann.get_RowSequence();
+  ColSequence =  InChann.get_ColSequence();
+  NodeSequence =  InChann.get_NodeSequence();
 
-	int curr_node = StartNode;
+  int curr_node = StartNode;
 
-	// push back the data vectors with the starting node
-	int curr_row, curr_col;
+  // push back the data vectors with the starting node
+  int curr_row, curr_col;
 
-	// get the number of nodes in the channel
-	int n_nodes_in_channel = int(NodeSequence.size());
+  // get the number of nodes in the channel
+  int n_nodes_in_channel = int(NodeSequence.size());
 
-	// the bottom node is at chi of downslope_chi
-	// initiate the chi vector
-	vector<float> empty_vec;
-	vector<float> chi_temp(n_nodes_in_channel,downslope_chi);
-	vector<float> elev_temp(n_nodes_in_channel,float(NoDataValue));
-	vector<float> area_temp(n_nodes_in_channel,float(NoDataValue));
+  // the bottom node is at chi of downslope_chi
+  // initiate the chi vector
+  vector<float> empty_vec;
+  vector<float> chi_temp(n_nodes_in_channel,downslope_chi);
+  vector<float> elev_temp(n_nodes_in_channel,float(NoDataValue));
+  vector<float> area_temp(n_nodes_in_channel,float(NoDataValue));
 
-	// get the first node
-	float curr_area;
+  // get the first node
+  float curr_area;
 
-	//cout << "downslope_chi: " << downslope_chi << endl;
+  //cout << "downslope_chi: " << downslope_chi << endl;
 
-	curr_node = NodeSequence[n_nodes_in_channel-1];
-	FlowInfo.retrieve_current_row_and_col(curr_node,curr_row,
+  curr_node = NodeSequence[n_nodes_in_channel-1];
+  FlowInfo.retrieve_current_row_and_col(curr_node,curr_row,
                                              curr_col);
-	curr_area = float(FlowInfo.retrieve_contributing_pixels_of_node(curr_node))*pixel_area;
-	area_temp[n_nodes_in_channel-1] = curr_area;
-	elev_temp[n_nodes_in_channel-1] = Elevation_Raster.get_data_element(curr_row,curr_col);
+  curr_area = float(FlowInfo.retrieve_contributing_pixels_of_node(curr_node))*pixel_area;
+  area_temp[n_nodes_in_channel-1] = curr_area;
+  elev_temp[n_nodes_in_channel-1] = Elevation_Raster.get_data_element(curr_row,curr_col);
 
-	// now loop up through the channel, adding chi values
-	// note, the channel index are arranges with upstream element first, so you need to go through the channel
-	// in reverse order
-	for (int ChIndex = n_nodes_in_channel-2; ChIndex>=0; ChIndex--)
-	{
+  // now loop up through the channel, adding chi values
+  // note, the channel index are arranges with upstream element first, so you need to go through the channel
+  // in reverse order
+  for (int ChIndex = n_nodes_in_channel-2; ChIndex>=0; ChIndex--)
+  {
 
-		curr_node = NodeSequence[ChIndex];
-		FlowInfo.retrieve_current_row_and_col(curr_node,curr_row,
+    curr_node = NodeSequence[ChIndex];
+    FlowInfo.retrieve_current_row_and_col(curr_node,curr_row,
                                              curr_col);
 
-		//cout << "ChIndex is: " << ChIndex << " curr_node: " << curr_node << " row: "
+    //cout << "ChIndex is: " << ChIndex << " curr_node: " << curr_node << " row: "
                 //                         << curr_row << " curr_col: " << curr_col << endl;
 
-		if (FlowInfo.retrieve_flow_length_code_of_node(curr_node) == 2)
-		{
-			dx = diag_length;
-		}
-		else
-		{
-			dx = DataResolution;
-		}
-		//cout << "dx is: " << dx << endl;
+    if (FlowInfo.retrieve_flow_length_code_of_node(curr_node) == 2)
+    {
+      dx = diag_length;
+    }
+    else
+    {
+      dx = DataResolution;
+    }
+    //cout << "dx is: " << dx << endl;
 
-		curr_area = float(FlowInfo.retrieve_contributing_pixels_of_node(curr_node))*pixel_area;
-		area_temp[ChIndex] = curr_area;
-		elev_temp[ChIndex] = Elevation_Raster.get_data_element(curr_row,curr_col);
-		chi_temp[ChIndex] = dx*(pow( (A_0/curr_area ),
-			                    m_over_n))
-		                       + chi_temp[ChIndex+1];
-		//cout << "node " << curr_node << " and chi: " << chi_temp[ChIndex]
-		//     << " and chi_temp+1: " << chi_temp[ChIndex+1] << endl;
-	}
+    curr_area = float(FlowInfo.retrieve_contributing_pixels_of_node(curr_node))*pixel_area;
+    area_temp[ChIndex] = curr_area;
+    elev_temp[ChIndex] = Elevation_Raster.get_data_element(curr_row,curr_col);
+    chi_temp[ChIndex] = dx*(pow( (A_0/curr_area ),
+                          m_over_n))
+                           + chi_temp[ChIndex+1];
+    //cout << "node " << curr_node << " and chi: " << chi_temp[ChIndex]
+    //     << " and chi_temp+1: " << chi_temp[ChIndex+1] << endl;
+  }
 
-	Chi = chi_temp;
-	Elevation = elev_temp;
-	DrainageArea = area_temp;
+  Chi = chi_temp;
+  Elevation = elev_temp;
+  DrainageArea = area_temp;
 }
 
 
@@ -510,67 +510,67 @@ void LSDChannel::create_LSDC(float downslope_chi,
 void LSDChannel::create_LSDC(int SJN, int EJN, LSDFlowInfo& FlowInfo)
 {
 
-	vector<float> empty_vec;
-	Elevation = empty_vec;
-	Chi = empty_vec;
-	DrainageArea = empty_vec;
+  vector<float> empty_vec;
+  Elevation = empty_vec;
+  Chi = empty_vec;
+  DrainageArea = empty_vec;
 
-	NRows = FlowInfo.get_NRows();
-	NCols = FlowInfo.get_NCols();
-	XMinimum = FlowInfo.get_XMinimum();
-	YMinimum = FlowInfo.get_YMinimum();
-	DataResolution = FlowInfo.get_DataResolution();
-	NoDataValue = FlowInfo.get_NoDataValue();
-	GeoReferencingStrings = FlowInfo.get_GeoReferencingStrings();
+  NRows = FlowInfo.get_NRows();
+  NCols = FlowInfo.get_NCols();
+  XMinimum = FlowInfo.get_XMinimum();
+  YMinimum = FlowInfo.get_YMinimum();
+  DataResolution = FlowInfo.get_DataResolution();
+  NoDataValue = FlowInfo.get_NoDataValue();
+  GeoReferencingStrings = FlowInfo.get_GeoReferencingStrings();
 
-	StartJunction = -1;
-	EndJunction = -1;
-	StartNode = SJN;
-	EndNode = EJN;
+  StartJunction = -1;
+  EndJunction = -1;
+  StartNode = SJN;
+  EndNode = EJN;
 
-	vector<int> RowI;
-	vector<int> ColI;
-	vector<int> NdI;
+  vector<int> RowI;
+  vector<int> ColI;
+  vector<int> NdI;
 
-	int curr_node = StartNode;
+  int curr_node = StartNode;
 
-	// push back the data vecotors with the starting node
-	int curr_row, curr_col;
-	FlowInfo.retrieve_current_row_and_col(curr_node,curr_row,curr_col);
-	NdI.push_back(StartNode);
-	RowI.push_back(curr_row);
-	ColI.push_back(curr_col);
+  // push back the data vecotors with the starting node
+  int curr_row, curr_col;
+  FlowInfo.retrieve_current_row_and_col(curr_node,curr_row,curr_col);
+  NdI.push_back(StartNode);
+  RowI.push_back(curr_row);
+  ColI.push_back(curr_col);
 
-	int receive_node = -99;
-	int receive_row, receive_col;
+  int receive_node = -99;
+  int receive_row, receive_col;
 
-	// loop through receivers until you get to EndNode
-	while(curr_node != EndNode)
-	{
-		FlowInfo.retrieve_receiver_information(curr_node, receive_node, receive_row,
+  // loop through receivers until you get to EndNode
+  while(curr_node != EndNode)
+  {
+    FlowInfo.retrieve_receiver_information(curr_node, receive_node, receive_row,
                                               receive_col);
 
-		NdI.push_back(receive_node);
-		RowI.push_back(receive_row);
-		ColI.push_back(receive_col);
+    NdI.push_back(receive_node);
+    RowI.push_back(receive_row);
+    ColI.push_back(receive_col);
 
-		if (receive_node == curr_node)
-		{
-			EndNode = curr_node;
-			cout << "Warning, the channel has come to a baselevel node before it has"
-			     << endl << "reached the end node" << endl;
+    if (receive_node == curr_node)
+    {
+      EndNode = curr_node;
+      cout << "Warning, the channel has come to a baselevel node before it has"
+           << endl << "reached the end node" << endl;
 
 
-		}
-		else
-		{
-			curr_node = receive_node;
-		}
-	}
+    }
+    else
+    {
+      curr_node = receive_node;
+    }
+  }
 
-	RowSequence = RowI;
-	ColSequence = ColI;
-	NodeSequence = NdI;
+  RowSequence = RowI;
+  ColSequence = ColI;
+  NodeSequence = NdI;
 }
 
 
@@ -591,67 +591,67 @@ void LSDChannel::create_LSDC(int SJN, int EJN, LSDFlowInfo& FlowInfo)
 void LSDChannel::create_LSDC(int SJ, int SJN, int EJ, int EJN, LSDFlowInfo& FlowInfo)
 {
 
-	vector<float> empty_vec;
-	Elevation = empty_vec;
-	Chi = empty_vec;
-	DrainageArea = empty_vec;
+  vector<float> empty_vec;
+  Elevation = empty_vec;
+  Chi = empty_vec;
+  DrainageArea = empty_vec;
 
-	NRows = FlowInfo.get_NRows();
-	NCols = FlowInfo.get_NCols();
-	XMinimum = FlowInfo.get_XMinimum();
-	YMinimum = FlowInfo.get_YMinimum();
-	DataResolution = FlowInfo.get_DataResolution();
-	NoDataValue = FlowInfo.get_NoDataValue();
-	GeoReferencingStrings = FlowInfo.get_GeoReferencingStrings();
+  NRows = FlowInfo.get_NRows();
+  NCols = FlowInfo.get_NCols();
+  XMinimum = FlowInfo.get_XMinimum();
+  YMinimum = FlowInfo.get_YMinimum();
+  DataResolution = FlowInfo.get_DataResolution();
+  NoDataValue = FlowInfo.get_NoDataValue();
+  GeoReferencingStrings = FlowInfo.get_GeoReferencingStrings();
 
-	StartJunction = SJ;
-	EndJunction = EJ;
-	StartNode = SJN;
-	EndNode = EJN;
+  StartJunction = SJ;
+  EndJunction = EJ;
+  StartNode = SJN;
+  EndNode = EJN;
 
-	vector<int> RowI;
-	vector<int> ColI;
-	vector<int> NdI;
+  vector<int> RowI;
+  vector<int> ColI;
+  vector<int> NdI;
 
-	int curr_node = StartNode;
+  int curr_node = StartNode;
 
-	// push back the data vecotors with the starting node
-	int curr_row, curr_col;
-	FlowInfo.retrieve_current_row_and_col(curr_node,curr_row,curr_col);
-	NdI.push_back(StartNode);
-	RowI.push_back(curr_row);
-	ColI.push_back(curr_col);
+  // push back the data vecotors with the starting node
+  int curr_row, curr_col;
+  FlowInfo.retrieve_current_row_and_col(curr_node,curr_row,curr_col);
+  NdI.push_back(StartNode);
+  RowI.push_back(curr_row);
+  ColI.push_back(curr_col);
 
-	int receive_node = -99;
-	int receive_row, receive_col;
+  int receive_node = -99;
+  int receive_row, receive_col;
 
-	// loop through receivers until you get to EndNode
-	while(curr_node != EndNode)
-	{
-		FlowInfo.retrieve_receiver_information(curr_node, receive_node, receive_row,
+  // loop through receivers until you get to EndNode
+  while(curr_node != EndNode)
+  {
+    FlowInfo.retrieve_receiver_information(curr_node, receive_node, receive_row,
                                               receive_col);
 
-		//cout << "receive_node: " << receive_node << " and Endnode: " << EndNode << endl;
+    //cout << "receive_node: " << receive_node << " and Endnode: " << EndNode << endl;
 
-		NdI.push_back(receive_node);
-		RowI.push_back(receive_row);
-		ColI.push_back(receive_col);
+    NdI.push_back(receive_node);
+    RowI.push_back(receive_row);
+    ColI.push_back(receive_col);
 
-		if (receive_node == curr_node)
-		{
-			EndNode = curr_node;
-			cout << "Warning, the channel has come to a baselevel node before it has"
-			     << endl << "reached the end node" << endl;
+    if (receive_node == curr_node)
+    {
+      EndNode = curr_node;
+      cout << "Warning, the channel has come to a baselevel node before it has"
+           << endl << "reached the end node" << endl;
 
-		}
-		else
-		{
-			curr_node = receive_node;
-		}
-	}
-	RowSequence = RowI;
-	ColSequence = ColI;
-	NodeSequence = NdI;
+    }
+    else
+    {
+      curr_node = receive_node;
+    }
+  }
+  RowSequence = RowI;
+  ColSequence = ColI;
+  NodeSequence = NdI;
 
 }
 
@@ -665,12 +665,12 @@ LSDIndexRaster LSDChannel::print_channel_to_IndexRaster(LSDFlowInfo& FlowInfo)
 {
 
   NRows = FlowInfo.get_NRows();
-	NCols = FlowInfo.get_NCols();
-	XMinimum = FlowInfo.get_XMinimum();
-	YMinimum = FlowInfo.get_YMinimum();
-	DataResolution = FlowInfo.get_DataResolution();
-	NoDataValue = FlowInfo.get_NoDataValue();
-	GeoReferencingStrings = FlowInfo.get_GeoReferencingStrings();
+  NCols = FlowInfo.get_NCols();
+  XMinimum = FlowInfo.get_XMinimum();
+  YMinimum = FlowInfo.get_YMinimum();
+  DataResolution = FlowInfo.get_DataResolution();
+  NoDataValue = FlowInfo.get_NoDataValue();
+  GeoReferencingStrings = FlowInfo.get_GeoReferencingStrings();
   Array2D<int> nodes_in_channel(NRows,NCols,NoDataValue);
   
   for (int row = 0; row<NRows; row++)
@@ -699,46 +699,46 @@ LSDIndexRaster LSDChannel::print_channel_to_IndexRaster(LSDFlowInfo& FlowInfo)
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void LSDChannel::calculate_chi(float downslope_chi, float m_over_n, float A_0, LSDFlowInfo& FlowInfo )
 {
-	float root2 = 1.41421356;
-	float diag_length = root2*DataResolution;
-	float dx;
-	float pixel_area = DataResolution*DataResolution;
-	int curr_node;
+  float root2 = 1.41421356;
+  float diag_length = root2*DataResolution;
+  float dx;
+  float pixel_area = DataResolution*DataResolution;
+  int curr_node;
 
-	// get the number of nodes in the channel
-	int n_nodes_in_channel = int(NodeSequence.size());
+  // get the number of nodes in the channel
+  int n_nodes_in_channel = int(NodeSequence.size());
 
-	// the bottom node is at chi of downslope_chi
-	// initiate the chi vector
-	vector<float> empty_vec;
-	vector<float> chi_temp(n_nodes_in_channel,downslope_chi);
+  // the bottom node is at chi of downslope_chi
+  // initiate the chi vector
+  vector<float> empty_vec;
+  vector<float> chi_temp(n_nodes_in_channel,downslope_chi);
 
-	// now loop up through the channel, adding chi values
-	// note, the channel index are arranges with upstream element first, so you need to go through the channel
-	// in reverse order
-	for (int ChIndex = n_nodes_in_channel-2; ChIndex>=0; ChIndex--)
-	{
-	 	//cout << "ChIndex is: " << ChIndex << endl;
-		curr_node = NodeSequence[ChIndex];
-		if (FlowInfo.retrieve_flow_length_code_of_node(curr_node) == 2)
-		{
-			dx = diag_length;
-		}
-		else
-		{
-			dx = DataResolution;
-		}
-		//cout << "dx is: " << dx << endl;
+  // now loop up through the channel, adding chi values
+  // note, the channel index are arranges with upstream element first, so you need to go through the channel
+  // in reverse order
+  for (int ChIndex = n_nodes_in_channel-2; ChIndex>=0; ChIndex--)
+  {
+     //cout << "ChIndex is: " << ChIndex << endl;
+    curr_node = NodeSequence[ChIndex];
+    if (FlowInfo.retrieve_flow_length_code_of_node(curr_node) == 2)
+    {
+      dx = diag_length;
+    }
+    else
+    {
+      dx = DataResolution;
+    }
+    //cout << "dx is: " << dx << endl;
 
-		chi_temp[ChIndex] = dx*(pow( (A_0/ (float(
-			                    FlowInfo.retrieve_contributing_pixels_of_node(curr_node))*pixel_area) ),
-			                    m_over_n))
-		                       + chi_temp[ChIndex+1];
-		//cout << "link 0, node " << curr_node << " and chi: " << chi_temp[ChIndex]
-		//     << " and chi_temp+1: " << chi_temp[ChIndex+1] << endl;
-	}
+    chi_temp[ChIndex] = dx*(pow( (A_0/ (float(
+                          FlowInfo.retrieve_contributing_pixels_of_node(curr_node))*pixel_area) ),
+                          m_over_n))
+                           + chi_temp[ChIndex+1];
+    //cout << "link 0, node " << curr_node << " and chi: " << chi_temp[ChIndex]
+    //     << " and chi_temp+1: " << chi_temp[ChIndex+1] << endl;
+  }
 
-	Chi = chi_temp;
+  Chi = chi_temp;
 }
 
 
@@ -751,49 +751,49 @@ void LSDChannel::calculate_chi(float downslope_chi, float m_over_n, float A_0, L
 void LSDChannel::calculate_chi(float downslope_chi, float m_over_n, float A_0, 
                             LSDRaster& FlowAccum, LSDFlowInfo& FlowInfo )
 {
-	float root2 = 1.41421356;
-	float diag_length = root2*DataResolution;
-	float dx;
-	//float pixel_area = DataResolution*DataResolution;
-	int curr_node;
-	int this_row,this_col;
+  float root2 = 1.41421356;
+  float diag_length = root2*DataResolution;
+  float dx;
+  //float pixel_area = DataResolution*DataResolution;
+  int curr_node;
+  int this_row,this_col;
 
-	// get the number of nodes in the channel
-	int n_nodes_in_channel = int(NodeSequence.size());
+  // get the number of nodes in the channel
+  int n_nodes_in_channel = int(NodeSequence.size());
 
-	// the bottom node is at chi of downslope_chi
-	// initiate the chi vector
-	vector<float> empty_vec;
-	vector<float> chi_temp(n_nodes_in_channel,downslope_chi);
+  // the bottom node is at chi of downslope_chi
+  // initiate the chi vector
+  vector<float> empty_vec;
+  vector<float> chi_temp(n_nodes_in_channel,downslope_chi);
 
-	// now loop up through the channel, adding chi values
-	// note, the channel index are arranges with upstream element first, so you need to go through the channel
-	// in reverse order
-	for (int ChIndex = n_nodes_in_channel-2; ChIndex>=0; ChIndex--)
-	{
-	 	//cout << "ChIndex is: " << ChIndex << endl;
-		curr_node = NodeSequence[ChIndex];
-		if (FlowInfo.retrieve_flow_length_code_of_node(curr_node) == 2)
-		{
-			dx = diag_length;
-		}
-		else
-		{
-			dx = DataResolution;
-		}
-		//cout << "dx is: " << dx << endl;
+  // now loop up through the channel, adding chi values
+  // note, the channel index are arranges with upstream element first, so you need to go through the channel
+  // in reverse order
+  for (int ChIndex = n_nodes_in_channel-2; ChIndex>=0; ChIndex--)
+  {
+     //cout << "ChIndex is: " << ChIndex << endl;
+    curr_node = NodeSequence[ChIndex];
+    if (FlowInfo.retrieve_flow_length_code_of_node(curr_node) == 2)
+    {
+      dx = diag_length;
+    }
+    else
+    {
+      dx = DataResolution;
+    }
+    //cout << "dx is: " << dx << endl;
 
     // get the row and columm
     FlowInfo.retrieve_current_row_and_col(curr_node, this_row, this_col);
 
-		chi_temp[ChIndex] = dx*(pow( (A_0/FlowAccum.get_data_element(this_row,this_col) ),
-			                    m_over_n))
-		                       + chi_temp[ChIndex+1];
-		//cout << "link 0, node " << curr_node << " and chi: " << chi_temp[ChIndex]
-		//     << " and chi_temp+1: " << chi_temp[ChIndex+1] << endl;
-	}
+    chi_temp[ChIndex] = dx*(pow( (A_0/FlowAccum.get_data_element(this_row,this_col) ),
+                          m_over_n))
+                           + chi_temp[ChIndex+1];
+    //cout << "link 0, node " << curr_node << " and chi: " << chi_temp[ChIndex]
+    //     << " and chi_temp+1: " << chi_temp[ChIndex+1] << endl;
+  }
 
-	Chi = chi_temp;
+  Chi = chi_temp;
 }
 
 
@@ -803,69 +803,69 @@ void LSDChannel::calculate_chi(float downslope_chi, float m_over_n, float A_0,
 //
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void LSDChannel::find_most_likeley_segments(int minimum_segment_length, float sigma, int target_nodes,
-					     vector<float>& b_vec, vector<float>&  m_vec,
-					     vector<float>& 	r2_vec,vector<float>&  DW_vec,
-					     vector<float>& thinned_chi, vector<float>& thinned_elev,
-					     vector<float>& fitted_elev, vector<int>& node_ref_thinned,
-					     vector<int>& these_segment_lengths,
-					     float& this_MLE, int& this_n_segments, int& n_data_nodes,
-					     float& this_AIC, float& this_AICc )
+               vector<float>& b_vec, vector<float>&  m_vec,
+               vector<float>&   r2_vec,vector<float>&  DW_vec,
+               vector<float>& thinned_chi, vector<float>& thinned_elev,
+               vector<float>& fitted_elev, vector<int>& node_ref_thinned,
+               vector<int>& these_segment_lengths,
+               float& this_MLE, int& this_n_segments, int& n_data_nodes,
+               float& this_AIC, float& this_AICc )
 {
-	// first create a segment finder object
+  // first create a segment finder object
         //cout << "making MLEfinder object, " << endl;
-	vector<int> empty_vec;
-	node_ref_thinned = empty_vec;
+  vector<int> empty_vec;
+  node_ref_thinned = empty_vec;
 
-	vector<float> reverse_Chi = Chi;
-	reverse(reverse_Chi.begin(), reverse_Chi.end());
-	vector<float> reverse_Elevation = Elevation;
-	reverse(reverse_Elevation.begin(), reverse_Elevation.end());
-	vector<int> this_node_sequence = NodeSequence;
-	reverse(this_node_sequence.begin(), this_node_sequence.end());
+  vector<float> reverse_Chi = Chi;
+  reverse(reverse_Chi.begin(), reverse_Chi.end());
+  vector<float> reverse_Elevation = Elevation;
+  reverse(reverse_Elevation.begin(), reverse_Elevation.end());
+  vector<int> this_node_sequence = NodeSequence;
+  reverse(this_node_sequence.begin(), this_node_sequence.end());
 
-	LSDMostLikelyPartitionsFinder channel_MLE_finder(minimum_segment_length, reverse_Chi, reverse_Elevation);
-	//cout << "got MLE finder object" << endl;
-	//cout << "rc size: " << reverse_Chi.size() << " and r_elev size: " << reverse_Elevation.size() << endl;
-	//cout << "ns size: " << NodeSequence.size() << " and rns sz: " << this_node_sequence.size() << endl;
-	// this needs to be thinned. Get the maximum chi value and then determine dchi
-	int n_nodes = reverse_Chi.size();
-	float max_chi = reverse_Chi[n_nodes-1];
-	float min_chi = reverse_Chi[0];
-	//cout << "LSDChannel::find_most_likeley_segments, max_chi: " << max_chi << " and min: " << min_chi << endl;
+  LSDMostLikelyPartitionsFinder channel_MLE_finder(minimum_segment_length, reverse_Chi, reverse_Elevation);
+  //cout << "got MLE finder object" << endl;
+  //cout << "rc size: " << reverse_Chi.size() << " and r_elev size: " << reverse_Elevation.size() << endl;
+  //cout << "ns size: " << NodeSequence.size() << " and rns sz: " << this_node_sequence.size() << endl;
+  // this needs to be thinned. Get the maximum chi value and then determine dchi
+  int n_nodes = reverse_Chi.size();
+  float max_chi = reverse_Chi[n_nodes-1];
+  float min_chi = reverse_Chi[0];
+  //cout << "LSDChannel::find_most_likeley_segments, max_chi: " << max_chi << " and min: " << min_chi << endl;
         //cout << "n_nodes is: " <<  channel_MLE_finder.get_n_nodes() << endl;
 
-	float dchi = (max_chi-min_chi)/float(target_nodes);
-	cout << "LSDChannel 533, dchi is: " << dchi << endl;
+  float dchi = (max_chi-min_chi)/float(target_nodes);
+  cout << "LSDChannel 533, dchi is: " << dchi << endl;
 
 
-	// now thin the data, preserving the data (not interpoalting)
-	vector<int> node_reference;
-	channel_MLE_finder.thin_data_target_dx_preserve_data(dchi, node_reference);
-	n_nodes = node_reference.size();
-	//cout << "number of nodes in node reference: " << n_nodes << endl;
-	for (int i = 0; i< n_nodes; i++)
-	  {
-	    //cout << " the node reference is: " << node_reference[i] << endl;
-	    //cout << " node sequence: " << this_node_sequence[ node_reference[i]] << endl;
-	    node_ref_thinned.push_back(this_node_sequence[ node_reference[i] ]);
-	  }
+  // now thin the data, preserving the data (not interpoalting)
+  vector<int> node_reference;
+  channel_MLE_finder.thin_data_target_dx_preserve_data(dchi, node_reference);
+  n_nodes = node_reference.size();
+  //cout << "number of nodes in node reference: " << n_nodes << endl;
+  for (int i = 0; i< n_nodes; i++)
+    {
+      //cout << " the node reference is: " << node_reference[i] << endl;
+      //cout << " node sequence: " << this_node_sequence[ node_reference[i]] << endl;
+      node_ref_thinned.push_back(this_node_sequence[ node_reference[i] ]);
+    }
 
-	//cout << "thinned, n_nodes is: " <<  channel_MLE_finder.get_n_nodes() << endl;
+  //cout << "thinned, n_nodes is: " <<  channel_MLE_finder.get_n_nodes() << endl;
 
-	// now create a single sigma value vector
-	vector<float> sigma_values;
-	sigma_values.push_back(sigma);
+  // now create a single sigma value vector
+  vector<float> sigma_values;
+  sigma_values.push_back(sigma);
 
-	// compute the best fit AIC
-	channel_MLE_finder.best_fit_driver_AIC_for_linear_segments(sigma_values);
+  // compute the best fit AIC
+  channel_MLE_finder.best_fit_driver_AIC_for_linear_segments(sigma_values);
 
 
-	channel_MLE_finder.get_data_from_best_fit_lines(0, sigma_values, b_vec, m_vec,
-					     	r2_vec, DW_vec, fitted_elev,these_segment_lengths,
-					       	this_MLE, this_n_segments, n_data_nodes, this_AIC, this_AICc);
+  channel_MLE_finder.get_data_from_best_fit_lines(0, sigma_values, b_vec, m_vec,
+                 r2_vec, DW_vec, fitted_elev,these_segment_lengths,
+                   this_MLE, this_n_segments, n_data_nodes, this_AIC, this_AICc);
 
-	thinned_chi = channel_MLE_finder.get_x_data();
-	thinned_elev = channel_MLE_finder.get_y_data();
+  thinned_chi = channel_MLE_finder.get_x_data();
+  thinned_elev = channel_MLE_finder.get_y_data();
 }
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -875,7 +875,7 @@ void LSDChannel::find_most_likeley_segments(int minimum_segment_length, float si
 //
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void LSDChannel::find_best_fit_m_over_n_with_segments(int n_movern, float d_movern,float start_movern,
-						      float downslope_chi, float A_0, LSDFlowInfo& FlowInfo,
+                  float downslope_chi, float A_0, LSDFlowInfo& FlowInfo,
                                           int minimum_segment_length, float sigma, float target_nodes )
 {
   // now get the details of the best fit
@@ -920,32 +920,32 @@ void LSDChannel::find_best_fit_m_over_n_with_segments(int n_movern, float d_move
     calculate_chi(downslope_chi, m_over_n,A_0, FlowInfo );
 
     find_most_likeley_segments(minimum_segment_length, sigma, target_nodes,
-			 b_vec, m_vec,r2_vec,DW_vec,
-			       chi_thinned, elev_thinned,elev_fitted, node_ref_thinned,
-			 these_segment_lengths, this_MLE, this_n_segments, n_data_nodes,
-			 this_AIC, this_AICc);
+       b_vec, m_vec,r2_vec,DW_vec,
+             chi_thinned, elev_thinned,elev_fitted, node_ref_thinned,
+       these_segment_lengths, this_MLE, this_n_segments, n_data_nodes,
+       this_AIC, this_AICc);
 
     if (this_AICc < min_AICc)
       {
-	best_b_vec =b_vec;
-	best_m_vec = m_vec;
-	best_r2_vec = r2_vec;
-	best_DW_vec = DW_vec;
-	best_chi_thinned = chi_thinned;
-	best_elev_thinned =  elev_thinned;
-	best_elev_fitted = elev_fitted;
-	best_node_ref_thinned = node_ref_thinned;
-	best_these_segment_lengths = these_segment_lengths;
-	best_this_MLE = this_MLE;
-	best_this_n_segments =  this_n_segments;
-	best_n_data_nodes =  n_data_nodes;
-	best_this_AIC = this_AIC;
-	best_this_AICc = this_AICc;
+  best_b_vec =b_vec;
+  best_m_vec = m_vec;
+  best_r2_vec = r2_vec;
+  best_DW_vec = DW_vec;
+  best_chi_thinned = chi_thinned;
+  best_elev_thinned =  elev_thinned;
+  best_elev_fitted = elev_fitted;
+  best_node_ref_thinned = node_ref_thinned;
+  best_these_segment_lengths = these_segment_lengths;
+  best_this_MLE = this_MLE;
+  best_this_n_segments =  this_n_segments;
+  best_n_data_nodes =  n_data_nodes;
+  best_this_AIC = this_AIC;
+  best_this_AICc = this_AICc;
 
-	min_AICc = this_AICc;
-	best_movern = m_over_n;
+  min_AICc = this_AICc;
+  best_movern = m_over_n;
 
-	//cout << "best AICc: " << this_AICc << " and m_over_n: " << best_movern << endl;
+  //cout << "best AICc: " << this_AICc << " and m_over_n: " << best_movern << endl;
       }
   }
 
@@ -997,42 +997,42 @@ int LSDChannel::calculate_channel_heads(int min_seg_length_for_channel_heads, fl
     float elev_intersection = 0;
     
     vector<float>::iterator vec_iter_start;
-	  vector<float>::iterator vec_iter_end;
+    vector<float>::iterator vec_iter_end;
 
     // Looping through the combinations of hillslope and channel segment lengths
-	  for (int hill_seg_length = min_seg_length_for_channel_heads; hill_seg_length <= end_node-min_seg_length_for_channel_heads; hill_seg_length++)
+    for (int hill_seg_length = min_seg_length_for_channel_heads; hill_seg_length <= end_node-min_seg_length_for_channel_heads; hill_seg_length++)
     {
-		  int chan_seg_length = end_node - hill_seg_length;
+      int chan_seg_length = end_node - hill_seg_length;
 
-		  //cout << endl;
-		  //cout << "Size of channel: " << Chi.size() << endl;
-		  //cout << "Size of hillslope: " << hill_seg_length << " and chann seg length: " << chan_seg_length << " total length: " << hill_seg_length+chan_seg_length << endl;
-		  //cout << endl;
+      //cout << endl;
+      //cout << "Size of channel: " << Chi.size() << endl;
+      //cout << "Size of hillslope: " << hill_seg_length << " and chann seg length: " << chan_seg_length << " total length: " << hill_seg_length+chan_seg_length << endl;
+      //cout << endl;
 
       // assigning the chi values of the hillslope segment
       hillslope_chi.resize(hill_seg_length);
       vec_iter_start = Chi.begin()+start_node;
-	    vec_iter_end = vec_iter_start+hill_seg_length;
-	    hillslope_chi.assign(vec_iter_start,vec_iter_end);
+      vec_iter_end = vec_iter_start+hill_seg_length;
+      hillslope_chi.assign(vec_iter_start,vec_iter_end);
 
-	    // assigning the elevation values of the hillslope segment
+      // assigning the elevation values of the hillslope segment
       hillslope_elev.resize(hill_seg_length);
-	    vec_iter_start = Elevation.begin()+start_node;
-	    vec_iter_end = vec_iter_start+hill_seg_length;
-	    hillslope_elev.assign(vec_iter_start,vec_iter_end);
+      vec_iter_start = Elevation.begin()+start_node;
+      vec_iter_end = vec_iter_start+hill_seg_length;
+      hillslope_elev.assign(vec_iter_start,vec_iter_end);
 
-	    // assigning the chi values of the channel segment
+      // assigning the chi values of the channel segment
       channel_chi.resize(chan_seg_length);
       vec_iter_start = Chi.begin()+start_node+hill_seg_length;
-	    vec_iter_end = vec_iter_start+chan_seg_length;
-	    channel_chi.assign(vec_iter_start,vec_iter_end);
+      vec_iter_end = vec_iter_start+chan_seg_length;
+      channel_chi.assign(vec_iter_start,vec_iter_end);
 
-	    // assigning the elevation values of the channel segment
+      // assigning the elevation values of the channel segment
       channel_elev.resize(chan_seg_length);
-	    vec_iter_start = Elevation.begin()+start_node+hill_seg_length;
-	    vec_iter_end = vec_iter_start+chan_seg_length;
-	    channel_elev.assign(vec_iter_start,vec_iter_end);
-	    
+      vec_iter_start = Elevation.begin()+start_node+hill_seg_length;
+      vec_iter_end = vec_iter_start+chan_seg_length;
+      channel_elev.assign(vec_iter_start,vec_iter_end);
+      
       // performing linear regression on the channel segment
       vector<float> residuals_chan;
       vector<float> results_chan = simple_linear_regression(channel_chi,channel_elev, residuals_chan);

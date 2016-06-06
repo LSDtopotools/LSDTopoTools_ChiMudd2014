@@ -124,7 +124,48 @@ class LSDFlowInfo
   friend class LSDJunctionNetwork;
 
   // some functions for retrieving information out of the data vectors
+  /// @brief this function gets the UTM_zone and a boolean that is true if
+  /// the map is in the northern hemisphere
+  /// @param UTM_zone the UTM zone. Replaced in function. 
+  /// @param is_North a boolean that is true if the DEM is in the northern hemisphere.
+  ///  replaced in function
+  /// @author SMM
+  /// @date 22/12/2014
+  void get_UTM_information(int& UTM_zone, bool& is_North);
 
+  /// @brief this gets the x and y location of a node at row and column
+  /// @param row the row of the node
+  /// @param col the column of the node
+  /// @param x_loc the x location (Northing) of the node
+  /// @param y_loc the y location (Easting) of the node
+  /// @author SMM
+  /// @date 22/12/2014
+  void get_x_and_y_locations(int row, int col, double& x_loc, double& y_loc);
+
+  /// @brief this gets the x and y location of a node at row and column
+  /// @param row the row of the node
+  /// @param col the column of the node
+  /// @param x_loc the x location (Northing) of the node
+  /// @param y_loc the y location (Easting) of the node
+  /// @author SMM
+  /// @date 22/12/2014
+  void get_x_and_y_locations(int row, int col, float& x_loc, float& y_loc);
+
+  /// @brief a function to get the lat and long of a node in the raster
+  /// @detail Assumes WGS84 ellipsiod
+  /// @param row the row of the node
+  /// @param col the col of the node
+  /// @param lat the latitude of the node (in decimal degrees, replaced by function)
+  ///  Note: this is a double, because a float does not have sufficient precision
+  ///  relative to a UTM location (which is in metres)
+  /// @param long the longitude of the node (in decimal degrees, replaced by function)
+  ///  Note: this is a double, because a float does not have sufficient precision
+  ///  relative to a UTM location (which is in metres)
+  /// @param Converter a converter object (from LSDShapeTools)
+  /// @author SMM
+  /// @date 22/12/2014
+  void get_lat_and_long_locations(int row, int col, double& lat, 
+                  double& longitude, LSDCoordinateConverterLLandUTM Converter);
 
   /// @brief this check to see if a point is within the raster
   /// @param X_coordinate the x location of the point
@@ -165,6 +206,14 @@ class LSDFlowInfo
   /// @author SMM
   /// @date 03/06/14
   void print_vector_of_nodeindices_to_csv_file(vector<int>& nodeindex_vec, string outfilename);
+
+  ///@brief This function takes a vector of node indices and prints a csv 
+  ///file that can be read by arcmap: similar to above but also prints lat and long
+  ///@param nodeindex vec is a vector of nodeindices (which are ints)
+  ///@param outfilename is a string of the filename
+  /// @author SMM
+  /// @date 20/05/16
+  void print_vector_of_nodeindices_to_csv_file_with_latlong(vector<int>& nodeindex_vec, string outfilename);
 
   ///@brief This function takes a vector of node indices and prints a csv 
   ///file that can be read by arcmap, adding in a unique id to each row, independent of the nodeindex.
@@ -598,6 +647,29 @@ class LSDFlowInfo
   /// @date 25/19/13
   int find_farthest_upslope_node(int node, LSDRaster& DistFromOutlet);
 
+  /// @brief This takes a list of nodes and sorts them according to a 
+  ///  sorting raster (it could be anything) fin ascending order
+  ///  nodes are then reordered to reflect the sorting of the raster
+  /// @param node_vec A vector of nodes
+  /// @param SortingRaster a raster that contains some values that will
+  ///  be used to sort the nodes. 
+  /// @return sorted_nodes a vector containing the sorted nodes
+  /// @author SMM
+  /// @date 20/05/2016
+  vector<int> sort_node_list_based_on_raster(vector<int> node_vec, LSDRaster& SortingRaster);
+
+  /// @brief This takes a list of nodes and sorts them according to a 
+  ///  sorting raster (it could be anything) fin ascending order
+  ///  nodes are then reordered to reflect the sorting of the raster
+  /// @param node_vec A vector of nodes
+  /// @param SortingRaster a raster that contains some values that will
+  ///  be used to sort the nodes. 
+  /// @return sorted_nodes a vector containing the sorted nodes
+  /// @author SMM
+  /// @date 20/05/2016
+  vector<int> sort_node_list_based_on_raster(vector<int> node_vec, LSDIndexRaster& SortingRaster);
+
+
   /// @brief Function to get the node index for a point using its X and Y coordinates
   /// @param X_coordinate X_coord of point
   /// @param Y_coordinate Y_coord of point
@@ -880,7 +952,24 @@ class LSDFlowInfo
   /// @author SWDG
   /// @date 23/7/15
   vector<int> RemoveSinglePxChannels(LSDIndexRaster StreamNetwork, vector<int> Sources);
-  
+
+  /// @brief This function starts from a source and goes downstream until it 
+  ///  either accumulates n_nodes_to_visit or hits a base level node
+  /// @param source_node The starting node
+  /// @param outlet_node A node that serves as an end to the channel before
+  ///  the base level. If this is set to a node not on the channel (e.g., -9999)
+  ///  then the node looks for accuulation or a base level node only
+  /// @param n_nodes_to_visit the number of visited pixels the flow function will 
+  ///   travese before it stops
+  /// @VisitedRaster A raster that has pixels indicating if they have been visited
+  ///  or not. A visited pixel is denoted by 1, non visted by 0
+  /// @return outlet_nde the node at the end of the flow path
+  /// @author SMM
+  /// @date 19/05/2016
+  int get_downslope_node_after_fixed_visited_nodes(int source_node, 
+                 int outlet_node, int n_nodes_to_visit, LSDIndexRaster& VisitedRaster);
+
+
   protected:
 
   ///Number of rows.

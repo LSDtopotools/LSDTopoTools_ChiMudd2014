@@ -126,6 +126,23 @@ class LSDJunctionNetwork
   /// @date 01/09/12
   vector<int> get_upslope_junctions(int junction_number_outlet);
 
+  /// @brief This finds all the junctions that are source junctions upslope of a 
+  ///  given junction
+  /// @param junction_number_outlet The junction number of the outlet
+  /// @return source_junctions a vector of junction numbers: these are the sources
+  /// @author SMM
+  /// @date 18/05/2016
+  vector<int> get_all_source_junctions_of_an_outlet_junction(int junction_number_outlet);
+
+  /// @brief This finds all the nodes that are source nodes upslope of a 
+  ///  given junction
+  /// @param junction_number_outlet The junction number of the outlet
+  /// @return source_nodes a vector of node numbers: these are the sources
+  ///   the nodes are node indices from the FlowInof object
+  /// @author SMM
+  /// @date 19/05/2016
+  vector<int> get_all_source_nodes_of_an_outlet_junction(int junction_number_outlet);
+
   /// @brief this function gets a list of the node indices of the donors to a particular node
   /// @param node this is the nodeindex of the node for which you want to find the donors
   /// @return a vector of the donor nodes
@@ -150,14 +167,14 @@ class LSDJunctionNetwork
   /// @author SMM
   /// @date 01/09/12
   int get_maximum_stream_order();
-	
-	/// @brief This function returns the number of streams of a given stream order
-	/// @param FlowInfo LSDFlowInfo object
-	/// @param stream_order Stream order of interest
+  
+  /// @brief This function returns the number of streams of a given stream order
+  /// @param FlowInfo LSDFlowInfo object
+  /// @param stream_order Stream order of interest
   /// @return integer with number of streams.
   /// @author FJC
   /// @date 15/03/16
-	int get_number_of_streams(LSDFlowInfo& FlowInfo, int stream_order);
+  int get_number_of_streams(LSDFlowInfo& FlowInfo, int stream_order);
   
   /// @brief This gets the junction number of a given node.
   /// @param Node
@@ -187,27 +204,29 @@ class LSDJunctionNetwork
   /// @return LSDIndexRaster of StreamOrderArray.
   /// @author SMM
   /// @date 01/09/12
-	LSDIndexRaster StreamOrderArray_to_LSDIndexRaster();
-	/// @brief This sends the JunctionArray to a LSDIndexRaster.
+  LSDIndexRaster StreamOrderArray_to_LSDIndexRaster();
+  
+  /// @brief This sends the JunctionArray to a LSDIndexRaster.
   /// @return LSDIndexRaster of JunctionArray.
   /// @author SMM
   /// @date 01/09/12
-	LSDIndexRaster JunctionArray_to_LSDIndexRaster();
-	/// @brief This sends the JunctionIndexArray to a LSDIndexRaster.
+  LSDIndexRaster JunctionArray_to_LSDIndexRaster();
+  
+  /// @brief This sends the JunctionIndexArray to a LSDIndexRaster.
   /// @return LSDIndexRaster of JunctionIndexArray.
   /// @author SMM
   /// @date 01/09/12
-	LSDIndexRaster JunctionIndexArray_to_LSDIndexRaster();
-	/// @brief Turns the StreamOrderArray into a binary rastser where 1 is channel and 0 is hillslope.
+  LSDIndexRaster JunctionIndexArray_to_LSDIndexRaster();
+  
+  /// @brief Turns the StreamOrderArray into a binary rastser where 1 is channel and 0 is hillslope.
   /// @return Binary LSDIndexRaster of the channel network.
   /// @author SMM
   /// @date 01/09/12
-	LSDIndexRaster StreamOrderArray_to_BinaryNetwork_LSDIndexRaster();
+  LSDIndexRaster StreamOrderArray_to_BinaryNetwork_LSDIndexRaster();
 
-	// this gets the largest donor junction to the baselevel nodes so that you can
-	// automate basin selection (e.g. for use with chi analysis)
-	/// @brief This gets the largest donor junction to the baselevel nodes so that you can
-	/// automate basin selection.
+
+  /// @brief This gets the largest donor junction to the baselevel nodes so that you can
+  /// automate basin selection. (e.g. for use with chi analysis)
   ///
   /// @details This function returns a integer vector containing the junction number of the largest
   /// donor catchment (i.e. donor junction with greatest drainage area) upslope of each
@@ -223,16 +242,56 @@ class LSDJunctionNetwork
   /// @date 19/6/13
   vector<int> get_BaseLevel_DonorJunctions();
 
-	/// @brief Get Junction number at a location.
+  /// @brief This function takes a list of junctions and then prunes
+  ///  junctions based whether they drain from the edge. This attempts to 
+  ///  remove junctions that are through-flowing and thus do not have the 
+  ///  correct drainage area
+  /// @param BaseLevelJunctions_Initial a vector of integers containg an inital
+  ///  list of base level nodes
+  /// @param FlowInfo The LSDFlowInfo object
+  /// @return a pruned list of base level nodes
+  /// @author SMM
+  /// @date 16/05/16
+  vector<int> Prune_Junctions_Edge(vector<int>& BaseLevelJunctions_Initial,LSDFlowInfo& FlowInfo);
+
+  /// @brief This function takes a list of junctions and then prunes
+  ///  junctions based on their number of contributing pixels
+  /// @param BaseLevelJunctions_Initial a vector of integers containg an inital
+  ///  list of base level nodes
+  /// @param FlowInfo The LSDFlowInfo object
+  /// @param FlowAcc an LSDIndexRaster with the number of pixels for flow accumulation
+  /// @param Threshold The minimum number of accumulated pixels needed to keep 
+  ///   a base level node. 
+  /// @return a pruned list of base level nodes
+  /// @author SMM
+  /// @date 16/05/16
+  vector<int> Prune_Junctions_Area(vector<int>& BaseLevelJunctions_Initial,LSDFlowInfo& FlowInfo,
+                              LSDIndexRaster& FlowAcc, int Threshold);
+
+  /// @brief This function takes a list of junctions retains ONLY the larges bains
+  ///  The junction is returned as an int vector so that it can be passed to other functions
+  ///  requiring junction lists. 
+  /// @param BaseLevelJunctions_Initial a vector of integers containg an inital
+  ///  list of base level nodes
+  /// @param FlowInfo The LSDFlowInfo object
+  /// @param FlowAcc an LSDIndexRaster with the number of pixels for flow accumulation
+  /// @return a pruned list of base level nodes
+  /// @author SMM
+  /// @date 03/06/16
+  vector<int> Prune_Junctions_Largest(vector<int>& BaseLevelJunctions_Initial,LSDFlowInfo& FlowInfo,
+                              LSDIndexRaster& FlowAcc);
+
+
+  /// @brief Get Junction number at a location.
   /// @param row Integer row index.
   /// @param col Integer column index.
   /// @return Junction number at location row,col.
   /// @author SMM
   /// @date 01/09/12
   int retrieve_junction_number_at_row_and_column(int row,int col)
-										{ return JunctionIndexArray[ row ][ col ]; }
+                       { return JunctionIndexArray[ row ][ col ]; }
 
-	/// @brief Function for printing out the longest channel upstream of a point.
+  /// @brief Function for printing out the longest channel upstream of a point.
   /// @param outlet_junction
   /// @param FInfo LSDFlowInfo object.
   /// @param dist_code
@@ -240,15 +299,15 @@ class LSDJunctionNetwork
   /// @author SMM
   /// @date 01/09/12
   void print_longest_channel(int outlet_junction, LSDFlowInfo& FInfo, LSDIndexRaster& dist_code,
-									LSDRaster& dist_from_outlet);
+                             LSDRaster& dist_from_outlet);
 
-	/// @brief Prints the information about the junctions to file.
+  /// @brief Prints the information about the junctions to file.
   /// @param filename Output filename to be appended with '.txt'.
   /// @author SMM
   /// @date 01/09/12
-	void print_junction_info_vectors(string filename);
+  void print_junction_info_vectors(string filename);
 
-	/// @brief This generates an LSDChannelIndex object given a junction.
+  /// @brief This generates an LSDChannelIndex object given a junction.
   ///
   /// @details NOTE: junctions start at the upstream end of the channel section.
   /// @param start_junction Junction to extract the channel from.
@@ -256,9 +315,9 @@ class LSDJunctionNetwork
   /// @return The channel for the given junction.
   /// @author SMM
   /// @date 01/09/12
-	LSDIndexChannel generate_link_index_channel_from_junction(int start_junction,LSDFlowInfo& FlowInfo);
+  LSDIndexChannel generate_link_index_channel_from_junction(int start_junction,LSDFlowInfo& FlowInfo);
 
-	/// @brief This function extracts the longest channel originating from a junction number
+  /// @brief This function extracts the longest channel originating from a junction number
   /// outlet_junction.
   /// @param outlet_junction Outlet of junction.
   /// @param FInfo LSDFlowInfo object.
@@ -266,7 +325,7 @@ class LSDJunctionNetwork
   /// @return LSDIndexRaster of the longest channel.
   /// @author SMM
   /// @date 01/09/12
-	LSDIndexChannel generate_longest_index_channel_from_junction(int outlet_junction,LSDFlowInfo& FInfo,LSDRaster& dist_from_outlet);
+  LSDIndexChannel generate_longest_index_channel_from_junction(int outlet_junction,LSDFlowInfo& FInfo,LSDRaster& dist_from_outlet);
 
   // this generates the longest channel in a basin. The basin starts where a channel of
   // some order intersects with a channel of higher order. So the bain includes the
@@ -289,7 +348,7 @@ class LSDJunctionNetwork
   /// @author SMM
   /// @date 01/09/12
   LSDIndexChannel generate_longest_index_channel_in_basin(int basin_junction, LSDFlowInfo& FInfo,
-						LSDRaster& dist_from_outlet);
+            LSDRaster& dist_from_outlet);
 
   /// @brief This extracts the junction numbers, in a vector of integers, of all basins of a
   /// given order.
@@ -339,9 +398,9 @@ class LSDJunctionNetwork
   /// @param nodes_on_main_stem_of_tributaries
   /// @author SMM
   /// @date 01/09/12
-	void extract_tributary_junctions_to_main_stem(LSDIndexChannel& MainStem, LSDFlowInfo& FlowInfo,
-				vector<int>& tributary_junctions,
-                    		vector<int>& nodes_on_main_stem_of_tributaries);
+  void extract_tributary_junctions_to_main_stem(LSDIndexChannel& MainStem, LSDFlowInfo& FlowInfo,
+                        vector<int>& tributary_junctions,
+                        vector<int>& nodes_on_main_stem_of_tributaries);
 
   /// @brief this function gets the tributary junctions upstream of the starting_junction based on
   /// pruning criteria.
@@ -352,8 +411,8 @@ class LSDJunctionNetwork
   /// pruning_switch == 0  channels are only added if they exceed a threshold drainage area \n
   /// pruning_switch == 1  channels are only added if the ratio between them
   ///   and the mainstem exceeds a certain value (pruning_threshold)\n
-  /// pruning_switch == 2	channels are only added if the ratio between them 
-  ///   and the area of the	mainstem _at the junction_ exceeds a certain value\n
+  /// pruning_switch == 2  channels are only added if the ratio between them 
+  ///   and the area of the  mainstem _at the junction_ exceeds a certain value\n
   /// pruning_switch == 3 channels are only added if the channel order is >= threshold.
   /// @param FlowInfo LSDFlowInfo object.
   /// @param ChannelNetwork LSDJunctionNetwork object.
@@ -365,7 +424,7 @@ class LSDJunctionNetwork
   /// @author DTM
   /// @date 30/04/2013
   vector<int> get_pruned_tributaries_from_main_stem(LSDFlowInfo& FlowInfo, LSDJunctionNetwork& ChannelNetwork,
-			int starting_junction, LSDRaster& DistanceFromOutlet, 
+                        int starting_junction, LSDRaster& DistanceFromOutlet, 
                         int pruning_switch, float pruning_threshold);
 
   /// @brief This function extracts basin nodes according to their accumulated drainage area.
@@ -375,7 +434,7 @@ class LSDJunctionNetwork
   /// @author DTM
   /// @date 07/05/2013
   vector<int> extract_basin_nodes_by_drainage_area(float DrainageAreaThreshold, LSDFlowInfo& FlowInfo);
-	
+
   /// @brief This function extracts basin junctions from a list of basin outlet nodes.
   /// @param basin_nodes list of basin outlet nodes
   /// @param FlowInfo LSDFlowInfo object
@@ -488,16 +547,16 @@ class LSDJunctionNetwork
   /// @date 26/09/2013
   int GetChannelHeadsChiMethodFromNode(int NodeNumber,
                               int MinSegLength, float A_0, float m_over_n,
-			      LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance, LSDRaster& ElevationRaster);
+            LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance, LSDRaster& ElevationRaster);
 
-	/// @brief This function generates LSDChannels that run from the hilltops above
+  /// @brief This function generates LSDChannels that run from the hilltops above
   /// all the sources from the valley network down to a specified number of downstream junctions below
   /// the sources
   /// @author FJC
   /// @date 10/09/15 
   int GetChannelHeadsChiMethodFromSourceNode(int NodeNumber,
                         int MinSegLength, float A_0, float m_over_n,
-											  LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance, LSDRaster& ElevationRaster, int NJunctions);
+                        LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance, LSDRaster& ElevationRaster, int NJunctions);
 
   /// @brief This function generates an LSDIndexRaster of the channel that runs from
   /// the hilltop above the furthest upslope source of the junction JunctionNumber
@@ -512,7 +571,7 @@ class LSDJunctionNetwork
   /// @author FJC
   /// @date 21/08/15
   LSDIndexRaster GetChannelfromDreich(int NodeNumber, int MinSegLength, float A_0, float m_over_n,
-											                LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance, LSDRaster& ElevationRaster, string path_name, int NJunctions);
+                                      LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance, LSDRaster& ElevationRaster, string path_name, int NJunctions);
 
 
 
@@ -526,9 +585,9 @@ class LSDJunctionNetwork
   /// @date 26/09/2013
 //   vector<int> GetChannelHeadsChiMethodBasinOrder(int BasinOrder,
 //                        int MinSegLength, float A_0, float m_over_n,
-// 		       LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance,
-// 		       LSDRaster& ElevationRaster);
-									  
+//            LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance,
+//            LSDRaster& ElevationRaster);
+                    
   /// @brief This function returns all potential channel heads in a DEM. It looks for
   /// channel heads based on the outlet junctions of the valleys (which are identified by looking 
   /// for portions of the landscape with 10 or more nodes with a high curvature that are linked)
@@ -544,10 +603,10 @@ class LSDJunctionNetwork
   /// @date 31/10/2013
 vector<int> GetChannelHeadsChiMethodFromValleys(vector<int> ValleyNodes,
                                       int MinSegLength, float A_0, float m_over_n,
-									                    LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance,
-									                    LSDRaster& ElevationRaster);
-				      
- 	/// @brief This function returns all potential channel heads in a DEM. It looks for
+                                      LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance,
+                                      LSDRaster& ElevationRaster);
+              
+   /// @brief This function returns all potential channel heads in a DEM. It looks for
   /// channel heads based on the valley source nodes identified as concave parts of the landscape
   /// @param ValleyJunctions
   /// @param MinSegLength
@@ -559,13 +618,13 @@ vector<int> GetChannelHeadsChiMethodFromValleys(vector<int> ValleyNodes,
   /// @param NJunctions number of downstream junctions to run the channel profiles from
   /// @return vector<int> a vector of node_indices of potential channel heads
   /// @author FC
-  /// @date 10/09/15								                    
-									                    
+  /// @date 10/09/15                                    
+                                      
   vector<int> GetChannelHeadsChiMethodFromSources(vector<int> ValleySources,
                                       int MinSegLength, float A_0, float m_over_n,
-									                    LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance,
-									                    LSDRaster& ElevationRaster, int NJunctions);
-				      
+                                      LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance,
+                                      LSDRaster& ElevationRaster, int NJunctions);
+              
   /// @brief This function returns all channels in the DEM that the DrEICH algorithm uses for segiment fitting.
   /// It looks for channels based on the outlet junctions of valleys.
   /// It returns a LSDIndexRaster with the channels.
@@ -578,9 +637,9 @@ vector<int> GetChannelHeadsChiMethodFromValleys(vector<int> ValleyNodes,
   /// @param ElevationRaster
   /// @return LSDIndexRaster with all channels
   /// @author FJC
-  /// @date 21/08/15	  
+  /// @date 21/08/15    
   LSDIndexRaster GetChannelsDreich(vector<int> ValleySources, int MinSegLength, float A_0, float m_over_n,
-									                    LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance, LSDRaster& ElevationRaster, string path_name, int NJunctions);
+                                      LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance, LSDRaster& ElevationRaster, string path_name, int NJunctions);
 
 
   /// @brief This function returns a 2D array containing the locations of all pixels identified
@@ -643,7 +702,7 @@ vector<int> GetChannelHeadsChiMethodFromValleys(vector<int> ValleyNodes,
   /// @date 16/07/13
   vector<int> calculate_pelletier_channel_heads(float tan_curv_threshold, LSDFlowInfo& FlowInfo, 
                                                 Array2D<float>& tan_curv_array);
-	
+
   /// @brief This function predicts channel head locations based on a tangential threshold 
   /// as proposed by Pelletier (2013).
   ///
@@ -670,7 +729,7 @@ vector<int> GetChannelHeadsChiMethodFromValleys(vector<int> ValleyNodes,
   vector<int> calculate_pelletier_channel_heads_DTM(LSDFlowInfo& FlowInfo, Array2D<float> topography, float tan_curv_threshold, Array2D<float>& tan_curv_array, Array2D<float>& tan_curv_array_LW);
   
   /// @brief This function identifies upstream limit of channel network
-	///
+  ///
   /// @detail This is used to reduce a map of channel pixels down to a vector of sources 
   /// for channel extraction.  It finds the upstream limit of each channel and then 
   /// removes channelised pixels that are on ANY downslope pathway, within convergent part 
@@ -686,7 +745,7 @@ vector<int> GetChannelHeadsChiMethodFromValleys(vector<int> ValleyNodes,
   /// @date 03/06/2014
   vector<int> identify_upstream_limits(LSDFlowInfo& FlowInfo, Array2D<float>& topography, 
                   vector<int> source_row_vec,vector<int> source_col_vec, Array2D<float>& tan_curv);
-	
+
   /// @brief This function is used to identify concave portions of the landscape using a tangential curvature threshold.
   ///
   /// @details It defines the threshold based on a multiple of the standard deviation
@@ -933,8 +992,8 @@ vector<int> GetChannelHeadsChiMethodFromValleys(vector<int> ValleyNodes,
   /// @author SMM
   /// @date 21/10/2013
   int find_upstream_junction_from_channel_nodeindex(int ChannelNodeIndex, LSDFlowInfo& FlowInfo);
-	
-	/// @brief This function checks whether any of the upstream nodes of a given junction are the same
+
+  /// @brief This function checks whether any of the upstream nodes of a given junction are the same
   /// steam order as the junction itself. It returns an integer value which is 1 if the SO is the same 
   /// and 0 if it is not the same.
   /// @param junction junction of interest
@@ -982,28 +1041,39 @@ vector<int> GetChannelHeadsChiMethodFromValleys(vector<int> ValleyNodes,
   /// @date 21/02/2014
   int find_base_level_node_of_junction(int StartingJunction);
 
+  /// @brief Prints a list of junctions, with their locations in both UTM and 
+  ///  in lat long WGS1984 to file
+  /// @detail The format of the file is:
+  ///  junction,node,x,y,latitude,longitude
+  /// @param FlowInfo an LSDFlowInfo object
+  /// @param JunctionList A list of junctions in an integer vector
+  /// @param fname The filename of the csv file
+  /// @author SMM
+  /// @date 18/05/2016
+  void print_junctions_to_csv(LSDFlowInfo& FlowInfo, vector<int> JunctionList, string fname);
+
   // Get functions
 
   /// @return Number of rows as an integer.
-  int get_NRows() const				{ return NRows; }
+  int get_NRows() const        { return NRows; }
 
   /// @return Number of columns as an integer.
-  int get_NCols() const				{ return NCols; }
+  int get_NCols() const        { return NCols; }
 
   /// @return Minimum X coordinate as an integer.
-  float get_XMinimum() const			{ return XMinimum; }
+  float get_XMinimum() const      { return XMinimum; }
 
   /// @return Minimum Y coordinate as an integer.
-  float get_YMinimum() const			{ return YMinimum; }
+  float get_YMinimum() const      { return YMinimum; }
 
   /// @return Data resolution as an integer.
-  float get_DataResolution() const	{ return DataResolution; }
+  float get_DataResolution() const  { return DataResolution; }
 
   /// @return No Data Value as an integer.
-  int get_NoDataValue() const			{ return NoDataValue; }
-	
+  int get_NoDataValue() const      { return NoDataValue; }
+  
   /// @return Georeferencing information
-  map<string,string> get_GeoReferencingStrings() const { return GeoReferencingStrings; }	
+  map<string,string> get_GeoReferencingStrings() const { return GeoReferencingStrings; }  
 
   /// @details Gets the node of a junction
   /// @param junction integer node index.
@@ -1022,7 +1092,7 @@ vector<int> GetChannelHeadsChiMethodFromValleys(vector<int> ValleyNodes,
   /// @author FJC
   /// @date 08/10/15
   int get_downstream_junction(int starting_junction, LSDFlowInfo& FlowInfo);
-	
+  
   /// @details Gets the stream order of a junction
   /// @param FlowInfo LSDFlowInfo object
   /// @param junction the junction of interest
@@ -1052,7 +1122,7 @@ vector<int> GetChannelHeadsChiMethodFromValleys(vector<int> ValleyNodes,
   int get_NJunctions() const { return int(JunctionVector.size()); }
   
   /// @return The Vector of Junctions.  
-  vector<int> get_JunctionVector() const { return JunctionVector; }		
+  vector<int> get_JunctionVector() const { return JunctionVector; }    
   
   /// @return Get the baselevel junstions
   vector<int> get_BaseLevelJunctions() const { return BaseLevelJunctions; }  
@@ -1086,7 +1156,23 @@ vector<int> GetChannelHeadsChiMethodFromValleys(vector<int> ValleyNodes,
   /// @author FJC
   /// @date 17/11/15
   LSDRaster calculate_relief_from_channel(LSDRaster& ElevationRaster, LSDFlowInfo& FlowInfo, int threshold_SO);
-  
+
+  /// @detail This overwrites two vecotrs that give all of the starting and 
+  ///  finishing nodes of channels in a basin
+  /// @param FlowInfo an LSDFlowInfo object
+  /// @param BaseLevel_Junctions an integer vector that contains the base level junctions
+  /// @param DistanceFromOutlet an LSDRaster with the flow distance
+  /// @param source_nodes a vector continaing the sorted sorce nodes (by flow distance)
+  ///  THIS GETS OVERWRITTEN
+  /// @param outlet_nodes a vector continaing the outlet nodes
+  ///  THIS GETS OVERWRITTEN
+  /// @author SMM
+  /// @date 20/05/2016
+  void get_overlapping_channels(LSDFlowInfo& FlowInfo, vector<int> BaseLevel_Junctions,
+                                LSDRaster& DistanceFromOutlet, 
+                                vector<int>& source_nodes, vector<int>& outlet_nodes,
+                                int n_nodes_to_visit);
+
   protected:
 
   ///Number of rows.
@@ -1148,7 +1234,7 @@ vector<int> GetChannelHeadsChiMethodFromValleys(vector<int> ValleyNodes,
   ///@brief This vector is used to calculate flow accumulation.
   ///
   ///@details For each base level junction it progresses from a hilltop to a confluence
-  ///and then	jumps to the next hilltop so that by cascading down through
+  ///and then jumps to the next hilltop so that by cascading down through
   ///the node indices in this list one can quickly calculate drainage area,
   ///discharge, sediment flux, etc.
   vector<int> SVector;

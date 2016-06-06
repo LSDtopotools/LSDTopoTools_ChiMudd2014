@@ -112,23 +112,23 @@ void LSDIndexChannelTree::create(LSDFlowInfo& FlowInfo, LSDJunctionNetwork& Chan
   YMinimum = FlowInfo.get_YMinimum();
   NoDataValue = ChannelNetwork.get_NoDataValue();
 
-  	organization_switch = 0;
+  organization_switch = 0;
 
-	// get the upstream junctions
-	upstream_junction_list = ChannelNetwork.get_upslope_junctions(starting_junction);
+  // get the upstream junctions
+  upstream_junction_list = ChannelNetwork.get_upslope_junctions(starting_junction);
 
-	// get the number of upstream junctions
-	int n_us_junctions = upstream_junction_list.size();
+  // get the number of upstream junctions
+  int n_us_junctions = upstream_junction_list.size();
 
-	int this_junction;
-	outlet_junction = starting_junction;
-	outlet_node = ChannelNetwork.get_Node_of_Junction(starting_junction);
+  int this_junction;
+  outlet_junction = starting_junction;
+  outlet_node = ChannelNetwork.get_Node_of_Junction(starting_junction);
 
-	for(int i = 0; i< n_us_junctions; i++)
-	{
-		this_junction = upstream_junction_list[i];
-		IndexChannelVector.push_back( ChannelNetwork.generate_link_index_channel_from_junction(this_junction,FlowInfo) );
-	}
+  for(int i = 0; i< n_us_junctions; i++)
+  {
+    this_junction = upstream_junction_list[i];
+    IndexChannelVector.push_back( ChannelNetwork.generate_link_index_channel_from_junction(this_junction,FlowInfo) );
+  }
 
 }
 
@@ -143,26 +143,26 @@ void LSDIndexChannelTree::create(LSDFlowInfo& FlowInfo, LSDJunctionNetwork& Chan
 void LSDIndexChannelTree::create(LSDFlowInfo& FlowInfo, LSDJunctionNetwork& ChannelNetwork,
 					      	int starting_junction, int org_switch, LSDRaster& DistanceFromOutlet)
 {
-	NRows = FlowInfo.get_NRows();
-	NCols = FlowInfo.get_NCols();
-	DataResolution = FlowInfo.get_DataResolution();
-	XMinimum = FlowInfo.get_XMinimum();
-	YMinimum = FlowInfo.get_YMinimum();
-	NoDataValue = ChannelNetwork.get_NoDataValue();
+  NRows = FlowInfo.get_NRows();
+  NCols = FlowInfo.get_NCols();
+  DataResolution = FlowInfo.get_DataResolution();
+  XMinimum = FlowInfo.get_XMinimum();
+  YMinimum = FlowInfo.get_YMinimum();
+  NoDataValue = ChannelNetwork.get_NoDataValue();
 
-  	organization_switch = org_switch;
+  organization_switch = org_switch;
 
-	if (organization_switch == 0)
-	{
-		// get the upstream junctions
-		upstream_junction_list = ChannelNetwork.get_upslope_junctions(starting_junction);
+  if (organization_switch == 0)
+  {
+    // get the upstream junctions
+    upstream_junction_list = ChannelNetwork.get_upslope_junctions(starting_junction);
 
-		// get the number of upstream junctions
-		int n_us_junctions = upstream_junction_list.size();
+    // get the number of upstream junctions
+    int n_us_junctions = upstream_junction_list.size();
 
-		int this_junction;
-		outlet_junction = starting_junction;
-		outlet_node = ChannelNetwork.get_Node_of_Junction(starting_junction);
+    int this_junction;
+    outlet_junction = starting_junction;
+    outlet_node = ChannelNetwork.get_Node_of_Junction(starting_junction);
 
 		for(int i = 0; i< n_us_junctions; i++)
 		{

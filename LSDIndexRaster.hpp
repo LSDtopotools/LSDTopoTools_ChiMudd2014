@@ -78,6 +78,7 @@
 #include <vector>
 #include <map>
 #include "TNT/tnt.h"
+#include "LSDShapeTools.hpp"
 //#include "LSDRaster.hpp"
 
 using namespace std;
@@ -137,13 +138,38 @@ class LSDIndexRaster
             float cellsize, int ndv, Array2D<int> data, map<string,string> GRS_map)
              { create(nrows, ncols, xmin, ymin, cellsize, ndv, data, GRS_map); }
 
+  /// @brief Create an LSDIndexRaster with a constant value.
+  /// @return LSDIndexRaster
+  /// @param nrows An integer of the number of rows.
+  /// @param ncols An integer of the number of columns.
+  /// @param xmin A float of the minimum X coordinate.
+  /// @param ymin A float of the minimum Y coordinate.
+  /// @param cellsize A float of the cellsize.
+  /// @param ndv An integer of the no data value.
+  /// @param GRS_map a map containing information about the georeferencing
+  /// @param ConstValue the value all elements in array have
+  /// containing the data to be written.
+  /// @author SMM
+  /// @date 20/05/16
+  LSDIndexRaster(int nrows, int ncols, float xmin, float ymin,
+            float cellsize, int ndv, map<string,string> GRS_map, int ConstValue)
+             { create(nrows, ncols, xmin, ymin, cellsize, ndv, GRS_map, ConstValue); }
 
   /// @brief Create an LSDIndexRaster from an LSDRaster object, rounding to nearest int
   /// @return LSDIndexRaster
   /// @param NonIntLSDRaster an LSDRaster object containing flaoting point data
   /// @author MDH
   /// @date 17/02/15
-  LSDIndexRaster(LSDRaster& NonIntLSDRaster)   {create(NonIntLSDRaster); }
+  LSDIndexRaster(LSDRaster& NonIntLSDRaster)   { create(NonIntLSDRaster); }
+
+  /// @brief Create an LSDIndexRaster that is the same size as a raster
+  ///  but all values are some constant value
+  /// @param NonIntLSDRaster an LSDRaster object 
+  /// @param CanstValue a value that will be assigned to all data points
+  /// @author SMM
+  /// @date 19/05/16
+  LSDIndexRaster(LSDRaster& ARaster,int ConstValue)   { create(ARaster, ConstValue); }
+  
   
   // Get functions
 
@@ -229,7 +255,41 @@ class LSDIndexRaster
   /// @param y_loc the y location (Easting) of the node
   /// @author SMM
   /// @date 22/12/2014
+  void get_x_and_y_locations(int row, int col, double& x_loc, double& y_loc);
+
+  /// @brief this gets the x and y location of a node at row and column
+  /// @param row the row of the node
+  /// @param col the column of the node
+  /// @param x_loc the x location (Northing) of the node
+  /// @param y_loc the y location (Easting) of the node
+  /// @author SMM
+  /// @date 22/12/2014
   void get_x_and_y_locations(int row, int col, float& x_loc, float& y_loc);
+
+  /// @brief a function to get the lat and long of a node in the raster
+  /// @detail Assumes WGS84 ellipsiod
+  /// @param row the row of the node
+  /// @param col the col of the node
+  /// @param lat the latitude of the node (in decimal degrees, replaced by function)
+  ///  Note: this is a double, because a float does not have sufficient precision
+  ///  relative to a UTM location (which is in metres)
+  /// @param long the longitude of the node (in decimal degrees, replaced by function)
+  ///  Note: this is a double, because a float does not have sufficient precision
+  ///  relative to a UTM location (which is in metres)
+  /// @param Converter a converter object (from LSDShapeTools)
+  /// @author SMM
+  /// @date 24/05/2015
+  void get_lat_and_long_locations(int row, int col, double& lat, 
+                  double& longitude, LSDCoordinateConverterLLandUTM Converter);
+
+  /// @brief this function gets the UTM_zone and a boolean that is true if
+  /// the map is in the northern hemisphere
+  /// @param UTM_zone the UTM zone. Replaced in function. 
+  /// @param is_North a boolean that is true if the DEM is in the northern hemisphere.
+  ///  replaced in function
+  /// @author SMM
+  /// @date 22/12/2014
+  void get_UTM_information(int& UTM_zone, bool& is_North);
 
   /// @brief Method to flatten an LSDRaster to a text file, with a sigle value on each line. 
   /// @brief Method to flatten an LSDRaster and place the non NDV values in a csv file.
@@ -474,8 +534,11 @@ class LSDIndexRaster
   void create(int ncols, int nrows, float xmin, float ymin,
               float cellsize, int ndv, Array2D<int> data, 
               map<string,string> GRS_map);
+  void create(int nrows, int ncols, float xmin, float ymin,
+              float cellsize, int ndv, map<string,string> GRS_map, 
+              int ConstValue);
   void create(LSDRaster& NonIntLSDRaster);            
-
+  void create(LSDRaster& ARaster, int ConstValue);
 };
 
 #endif
