@@ -1,0 +1,38 @@
+# Parameters for performing chi analysis
+# Comments are preceeded by the hash symbol
+# Documentation can be found here: 
+# http://lsdtopotools.github.io/LSDTT_book/#_chi_analysis_part_3_getting_chi_gradients_for_the_entire_landscape
+
+# These are parameters for the file i/o
+# IMPORTANT: You MUST make the write directory: the code will not work if it doens't exist. 
+read path: /LSDTopoTools/Topographic_projects/Test_Chi
+write path: /LSDTopoTools/Topographic_projects/Test_Chi/New_Folder
+read fname: HarringCreek
+channel heads fname: NULL
+
+# Parameter for filling the DEM
+min_slope_for_fill: 0.0001
+
+# Parameters for selecting channels and basins
+
+threshold_contributing_pixels: 200000
+minimum_basin_size_pixels: 50000
+test_drainage_boundaries: false
+
+# Parameters for chi analysis
+A_0: 1000
+m_over_n: 0.45
+threshold_pixels_for_chi: 20000
+
+n_iterations: 20
+target_nodes: 80
+minimum_segment_length: 10
+sigma: 10.0
+skip: 2
+
+# The data that you want printed to file
+only_check_parameters: false
+print_stream_order_raster: false
+print_DrainageArea_raster: false
+print_segmented_M_chi_map_to_csv: true
+print_simple_chi_map_to_csv: true
