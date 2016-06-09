@@ -8,6 +8,7 @@ SOURCES=chi_mapping_tool.cpp \
              ../LSDMostLikelyPartitionsFinder.cpp \
              ../LSDIndexRaster.cpp \
              ../LSDRaster.cpp \
+             ../LSDRasterInfo.cpp \
              ../LSDFlowInfo.cpp \
              ../LSDJunctionNetwork.cpp \
              ../LSDIndexChannel.cpp \

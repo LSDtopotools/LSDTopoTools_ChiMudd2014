@@ -46,6 +46,7 @@
 #include "../LSDStatsTools.hpp"
 #include "../LSDChiNetwork.hpp"
 #include "../LSDRaster.hpp"
+#include "../LSDRasterInfo.hpp"
 #include "../LSDIndexRaster.hpp"
 #include "../LSDFlowInfo.hpp"
 #include "../LSDJunctionNetwork.hpp"
@@ -91,7 +92,7 @@ int main (int nNumberofArgs,char *argv[])
   cout << "The path is: " << path_name << " and the filename is: " << f_name << endl;
 
   string full_name = path_name+f_name;
-
+    
   ifstream file_info_in;
   file_info_in.open(full_name.c_str());
   if( file_info_in.fail() )
@@ -309,6 +310,9 @@ int main (int nNumberofArgs,char *argv[])
   boundary_conditions[2] = "no flux";
   boundary_conditions[3] = "No flux";
 
+  // check to see if the raster exists
+  LSDRasterInfo RI(DATA_DIR+DEM_ID), raster_ext);  
+        
   // load the  DEM
   LSDRaster topography_raster((DATA_DIR+DEM_ID), raster_ext);
   cout << "Got the dem: " <<  DATA_DIR+DEM_ID << endl;
@@ -477,7 +481,7 @@ int main (int nNumberofArgs,char *argv[])
   cout << "Right, let me check the drainage basins. " << endl;
   if (test_drainage_boundaries)
   {
-    cout << "Test_drainage_bondaries: " << test_drainage_boundaries << endl;
+    cout << "Test_drainage_boundaries: " << test_drainage_boundaries << endl;
   
     cout << endl << endl << "I am going to remove any basins draining to the edge." << endl;
     BaseLevelJunctions = JunctionNetwork.Prune_Junctions_Edge(BaseLevelJunctions_Initial,FlowInfo); 
@@ -500,21 +504,24 @@ int main (int nNumberofArgs,char *argv[])
 
   // Correct number of base level junctions
   N_BaseLevelJuncs = BaseLevelJunctions.size();
+  cout << "The number of basins I will analyse is: " << N_BaseLevelJuncs << endl;
 
   // calculate chi for the entire DEM
+  cout << "Calculating the chi coordinate for A_0: " << A_0 << " and m/n: " << movern << endl; 
   LSDRaster chi_coordinate = FlowInfo.get_upslope_chi_from_all_baselevel_nodes(movern,A_0,thresh_area_for_chi);
-  
-  if(print_chi_coordinate_raster)
-  {
-    string chi_coord_string = OUTPUT_DIR+DEM_ID+"_chi_coord";
-    chi_coordinate.write_raster(chi_coord_string,raster_ext);
-  }
-
-  // now use a ChiTool object to print the chi tree to csv
+                                                                            
+  if(print_chi_coordinate_raster)                                           
+  {                                                                         
+    string chi_coord_string = OUTPUT_DIR+DEM_ID+"_chi_coord";               
+    chi_coordinate.write_raster(chi_coord_string,raster_ext);               
+  }                                                                         
+                                                                            
+  // now use a ChiTool object to print the chi tree to csv                  
   LSDChiTools ChiTool(FlowInfo);
   
   if (print_simple_chi_map_to_csv)
   {
+    cout <<"I am printing a simple chi map for you to csv." << endl;
     string chi_csv_fname = OUTPUT_DIR+DEM_ID+"_chi_coord.csv";
     ChiTool.chi_map_to_csv(FlowInfo, chi_csv_fname, chi_coordinate);
   }
@@ -526,12 +533,19 @@ int main (int nNumberofArgs,char *argv[])
   if (print_segmented_M_chi_map_to_csv || print_basic_M_chi_map_to_csv)
   // now get the overlapping channels from the junction network file
   {
+    cout << "I am getting the source and outlet nodes for the overlapping channels" << endl;
+    cout << "The n_nodes to visit are: " << n_nodes_to_visit << endl;
     JunctionNetwork.get_overlapping_channels(FlowInfo, BaseLevelJunctions, DistanceFromOutlet, 
                                     source_nodes,outlet_nodes,n_nodes_to_visit);
   }
 
   if (print_segmented_M_chi_map_to_csv)
   {
+    cout << "I am calculating the segmented channels" << endl;
+    if (source_nodes.size() == 0)
+    {
+      cout << "I don't seem to have any source nodes!" << endl;
+    }
     ChiTool.chi_map_automator(FlowInfo, source_nodes, outlet_nodes,
                             filled_topography, DistanceFromOutlet, 
                             DrainageArea, chi_coordinate, target_nodes, 
