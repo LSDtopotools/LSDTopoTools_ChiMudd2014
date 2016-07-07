@@ -311,7 +311,7 @@ int main (int nNumberofArgs,char *argv[])
   boundary_conditions[3] = "No flux";
 
   // check to see if the raster exists
-  LSDRasterInfo RI(DATA_DIR+DEM_ID), raster_ext);  
+  LSDRasterInfo RI((DATA_DIR+DEM_ID), raster_ext);  
         
   // load the  DEM
   LSDRaster topography_raster((DATA_DIR+DEM_ID), raster_ext);

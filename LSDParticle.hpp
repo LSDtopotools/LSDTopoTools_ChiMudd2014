@@ -1018,6 +1018,45 @@ void update_10Be_SSfull_depth_integrated(double erosion_rate, LSDCRNParameters& 
                       double sample_del10, double sample_del26,
                       double topo_scale, double snow_scale);
 
+  /// @brief This function wraps the functions for getting the erosion rate 
+  ///  from Al and Be data. Similar to above but modifies production rates 
+  /// @detail The function emulates the get_al_be_erosion.m from the
+  ///  CRONUS calculator, written by Greg Balco
+  /// @param LSDCRNP and LSDCRNParameters object
+  /// @param pressure the atmospheric pressure in hPa
+  /// @param lat the latitude  
+  /// @param rho the density in kg/m^3
+  /// @param N_10Be the number of 10Be atoms
+  /// @param N_26 the number of 26Al atoms
+  /// @param sample_del10 The accelerator uncertanty in the number of 10Be atoms
+  /// @param sample_del26 The accelerator uncertanty in the number of 26Al atoms
+  /// @param topo_scale the topographic scaling (between 0 and 1)
+  /// @param snow_scale the snow scaling (between 0 and 1)
+  /// @param Spallation_frac fraction change in the default spallation
+  /// @param P_mu_frac fraction change in the default muon production
+  /// @return erate_consts A vector containing information about erosion rates and 
+  ///   uncertainties
+  ///  erate_consts[0] = erate_10Be in g/cm^2/yr
+  ///  erate_consts[1] = erate_10Be in M/Myrs
+  ///  erate_consts[2] = erate 10Be internal uncertainty in M/Myrs
+  ///  erate_consts[3] = erate 10Be external uncertainty in M/Myrs
+  ///  erate_consts[4] = 10Be muon production rate atoms/g/yr
+  ///  erate_consts[5] = 10Be spallation production rate atoms/g/yr
+  ///  erate_consts[6] = erate_26Al in g/cm^2/yr
+  ///  erate_consts[7] = erate_26Al in M/Myrs
+  ///  erate_consts[9] = erate 26Al internal uncertainty in M/Myrs
+  ///  erate_consts[9] = erate 26Al external uncertainty in M/Myrs
+  ///  erate_consts[10] = 26Al muon production rate atoms/g/yr
+  ///  erate_consts[11] = 26Al spallation production rate atoms/g/yr  
+  /// @author SMM
+  /// @date 16/12/2014
+  vector<double> CRONUS_get_Al_Be_erosion_modified_production(LSDCRNParameters& LSDCRNP, double pressure,
+                      double lat, double rho, double N_10Be, double N_26Al,
+                      double sample_del10, double sample_del26,
+                      double topo_scale, double snow_scale,
+                      double Spallation_frac, double P_mu_frac);
+
+
   /// @brief This produces a screen report that replicates the CRONUS calculator
   ///  screen report
   /// @param erate_consts the vector that is returned by the function

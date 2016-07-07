@@ -1552,6 +1552,7 @@ vector<int> LSDFlowInfo::Ingest_Channel_Heads(string filename, string extension,
   for (int j = 0; j < NCols; ++j){
     if (CHeads.get_data_element(i,j) != NoDataValue){
       CH_node = retrieve_node_from_row_and_column(i,j);
+			//cout << "Row: " << i << " Col: " << j << endl;
       if (CH_node != NoDataValue){
         Sources.push_back(CH_node);
       } 

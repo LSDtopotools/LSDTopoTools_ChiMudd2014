@@ -304,12 +304,12 @@ int LSDIndexChannel::get_contributing_pixels_at_node(int n_node, LSDFlowInfo& Fl
   int n_nodes_in_channel = int(NodeSequence.size());
   if (n_node < 0)
   {
-    cout << "LINE 138 LSDIndexChannel Not in channel!" << endl;
+    cout << "LINE 307 LSDIndexChannel Not in channel!" << endl;
     exit(EXIT_FAILURE);
   }
   if (n_node >= n_nodes_in_channel)
   {
-    cout << "LINE 138 LSDIndexChannel Not in channel!" << endl;
+    cout << "LINE 312 LSDIndexChannel Not in channel!" << endl;
     exit(EXIT_FAILURE);
   }
   return FlowInfo.retrieve_contributing_pixels_of_node( NodeSequence[n_node] );
@@ -325,14 +325,16 @@ int LSDIndexChannel::get_contributing_pixels_at_node(int n_node, LSDFlowInfo& Fl
 int LSDIndexChannel::get_node_in_channel(int n_node)
 {
 	int n_nodes_in_channel = int(NodeSequence.size());
+	cout << "N nodes in channel: " << n_nodes_in_channel << endl;
+	cout << "Node: " << n_node << endl;
 	if (n_node < 0)
 	{
-		cout << "LINE 138 LSDIndexChannel Not in channel!" << endl;
+		cout << "LINE 330 LSDIndexChannel Not in channel!" << endl;
 		exit(EXIT_FAILURE);
 	}
 	if (n_node >= n_nodes_in_channel)
 	{
-		cout << "LINE 138 LSDIndexChannel Not in channel!" << endl;
+		cout << "LINE 335 LSDIndexChannel Not in channel!" << endl;
 		exit(EXIT_FAILURE);
 	}
 	return NodeSequence[n_node];
@@ -352,12 +354,12 @@ void LSDIndexChannel::get_node_row_col_in_channel(int n_node, int& node, int& ro
 	int n_nodes_in_channel = int(NodeSequence.size());
 	if (n_node < 0)
 	{
-		cout << "LINE 138 LSDIndexChannel Not in channel!" << endl;
+		cout << "LINE 355 LSDIndexChannel Not in channel!" << endl;
 		exit(EXIT_FAILURE);
 	}
 	if (n_node >= n_nodes_in_channel)
 	{
-		cout << "LINE 138 LSDIndexChannel Not in channel!" << endl;
+		cout << "LINE 360 LSDIndexChannel Not in channel!" << endl;
 		exit(EXIT_FAILURE);
 	}
 	node = NodeSequence[n_node];

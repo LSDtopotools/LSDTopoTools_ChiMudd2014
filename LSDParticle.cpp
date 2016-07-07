@@ -2440,11 +2440,205 @@ vector<double> LSDCRNParticle::CRONUS_get_Al_Be_erosion(LSDCRNParameters& LSDCRN
   
   return erate_consts;
 }
-//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// CRONUS Get erosion
+// This function emulates the CroNUS calculator
+// get_al_be_erosion.m
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+vector<double> LSDCRNParticle::CRONUS_get_Al_Be_erosion_modified_production(LSDCRNParameters& LSDCRNP, double pressure,
+                      double lat, double rho, double N_10Be, double N_26Al, 
+                      double sample_del10, double sample_del26,
+                      double topo_scale, double snow_scale,
+                      double Spallation_frac, double P_mu_frac)
+{
+  // some erosion parameters that will be determined by this function 
+  // erate_consts holds all the information that replicates the CRONUS calculator
+  // e.g., erosion rate, production rates and uncertainties. 
+  double eff_e_10Be = 0;
+  double eff_e_26Al = 0;
+  vector<double> erate_consts(12,0.0);
+  
+  bool use_CRONUS = true;
+  
+  // first scale the thickness
+  double thickSF = thickness_scaling_factor(LSDCRNP, use_CRONUS);
+  cout << "thickSF is: " << thickSF << endl;
+  
+  // Now get the initial guess
+  vector<double> initial_guess = CRONUS_initial_guess(LSDCRNP, pressure, lat, 
+                                         N_10Be, N_26Al, topo_scale, snow_scale);
+  
+  // variable for holding the number of atoms per gram
+  double N10_this_step,N10_displace;
+  //double N10;
+  double N26_this_step,N26_displace;
+  //double N26;
+  double N_derivative;        // derivative of the function describing N as a fxn of erosion
+  double e_displace = 0.0001;   // how far one moves erosion rate to calculate derivative
+  double e_new,e_change;      // the erosion rate in the Newton-Raphson iteration
+  double tolerance = 1e-10;
+  double f_x;                 // we call this the 'function' where we need to find
+                              // a root. It is just the N atoms minus the target atoms
+  double f_x_displace;                           
+  
+  // get some parameters for Stone production
+  vector<double> Prefs_st = LSDCRNP.get_Stone_Pref();
+  
+  // get the Stone scaling
+  double Fsp = 1.0;     // for the initial guess we don't adjust Fsp (as in CRONUS)
+  double stoneP = stone2000sp(lat, pressure, Fsp);
+  //cout << "LINE 1718 Lat: " << lat << " pressure: " << pressure << " stone: " << stoneP << endl;
+  
+  // retrieve the pre-scaling factors
+  double P_ref_St_10 = Prefs_st[0]*Spallation_frac;
+  double P_ref_St_26 = Prefs_st[1]*Spallation_frac;
+  //cout << "P ref stone 10: " <<  P_ref_St_10 <<  " P_ref_St_26: " << P_ref_St_26 << endl;
+  
+  // precalculate the P_mu vectors
+  vector<double> z_mu;
+  vector<double> P_mu_z_10Be;
+  vector<double> P_mu_z_26Al;
+  LSDCRNP.get_CRONUS_P_mu_vectors(pressure, effective_dLoc, z_mu, 
+                                  P_mu_z_10Be,P_mu_z_26Al);
+  
+  int n_pmu = (P_mu_z_10Be.size());
+  for (int i = 0; i<n_pmu; i++)
+  {
+    P_mu_z_10Be[i] = P_mu_z_10Be[i]*P_mu_frac;
+    P_mu_z_26Al[i] = P_mu_z_26Al[i]*P_mu_frac;
+  }
+  
+  // get the scaled production rates
+  double P_sp_10Be = P_ref_St_10*stoneP*topo_scale*snow_scale;
+  double P_sp_26Al = P_ref_St_26*stoneP*topo_scale*snow_scale;
+  
+  //cout << "P_sp_10Be: " << P_sp_10Be << " P_sp_26Al: " << P_sp_26Al << endl;
+  
+  if(N_10Be > 0)
+  {
+    // now enter search for the correct erosion rate. 
+    // first do 10Be
+    // get the initial concentrations
+    e_new = initial_guess[0];
+    //cout << endl << endl << "10Be initial guess is: " << e_new << endl;
+    // now iterate using newton-raphson
+    do
+    {
+      
+      // get the new values
+      CRONUS_calculate_N_forward(e_new, LSDCRNP,z_mu, 
+                          P_mu_z_10Be, P_mu_z_26Al, thickSF, P_sp_10Be, P_sp_26Al,
+                          N10_this_step, N26_this_step);
+       f_x =  N10_this_step-N_10Be;                  
+                          
+      // now get the derivative
+      CRONUS_calculate_N_forward(e_new+e_displace, LSDCRNP,z_mu, 
+                          P_mu_z_10Be, P_mu_z_26Al, thickSF, P_sp_10Be, P_sp_26Al,
+                          N10_displace, N26_displace);
+      f_x_displace =  N10_displace-N_10Be;                    
+                          
+      N_derivative = (f_x_displace-f_x)/e_displace;
+      
+      //cout << "N10: " << N10_this_step << " + displace: " << N10_displace  << endl;
+      //cout << "fx: " <<  f_x << " f_x_displace: " << f_x_displace << " fprimex: " << N_derivative << endl;
+      
+      if(N_derivative != 0)
+      {
+        e_new = e_new-f_x/N_derivative;
+      
+        // check to see if the difference in erosion rates meet a tolerance
+        e_change = f_x/N_derivative;
+        //cout << "Change is: " << e_change << " and erosion rate is: " << e_new << endl;
+      }
+      else
+      {
+        e_change = 0;
+      }
+    
+    } while(fabs(e_change) > tolerance);
+    eff_e_10Be = e_new; 
+  }
+
+  // now enter search for the correct erosion rate. 
+  // now do 26Al
+  
+  if(N_26Al > 0)
+  {
+    // get the initial concentrations
+    e_new = initial_guess[1];
+    //cout << endl << endl << "26Al initial guess is: " << e_new << endl;
+    // now iterate using newton-raphson
+    do
+    {
+      
+      // get the new values
+      CRONUS_calculate_N_forward(e_new, LSDCRNP,z_mu, 
+                          P_mu_z_10Be, P_mu_z_26Al, thickSF, P_sp_10Be, P_sp_26Al,
+                          N10_this_step, N26_this_step);
+       f_x =  N26_this_step-N_26Al;                  
+                          
+      // now get the derivative
+      CRONUS_calculate_N_forward(e_new+e_displace, LSDCRNP,z_mu, 
+                          P_mu_z_10Be, P_mu_z_26Al, thickSF, P_sp_10Be, P_sp_26Al,
+                          N10_displace, N26_displace);
+      f_x_displace =  N26_displace-N_26Al;                    
+                          
+      N_derivative = (f_x_displace-f_x)/e_displace;
+      
+      //cout << "N10: " << N10_this_step << " + displace: " << N10_displace  << endl;
+      //cout << "fx: " <<  f_x << " f_x_displace: " << f_x_displace << " fprimex: " << N_derivative << endl;
+      
+      if(N_derivative != 0)
+      {
+        e_new = e_new-f_x/N_derivative;
+      
+        // check to see if the difference in erosion rates meet a tolerance
+        e_change = f_x/N_derivative;
+        //cout << "Change is: " << e_change << " and erosion rate is: " << e_new << endl;
+      }
+      else
+      {
+        e_change = 0;
+      }
+    
+    } while(fabs(e_change) > tolerance);
+    eff_e_26Al = e_new;
+  }
+  
+  vector<double> uncertainties = 
+           CRONUS_error_propagation(pressure, LSDCRNP, thickSF,rho,N_10Be, N_26Al,
+                      sample_del10, sample_del26, z_mu,  P_mu_z_10Be, P_mu_z_26Al,
+                      P_sp_10Be, P_sp_26Al, eff_e_10Be, eff_e_26Al);
+  
+  cout << "10Be atoms from spallation: " << uncertainties[8] 
+       << " and muons: " << uncertainties[9]  << endl;
+  cout << "26Al atoms from spallation: " << uncertainties[10] 
+       << " and muons: " << uncertainties[11]  << endl;       
+  
+  
+  erate_consts[0] = eff_e_10Be;
+  erate_consts[1] = eff_e_10Be*1.0e7/rho;
+  erate_consts[2] = uncertainties[1];
+  erate_consts[3] = uncertainties[0];
+  erate_consts[4] = uncertainties[3];
+  erate_consts[5] = P_sp_10Be;
+  erate_consts[6] = eff_e_26Al;
+  erate_consts[7] = eff_e_26Al*1.0e7/rho;
+  erate_consts[8] = uncertainties[5];
+  erate_consts[9] = uncertainties[4];
+  erate_consts[10] = uncertainties[7];
+  erate_consts[11] = P_sp_26Al; 
+  
+  return erate_consts;
+}
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // This function produces a screen report similar to that in CRONUS calculator
-//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 void LSDCRNParticle::CRONUS_screen_report(vector<double> erate_consts)
 {
 

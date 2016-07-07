@@ -75,7 +75,7 @@ vector<float> simple_linear_regression(vector<float>& x_data, vector<float>& y_d
 float get_mean(vector<float>& y_data);
 float get_mean_ignore_ndv(Array2D<float>& data, float ndv);
 float get_SST(vector<float>& y_data, float mean);
-float get_variance_ignore_ndv(Array2D<float>& data, float ndv, float mean); 
+float get_variance_ignore_ndv(Array2D<float>& data, float ndv, float mean);
 float get_range_ignore_ndv(Array2D<float>& data, float ndv);
 float get_range_from_vector(vector<float>& y_data, float ndv);
 float get_durbin_watson_statistic(vector<float> residuals);
@@ -95,7 +95,7 @@ void get_peak_indices(vector<float>& y_data, float threshold, int distance, vect
 // sorts data; produces quartile-quantile comparison against standard normal variate, returning
 // an (evenly spaced) sorted subsample of N_points, their corresponding normal variate and the
 // reference value  from the standard normal distribution.  Test for departures from normality
-// within the given distribution.  
+// within the given distribution.
 void generate_q_q_plot(vector<float>& data, vector<float>& values, vector<float>& standard_normal_variates, vector<float>& mn_values, int N_points);
 
 // declaration of the quantile_quantile analysis
@@ -106,7 +106,7 @@ void quantile_quantile_analysis(vector<float>& data, vector<float>& values, vect
 void quantile_quantile_analysis_defined_percentiles(vector<float>& data, vector<float>& values, vector<float>& standard_normal_variates, vector<float>& mn_values, int N_points, int lower_percentile, int upper_percentile);
 
 // calculates least squares linear regression for two datasets, returning
-// gradient and intercept of regression line, alongside the R-squared value. 
+// gradient and intercept of regression line, alongside the R-squared value.
 // DTM 07/10/2014
 void least_squares_linear_regression(vector<float> x_data, vector<float> y_data, float& intercept, float& gradient, float& R_squared);
 // take a slice of a vector
@@ -119,19 +119,19 @@ double interp1D_ordered(vector<double>& x, vector<double>& y, double x_interp_lo
 vector<double> interp1D_ordered(vector<double>& x, vector<double>& y, vector<double> x_interp_loc);
 float interp1D_ordered(vector<float>& x, vector<float>& y, float x_interp_loc);
 vector<float> interp1D_ordered(vector<float>& x, vector<float>& y, vector<float> x_interp_loc);
-vector<double> interp1D_spline_ordered(vector<double>& x_data, vector<double>& y_data, 
+vector<double> interp1D_spline_ordered(vector<double>& x_data, vector<double>& y_data,
                                        vector<double>& x_interp_locs);
 float interp1D_unordered(vector<float> x, vector<float> y, float x_interp_loc);
 vector<float> interp1D_unordered(vector<float> x, vector<float> y, vector<float>& x_interp_loc);
 double interp1D_unordered(vector<double> x, vector<double> y, double x_interp_loc);
 vector<double> interp1D_unordered(vector<double> x, vector<double> y, vector<double>& x_interp_loc);
-vector<double> interp1D_spline_unordered(vector<double> x_data, vector<double> y_data, 
+vector<double> interp1D_spline_unordered(vector<double> x_data, vector<double> y_data,
                                        vector<double>& x_interp_locs);
-double interp2D_bilinear(vector<double>& x_locs, vector<double>& y_locs, Array2D<double> data, 
-                        double x_interp, double y_interp);    
-float interp2D_bilinear(vector<float>& x_locs, vector<float>& y_locs, Array2D<float> data, 
-                        float x_interp, float y_interp);                                                           
-                                       
+double interp2D_bilinear(vector<double>& x_locs, vector<double>& y_locs, Array2D<double> data,
+                        double x_interp, double y_interp);
+float interp2D_bilinear(vector<float>& x_locs, vector<float>& y_locs, Array2D<float> data,
+                        float x_interp, float y_interp);
+
 // Generate spline curves from X and Y vectors of floats
 Array2D<float> CalculateCubicSplines(vector<float> X, vector<float> Y);
 void PlotCubicSplines(vector<float> X, vector<float> Y, int SplineResolution, vector<float>& Spline_X, vector<float>& Spline_Y);
@@ -204,7 +204,7 @@ class band_matrix
 // cout << "spline at " << x << " is: " << s(x) <<endl;
 //
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-class spline 
+class spline
 {
   private:
    std::vector<double> m_x,m_y;           // x,y coordinates of points
@@ -323,6 +323,19 @@ bool atobool(string value);
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 double Gauss_rand(int Nrand, double GaussAdd, double GaussFac);
 
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Use the Marsaglia polar method to generate random numbers drawn from a normal distribution
+// with a given mean and minimum values. Set allowNegative to false to stop output values from
+// dropping below zero.
+//
+// Extreme values can fall below or above the boundaries in < 3 sigma of cases.
+//
+// Seed for random number will fail post 2038. I will instruct my firstborn to resolve this
+// problem.
+//
+// SWDG 9/6/16
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+float getGaussianRandom(float minimum, float mean, bool allowNegative);
 
 // Log binning module
 // two overloaded functions:
@@ -342,10 +355,10 @@ void bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, float bi
                   vector<float>&  MeanX_output, vector<float>& MeanY_output,
                       vector<float>& midpoints_output, vector<float>& MedianY_output,
                       vector<float>&  StandardDeviationX_output, vector<float>&  StandardDeviationY_output,
-                      vector<float>& StandardErrorX_output, vector<float>& StandardErrorY_output, 
+                      vector<float>& StandardErrorX_output, vector<float>& StandardErrorY_output,
                       vector<int>& number_observations_output, float& bin_lower_limit, float NoDataValue);
 
-//look for empty bins output from the log binning function and removes them to avoid 
+//look for empty bins output from the log binning function and removes them to avoid
 //plotting several empty bins at 0,0 in some cases. SWDG 6/11/13
 void RemoveSmallBins(vector<float>&  MeanX_output, vector<float>& MeanY_output,
                       vector<float>& midpoints_output, vector<float>& StandardDeviationX_output, vector<float>& StandardDeviationY_output,
@@ -353,7 +366,7 @@ void RemoveSmallBins(vector<float>&  MeanX_output, vector<float>& MeanY_output,
 
 // Load in a vector of data and convert into a histogram with a specified bin width
 // that is printed to file containing:
-//    Midpoint LowerLim UpperLim Count ProbabilityDensity                      
+//    Midpoint LowerLim UpperLim Count ProbabilityDensity
 void print_histogram(vector<float> input_values, float bin_width, string filename);
 // improved histogram functions
 void calculate_histogram(vector<float> input_values, float bin_width, vector<float>& Midpoints, vector<float>& LLims, vector<float>& ULims, vector<int>& Count, vector<float>& ProbabilityDensity);
@@ -420,8 +433,8 @@ void get_distribution_stats(vector<float>& y_data, float& mean, float& median, f
 double get_QuadraticMean(vector<double> input_values, double bin_width);
 
 // basic parser for parameter files   JAJ  08/01/2014
-// There may be a better place to put this, but I can't think where 
-void parse_line(ifstream &infile, string &parameter, string &value); 
+// There may be a better place to put this, but I can't think where
+void parse_line(ifstream &infile, string &parameter, string &value);
 
 // Method to get the maximum value in a 2D array - SWDG 12/6/14
 float Get_Maximum(Array2D<float> Input, float NDV);
@@ -450,7 +463,7 @@ vector<int> Flatten_Without_Nodata(Array2D<int> Input, float NDV);
 //Method to count the number of instances of a given value in an array
 //SWDG 17/6/14
 int CountValue(Array2D<int> Input, int Value);
-int CountValue(Array2D<float> Input, float Value); 
+int CountValue(Array2D<float> Input, float Value);
 
 
 //Method used to generate a Kolmogorov-Smirnov statistic and p value
@@ -479,7 +492,7 @@ float MannWhitneyUTest(vector<float>& sampleA, vector<float>& sampleB);
 // this takes a sorted vector and then finds the normalised ranks (that is
 // if data elements are the same the ranks take an average rank)
 // It replaces two vectors passed to it
-void rank_vector_with_groups(vector<float> sorted_data, 
+void rank_vector_with_groups(vector<float> sorted_data,
                              vector<float>& ranks, vector<int>& number_in_groups);
 
 // Given a filestream object, read the file into memory and return
@@ -488,22 +501,27 @@ void rank_vector_with_groups(vector<float> sorted_data,
 // SWDG 16/07/14
 string ReadTextFile(ifstream& File);
 
+/// Splits a string delimited by a character, c, into a sequence of strings, here
+/// stored in a vector, v.
+/// @author DAV, but taken out of C++ Cookbook (Stevens, Digins, Turkanis, and Coswell. O'Reilly)
+void split_delimited_string(const string& s, char c, vector<string>& v);
+
 // THis gets the size of a file
 // SMM 16/10/2015
 int get_file_size(string filename);
 
-//Takes an integer vector of data and an integer vector of key values and 
+//Takes an integer vector of data and an integer vector of key values and
 //returns a map of the counts of each value tied to its key.
 //
 //Assumes that key_values contains all of the values in Data.
-//eg Data should be flattened with NoDataValues excluded and 
+//eg Data should be flattened with NoDataValues excluded and
 //Key_Values should be created using Unique(Data)
 //SWDG 5/6/15
 void Count_Instances(vector<int> Data, vector<int> Key_Values, map<int,int>& DataMap);
 
-// removes control characters from the end of strings. 
-// This is necessary when people use a DOS file format, which 
-// stupidly adds control characters to the end of lines. 
+// removes control characters from the end of strings.
+// This is necessary when people use a DOS file format, which
+// stupidly adds control characters to the end of lines.
 string RemoveControlCharactersFromEndOfString(string toRemove);
 
 // removes all control characters
@@ -521,6 +539,18 @@ string ReformatPath(string old_path);
 float inverfc(float p);
 // Inverse Complementary error function.  Returns x such that erf(x)=p within limits -1<p<1
 float inverf(float p);
+
+float StabilityIndex(float s, float a, float c1, float c2, float t1, float t2,
+                     float x1,float x2, float r1, float r2, float fs1, float fs2);
+
+float f2s(float x1, float x2, float y1, float y2, float z);
+float f3s(float x1, float x2, float y1, float y2, float b1, float b2, float z);
+float fa(float y1, float y2, float b1, float b2, float a);
+float fai(float y1, float y2, float b1, float b2, float a);
+float fai2(float y1, float y2, float b1, float b2, float a);
+float fai3(float y1, float y2, float b1, float b2, float a);
+float fai4(float y1, float y2, float b1, float b2, float a);
+float fai5(float y1, float y2, float b1, float b2, float a);
 
 // CODE FOR DISJOINT SET STRUCTURE
 struct DSnode{
@@ -554,7 +584,3 @@ public:
 
 
 #endif
-
-
-
-
