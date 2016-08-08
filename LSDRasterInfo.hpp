@@ -88,6 +88,15 @@ class LSDRasterInfo
     /// The inequality operator
     bool operator!=(LSDRasterInfo& LSDRI);
 
+    /// @brief this function gets the UTM_zone and a boolean that is true if
+    /// the map is in the northern hemisphere
+    /// @param UTM_zone the UTM zone. Replaced in function.
+    /// @param is_North a boolean that is true if the DEM is in the northern hemisphere.
+    ///  replaced in function
+    /// @author SMM
+    /// @date 22/12/2014
+    void get_UTM_information(int& UTM_zone, bool& is_North);
+
     // Get functions
     /// @return Number of rows as an integer.
     int get_NRows() const        { return NRows; }

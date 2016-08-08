@@ -527,5 +527,66 @@ void LSDRasterInfo::read_header(string filename, string extension)
 
 
 }
-//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+//
+// This function gets the UTM zone
+//
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+void LSDRasterInfo::get_UTM_information(int& UTM_zone, bool& is_North)
+{
+
+  // set up strings and iterators
+  map<string,string>::iterator iter;
+
+  //check to see if there is already a map info string
+  string mi_key = "ENVI_map_info";
+  iter = GeoReferencingStrings.find(mi_key);
+  if (iter != GeoReferencingStrings.end() )
+  {
+    string info_str = GeoReferencingStrings[mi_key] ;
+
+    // now parse the string
+    vector<string> mapinfo_strings;
+    istringstream iss(info_str);
+    while( iss.good() )
+    {
+      string substr;
+      getline( iss, substr, ',' );
+      mapinfo_strings.push_back( substr );
+    }
+    UTM_zone = atoi(mapinfo_strings[7].c_str());
+    //cout << "Line 1041, UTM zone: " << UTM_zone << endl;
+    //cout << "LINE 1042 LSDRaster, N or S: " << mapinfo_strings[7] << endl;
+
+    // find if the zone is in the north
+    string n_str = "n";
+    string N_str = "N";
+    is_North = false;
+    size_t found = mapinfo_strings[8].find(N_str);
+    if (found!=std::string::npos)
+    {
+      is_North = true;
+    }
+    found = mapinfo_strings[8].find(n_str);
+    if (found!=std::string::npos)
+    {
+      is_North = true;
+    }
+    //cout << "is_North is: " << is_North << endl;
+
+  }
+  else
+  {
+    UTM_zone = NoDataValue;
+    is_North = false;
+  }
+
+}
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+
+
+
 #endif
