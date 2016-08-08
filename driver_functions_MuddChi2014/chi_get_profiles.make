@@ -8,7 +8,11 @@ SOURCES=chi_get_profiles_driver.cpp \
         ../LSDMostLikelyPartitionsFinder.cpp \
         ../LSDChiNetwork.cpp \
         ../LSDStatsTools.cpp \
-        ../LSDShapeTools.cpp
+        ../LSDShapeTools.cpp \
+        ../LSDRaster.cpp \
+        ../LSDFlowInfo.cpp \
+        ../LSDRasterInfo.cpp \
+        ../LSDIndexRaster.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=chi_get_profiles.exe
 

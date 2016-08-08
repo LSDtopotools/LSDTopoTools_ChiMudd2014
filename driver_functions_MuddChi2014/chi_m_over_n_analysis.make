@@ -8,7 +8,11 @@ SOURCES=chi_m_over_n_analysis_driver.cpp \
            ../LSDMostLikelyPartitionsFinder.cpp \
            ../LSDChiNetwork.cpp \
            ../LSDStatsTools.cpp \
-           ../LSDShapeTools.cpp
+           ../LSDShapeTools.cpp \
+           ../LSDRaster.cpp \
+           ../LSDFlowInfo.cpp \
+           ../LSDRasterInfo.cpp \
+           ../LSDIndexRaster.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=chi_m_over_n_analysis.exe
 
