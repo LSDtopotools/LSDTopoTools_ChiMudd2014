@@ -3,7 +3,7 @@ Mandakini <- filename prefix
 300       <- N contrib pixels for a channel. Could reduce to, say 100 or even 50. 
 76        <- junction number, this will change
 0.01      <- area frac for channel pruning. 1= mainstem only, low numbers= more tribs
-1000      <- A_0 for chi analysis: probably don't need to change. 
+1000      <- A_0 for chi analysis: probably don't need to change. If you want to calculate channel steepness index, k_sn, set to 1. 
 20	  <- minimum segment length. Should be between 5-20.
 20	  <- sigma: some estimate of uncertanty in elevation data. Smaller = more segments
 0.15      <- starting m/n for best for m/n testing
