@@ -180,7 +180,7 @@ void LSDRaster::create(int nrows, int ncols, float xmin, float ymin,
 // DAV 2015
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void LSDRaster::create(int nrows, int ncols, double xmin, double ymin,
-            double cellsize, double ndv, Array2D<double> data)
+            double cellsize, int ndv, Array2D<double> data)
 {
   NRows = nrows;
   NCols = ncols;
@@ -1076,6 +1076,151 @@ void LSDRaster::write_raster(string filename, string extension)
 //
 // DAV 2015
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+void LSDRaster::write_double_flt_raster(string filename, string string_filename)
+{
+  // float data (a binary format created by ArcMap) has a header file
+  // this file must be opened first
+  string dot = ".";
+  string header_filename;
+  string header_extension = "hdr";
+  header_filename = filename+dot+header_extension;
+
+  ofstream header_ofs(header_filename.c_str());
+  string str;
+  header_ofs <<  "ncols         " << NCols
+    << "\nnrows         " << NRows
+    << "\nxllcorner     " << setprecision(14) << XMinimum
+    << "\nyllcorner     " << setprecision(14) << YMinimum
+    << "\ncellsize      " << DataResolution
+    << "\nNODATA_value  " << NoDataValue
+    << "\nbyteorder     LSBFIRST" << endl;
+  header_ofs.close();
+
+  // now do the main data
+  ofstream data_ofs(string_filename.c_str(), ios::out | ios::binary);
+  float temp;
+  for (int i=0; i<NRows; ++i)
+  {
+    for (int j=0; j<NCols; ++j)
+    {
+      temp = double(RasterData_dbl[i][j]);
+      data_ofs.write(reinterpret_cast<char *>(&temp),sizeof(temp));
+    }
+  }
+  data_ofs.close();
+}
+
+void LSDRaster::write_double_bil_raster(string filename, string string_filename)
+{
+  // float data (a binary format created by ArcMap) has a header file
+  // this file must be opened first
+  string dot = ".";
+  string header_filename;
+  string header_extension = "hdr";
+  header_filename = filename+dot+header_extension;
+
+  // you need to strip the filename
+  string frontslash = "/";
+  size_t found = string_filename.find_last_of(frontslash);
+  //cout << "Found is: " << found << endl;
+
+  int length = int(string_filename.length());
+  string this_fname = string_filename.substr(found+1,length-found-1);
+  //cout << "fname is: " << this_fname << endl;
+
+  ofstream header_ofs(header_filename.c_str());
+  string str;
+  header_ofs <<  "ENVI" << endl;
+  header_ofs << "description = {" << endl << this_fname << "}" << endl;
+  header_ofs <<  "samples = " << NCols << endl;
+  header_ofs <<  "lines = " << NRows << endl;
+  header_ofs <<  "bands = 1" << endl;
+  header_ofs <<  "header offset = 0" << endl;
+  header_ofs <<  "file type = ENVI Standard" << endl;
+  header_ofs <<  "data type = 4" << endl;
+  header_ofs <<  "interleave = bsq" << endl;
+  header_ofs <<  "byte order = 0" << endl;
+
+  // now check to see if there are the map info and coordinate system
+  map<string,string>::iterator iter;
+  string cs_str_key = "ENVI_coordinate_system";
+  string mi_str_key = "ENVI_map_info";
+
+  string cs_str;
+  string mi_str;
+  iter = GeoReferencingStrings.find(mi_str_key);
+  if (iter != GeoReferencingStrings.end() )
+  {
+    mi_str = (*iter).second;
+    //cout << "Map info system string exists, it is: " << mi_str << endl;
+    header_ofs <<  "map info = {"<<mi_str<<"}" << endl;
+  }
+  else
+  {
+    cout << "Warning, writing ENVI file but no map info string" << endl;
+  }
+  iter = GeoReferencingStrings.find(cs_str_key);
+  if (iter != GeoReferencingStrings.end() )
+  {
+    cs_str = (*iter).second;
+    //cout << "Coord, system string exists, it is: " << cs_str << endl;
+    header_ofs <<  "coordinate system string = {"<<cs_str<<"}" << endl;
+  }
+  else
+  {
+    cout << "Warning, writing ENVI file but no coordinate system string" << endl;
+  }
+  header_ofs <<  "data ignore value = " << NoDataValue << endl;
+
+  header_ofs.close();
+
+  // now do the main data
+  ofstream data_ofs(string_filename.c_str(), ios::out | ios::binary);
+  float temp;
+  for (int i=0; i<NRows; ++i)
+  {
+    for (int j=0; j<NCols; ++j)
+    {
+
+      temp = double(RasterData_dbl[i][j]);
+
+      data_ofs.write(reinterpret_cast<char *>(&temp),sizeof(temp));
+    }
+  }
+  data_ofs.close();  
+}
+
+
+void LSDRaster::write_double_asc_raster(string string_filename)
+{
+  ofstream data_out(string_filename.c_str());
+
+  if( data_out.fail() )
+  {
+    cout << "\nFATAL ERROR: unable to write to " << string_filename << endl;
+    exit(EXIT_FAILURE);
+  }
+
+  data_out <<  "ncols\t" << NCols
+     << "\nnrows\t" << NRows
+     << "\nxllcorner\t" << setprecision(14) << XMinimum
+     << "\nyllcorner\t" << setprecision(14) << YMinimum
+     << "\ncellsize\t" << DataResolution
+     << "\nNODATA_value\t" << NoDataValue << endl;
+
+
+  for (int i=0; i<NRows; ++i)
+  {
+    for (int j=0; j<NCols; ++j)
+    {
+      data_out << setprecision(6) << RasterData_dbl[i][j] << " ";
+    }
+    if (i != NRows-1) data_out << endl;
+  }
+  data_out.close();
+}
+
+
 void LSDRaster::write_double_raster(string filename, string extension)
 {
   string string_filename;
@@ -1086,39 +1231,25 @@ void LSDRaster::write_double_raster(string filename, string extension)
   // this first bit of logic is for the asc file.
   if (extension == "asc")
   {
-    // open the data file
-    ofstream data_out(string_filename.c_str());
-
-    if( data_out.fail() )
-    {
-      cout << "\nFATAL ERROR: unable to write to " << string_filename << endl;
-      exit(EXIT_FAILURE);
-    }
-
-    data_out <<  "ncols\t" << NCols
-       << "\nnrows\t" << NRows
-       << "\nxllcorner\t" << setprecision(14) << XMinimum
-       << "\nyllcorner\t" << setprecision(14) << YMinimum
-       << "\ncellsize\t" << DataResolution
-       << "\nNODATA_value\t" << NoDataValue << endl;
-
-
-    for (int i=0; i<NRows; ++i)
-    {
-      for (int j=0; j<NCols; ++j)
-      {
-        data_out << setprecision(6) << RasterData_dbl[i][j] << " ";
-      }
-      if (i != NRows-1) data_out << endl;
-    }
-    data_out.close();
+    // open the data file and write an ASC
+    write_double_asc_raster(string_filename);
+  }
+  else if (extension == "flt")
+  {
+    // open the data file and write a FLT
+    write_double_flt_raster(filename, string_filename);
+  }
+  else if (extension == "bil")
+  {
+    // open the data file and write a BIL
+    write_double_bil_raster(filename, string_filename);
   }
   else
   {
-    cout << "You did not enter and approprate extension!" << endl
-    << "You entered: " << extension << " options are asc" << endl;
+    cout << "You did not enter an approprate extension!" << endl
+    << "You entered: " << extension << " options are asc, flt, bil (bil might not work yet though...)" << endl;
     exit(EXIT_FAILURE);
-   }
+  }  
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -5108,6 +5239,101 @@ void LSDRaster::mask_to_nodata_below_threshold(float threshold)
   }
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+//
+// This masks to nodata below or above a threshold value
+//
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+LSDRaster  LSDRaster::mask_to_nodata_using_threshold(float threshold,bool belowthresholdisnodata)
+{
+
+  Array2D<float> NewArray = RasterData.copy();
+
+  for(int row = 0; row<NRows; row++)
+  {
+    for(int col = 0; col<NCols; col++)
+    {
+      // only do anything if the value at the raster point is not nodata
+      if(NewArray[row][col] != NoDataValue)
+      {
+        // logic for testing below nodata
+        if(belowthresholdisnodata)
+        {
+          if(NewArray[row][col] <= threshold)
+          {
+            NewArray[row][col] = NoDataValue;
+          }
+        }
+        else  // this logic is for if you are changing to nodata if above threshold
+        {
+          if(NewArray[row][col] >= threshold)
+          {
+            NewArray[row][col] = NoDataValue;
+          }
+        }
+      }
+    }
+  }
+  
+  LSDRaster NDR(NRows,NCols,XMinimum,YMinimum,DataResolution,
+                             NoDataValue,NewArray,GeoReferencingStrings);
+  return NDR;
+}
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+//
+// This masks to nodata below a threshold value
+//
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+LSDIndexRaster LSDRaster::mask_to_indexraster_using_threshold(float threshold,bool belowthresholdisnodata)
+{
+  
+  // create the array for the index raster
+  Array2D<int> NewIndexArray(NRows,NCols,int(NoDataValue));
+  
+  for(int row = 0; row<NRows; row++)
+  {
+    for(int col = 0; col<NCols; col++)
+    {
+      // only do anything if the value at the raster point is not nodata
+      if(RasterData[row][col] != NoDataValue)
+      {
+        // logic for testing below nodata
+        if(belowthresholdisnodata)
+        {
+          if(RasterData[row][col] <= threshold)
+          {
+            NewIndexArray[row][col] = int(NoDataValue);
+          }
+          else
+          {
+             NewIndexArray[row][col] = 1;
+          }
+        }
+        else  // this logic is for if you are changing to nodata if above threshold
+        {
+          if(RasterData[row][col] >= threshold)
+          {
+            NewIndexArray[row][col] = int(NoDataValue);
+          }
+          else
+          {
+             NewIndexArray[row][col] = 1;
+          }
+        }
+      }
+    }
+  }
+  
+  LSDIndexRaster NDR(NRows,NCols,XMinimum,YMinimum,DataResolution,
+                             NoDataValue,NewIndexArray,GeoReferencingStrings);
+  return NDR;
+}
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -10011,7 +10237,7 @@ LSDIndexRaster LSDRaster::Create_Mask(string Condition, float TestValue)
       }
     }
   }
-  LSDIndexRaster MaskRaster(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,Mask);
+  LSDIndexRaster MaskRaster(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,Mask,GeoReferencingStrings);
   return MaskRaster;
 }
 
@@ -10040,7 +10266,7 @@ LSDRaster LSDRaster::ExtractByMask(LSDIndexRaster Mask)
       }
     }
   }
-  LSDRaster MaskedRaster(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,MaskedArray);
+  LSDRaster MaskedRaster(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,MaskedArray,GeoReferencingStrings);
   return MaskedRaster;
 }
 
@@ -10583,7 +10809,7 @@ LSDIndexRaster LSDRaster::IsolateChannelsLashermesFull(float sigma, string q_q_f
     }
   }
 
-  LSDIndexRaster channels(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,binary_array);
+  LSDIndexRaster channels(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,binary_array,GeoReferencingStrings);
   return channels;
 }
 // This version uses curvature and an upstream contributing area threshold
@@ -10620,7 +10846,7 @@ LSDIndexRaster LSDRaster::IsolateChannelsLashermesCurvatureArea(float sigma, flo
     }
   }
 
-  LSDIndexRaster channels(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,binary_array);
+  LSDIndexRaster channels(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,binary_array,GeoReferencingStrings);
   return channels;
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -10669,7 +10895,7 @@ LSDIndexRaster LSDRaster::IsolateChannelsGeonet(float timesteps, float area_thre
     }
   }
 
-  LSDIndexRaster channels(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,binary_array);
+  LSDIndexRaster channels(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,binary_array,GeoReferencingStrings);
   return channels;
 }
 
@@ -10749,7 +10975,7 @@ LSDIndexRaster LSDRaster::IsolateChannelsQuantileQuantile(string q_q_filename)
     }
   }
   cout << "DONE" << endl;
-  LSDIndexRaster ChannelMask(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,binary_raster);
+  LSDIndexRaster ChannelMask(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,binary_raster,GeoReferencingStrings);
   return ChannelMask;
 
 }
@@ -10831,7 +11057,7 @@ LSDIndexRaster LSDRaster::IsolateChannelsQuantileQuantileAdaptive(int half_width
     }
   }
   cout << "DONE" << endl;
-  LSDIndexRaster ChannelMask(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,binary_raster);
+  LSDIndexRaster ChannelMask(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,binary_raster,GeoReferencingStrings);
   return ChannelMask;
 
 }
@@ -11188,7 +11414,7 @@ LSDIndexRaster LSDRaster::CreateHilltopPatches(int minimum_patch_size){
   }
 
   //create the final LSDIndexRaster and return it
-  LSDIndexRaster Patches(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,PatchIDs);
+  LSDIndexRaster Patches(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,PatchIDs,GeoReferencingStrings);
   return Patches;
 }
 
@@ -11213,7 +11439,7 @@ LSDRaster LSDRaster::RemoveBelow(float Value){
       }
     }
 
-  LSDRaster Removed(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,Data);
+  LSDRaster Removed(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,Data,GeoReferencingStrings);
   return Removed;
 
 }
@@ -11256,7 +11482,7 @@ LSDRaster LSDRaster::apply_mask(LSDIndexRaster& mask){
   if(mask.get_data_element(i,j)==1) masked_data[i][j]=NoDataValue;
     }
   }
-  LSDRaster masked_raster(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,masked_data);
+  LSDRaster masked_raster(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,masked_data,GeoReferencingStrings);
   return masked_raster;
 }
 
@@ -11485,7 +11711,7 @@ vector<float> LSDRaster::AnalysisOfQuality(LSDRaster& ActualRaster)
   //now calculate the quality analyses
   //reliability
   quality_results[0] = SumTP/(SumTP + SumFP);
-	//sensitivity
+	//sensitivity r_tp
 	quality_results[1] = SumTP/(SumTP + SumFN);
 	// r_fp
 	quality_results[2] = SumFP/(SumFP + SumTN);

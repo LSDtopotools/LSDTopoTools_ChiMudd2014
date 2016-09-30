@@ -89,6 +89,9 @@ int main (int nNumberofArgs,char *argv[])
   string path_name = argv[1];
   string f_name = argv[2];
 
+  // Make sure the path has an extension
+  path_name = FixPath(path_name);
+
   cout << "The path is: " << path_name << " and the filename is: " << f_name << endl;
 
   string full_name = path_name+f_name;
@@ -162,12 +165,18 @@ int main (int nNumberofArgs,char *argv[])
       DATA_DIR = value;
       // get rid of any control characters from the end (if param file was made in DOS)
       DATA_DIR = RemoveControlCharactersFromEndOfString(DATA_DIR);
+      
+      // Fix the path
+      DATA_DIR = FixPath(DATA_DIR);
     }
     else if (lower == "write path")
     {
       OUTPUT_DIR = value;
       // get rid of any control characters from the end (if param file was made in DOS)
       OUTPUT_DIR = RemoveControlCharactersFromEndOfString(OUTPUT_DIR);
+
+      // Fix the path
+      OUTPUT_DIR = FixPath(OUTPUT_DIR);
     }
     else if (lower == "read fname")
     {

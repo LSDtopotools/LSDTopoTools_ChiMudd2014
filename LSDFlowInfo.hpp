@@ -968,6 +968,14 @@ class LSDFlowInfo
   /// @date 19/05/2016
   int get_downslope_node_after_fixed_visited_nodes(int source_node,
                  int outlet_node, int n_nodes_to_visit, LSDIndexRaster& VisitedRaster);
+	
+	/// @brief This function gets the flow distance between two nodes
+  /// @param UpstreamNode the upstream node
+  /// @param Downstreamnode the downstream node
+  /// @return flow length between the nodes
+  /// @author FJC
+  /// @date 29/09/2016
+	float get_flow_length_between_nodes(int UpstreamNode, int DownstreamNode);
 
 
   protected:

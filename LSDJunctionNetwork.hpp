@@ -982,6 +982,17 @@ vector<int> GetChannelHeadsChiMethodFromValleys(vector<int> ValleyNodes,
   int get_nodeindex_of_nearest_channel_for_specified_coordinates(float X_coordinate,
                             float Y_coordinate, int threshold_stream_order, int search_radius_nodes, 
                             LSDFlowInfo& FlowInfo);
+	
+	
+	/// @brief Function to get the flow length to the nearest channel node of a given node.
+  /// @param StartingNode index of node of interest
+  /// @param threshold_SO threshold stream order for finding the nearest channel
+  /// @param FlowInfo LSDFlowInfo object
+  /// @return Returns the flow length of the nearest channel node.
+  /// @author FJC
+  /// @date 29/09/16
+	void get_info_nearest_channel_to_node(int& StartingNode, int& threshold_SO, LSDFlowInfo& FlowInfo, int& ChannelNode, float& FlowLength);
+	
 
   /// @brief This function takes a node index, checks to see if it is on a channel,
   /// and then works its way up the channel to find the upstream junction
@@ -1092,6 +1103,14 @@ vector<int> GetChannelHeadsChiMethodFromValleys(vector<int> ValleyNodes,
   /// @author FJC
   /// @date 08/10/15
   int get_downstream_junction(int starting_junction, LSDFlowInfo& FlowInfo);
+	
+  /// @details Gets the stream order of a node
+  /// @param FlowInfo LSDFlowInfo object
+  /// @param node node of interest
+  /// @return integer with stream order of junction
+  /// @author FJC
+  /// @date 29/09/16
+	int get_StreamOrder_of_Node(LSDFlowInfo& FlowInfo, int node);
   
   /// @details Gets the stream order of a junction
   /// @param FlowInfo LSDFlowInfo object
@@ -1142,11 +1161,12 @@ vector<int> GetChannelHeadsChiMethodFromValleys(vector<int> ValleyNodes,
   /// It must be passed an LSDIndexRaster with the floodplain patches labelled with a specific ID
   /// number (done using Dave's connected components algorithm)
   /// @param FloodplainPatches LSDIndexRaster with patches labelled with ID number
-  /// @return LSDIndexRaster with binary mask of floodplain patches
+	/// @param threshold_SO threshold stream order
+  /// @return LSDIndexRaster with CC values of floodplain patches
   /// @author FJC
   /// @date 22/10/15
-  LSDIndexRaster remove_hillslope_patches_from_floodplain_mask(LSDIndexRaster& FloodplainPatches, float threshold_SO);
-  
+  void separate_floodplain_and_terrace_patches(LSDIndexRaster& ConnectedComponents, LSDIndexRaster&FloodplainPatches, LSDIndexRaster& TerracePatches, float threshold_SO);
+	
   /// @details This function calculates the relief of each pixel compared to the nearest downstream
   /// channel pixel equal or greater to the threshold stream order
   /// @param ElevationRaster LSDRaster with elevations
@@ -1156,6 +1176,50 @@ vector<int> GetChannelHeadsChiMethodFromValleys(vector<int> ValleyNodes,
   /// @author FJC
   /// @date 17/11/15
   LSDRaster calculate_relief_from_channel(LSDRaster& ElevationRaster, LSDFlowInfo& FlowInfo, int threshold_SO);
+	
+	/// @details This function calculates the relief of each pixel compared to the nearest 
+	/// downstream channel pixel equal or greater to the threshold stream order for that
+	/// connected components patch
+  /// @param ElevationRaster LSDRaster with elevations
+	/// @param ConnectedComponents
+  /// @param FlowInfo LSDFlowInfo object
+  /// @param threshold_SO original threshold stream order to calculate relief from
+  /// @return LSDRaster with channel relief
+  /// @author FJC
+  /// @date 29/09/16
+	LSDRaster calculate_relief_from_channel_connected_components(LSDRaster& ElevationRaster, LSDIndexRaster& ConnectedComponents, LSDFlowInfo& FlowInfo, int threshold_SO, int search_distance);
+	
+	/// @details This function takes in a raster of connected component patches. It finds
+	/// the node index of the nearest channel for the patch.
+  /// @param ConnectedComponents connected components raster
+  /// @param FlowInfo LSDFlowInfo object
+  /// @param threshold_SO threshold stream order to calculate relief from
+  /// @return 2D array with nearest channel node index for each patch
+  /// @author FJC
+  /// @date 29/09/16
+	Array2D<int> Get_Elevation_of_Nearest_Channel_for_Connected_Components(LSDIndexRaster& ConnectedComponents, LSDRaster& ElevationRaster, LSDFlowInfo& FlowInfo, int threshold_SO, int search_distance);
+	
+	/// @details This function finds the mean elevation of the channel reach given a node on the channel network
+  /// @param StartingNode node to check
+  /// @param search_distance reach distance - will check both upstream and downstream this distance
+  /// @param ElevationRaster elevation raster
+	/// @param FlowInfo LSDFlowInfo object
+  /// @return mean elevation of reach
+  /// @author FJC
+  /// @date 29/09/16	
+	float find_mean_elevation_of_channel_reach(int StartingNode, int search_distance, LSDRaster& ElevationRaster, LSDFlowInfo& FlowInfo);
+	
+	
+	/// @details This function returns the node index of the nearest FIP to a
+	/// specified node.
+  /// @param point_node Node to start with
+  /// @param search_distance Distance to search upstream and downstream for a FIP
+  /// @param FloodplainRaster Raster with binary floodplain
+	/// @param FlowInfo LSDFlowInfo object
+  /// @return node index of nearest FIP
+  /// @author FJC
+  /// @date 09/09/16
+	float find_distance_to_nearest_floodplain_pixel(int point_node, int search_distance, LSDRaster& FloodplainRaster, LSDFlowInfo& FlowInfo);
 
   /// @detail This overwrites two vecotrs that give all of the starting and 
   ///  finishing nodes of channels in a basin

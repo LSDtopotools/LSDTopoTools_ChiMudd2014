@@ -82,10 +82,10 @@ void LSDBasin::create(int JunctionNumber, LSDFlowInfo& FlowInfo, LSDJunctionNetw
   vector <int> JunctionVector = ChanNet.get_JunctionVector();
   vector <int> ReceiverVector = ChanNet.get_ReceiverVector();
 		
-	//int ReceiverJunction = 5436;
-	//int ReceiverNode = ChanNet.get_Node_of_Junction(ReceiverJunction);
+//	int ReceiverJunction = 4688;
+//	int ReceiverNode = ChanNet.get_Node_of_Junction(ReceiverJunction);
   
-  LSDIndexChannel StreamLinkVector = LSDIndexChannel(Junction, JunctionVector[Junction],
+  LSDIndexChannel StreamLinkVector = LSDIndexChannel(Junction,JunctionVector[Junction],
                                                      ReceiverVector[Junction], JunctionVector[ReceiverVector[Junction]], FlowInfo);
 	
 //	LSDIndexChannel StreamLinkVector = LSDIndexChannel(Junction, JunctionVector[Junction],

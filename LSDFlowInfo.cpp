@@ -106,10 +106,10 @@ using namespace TNT;
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void LSDFlowInfo::create()
 {
-  cout << endl << "-------------------------------" << endl;
-  cout << "I am an empty flow info object. " << endl;
-  cout << "Did you forget to give me a DEM?" << endl;
-  cout << endl << "-------------------------------" << endl;
+  //cout << endl << "-------------------------------" << endl;
+  //cout << "I am an empty flow info object. " << endl;
+  //cout << "Did you forget to give me a DEM?" << endl;
+  //cout << endl << "-------------------------------" << endl;
   //exit(EXIT_FAILURE);
 }
 
@@ -7109,5 +7109,51 @@ int LSDFlowInfo::get_downslope_node_after_fixed_visited_nodes(int source_node,
   return bottom_node;
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// This function gets the flow length between two nodes.
+// FJC 29/09/16
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+float LSDFlowInfo::get_flow_length_between_nodes(int UpstreamNode, int DownstreamNode)
+{
+	float length = 0;
+	float root_2 = 1.4142135623;
+	
+	int upstream_test = is_node_upstream(DownstreamNode, UpstreamNode);
+	if (upstream_test != 1)
+	{
+		cout << "FATAL ERROR: The selected node is not upstream" << endl;
+	}
+	
+	bool ReachedChannel = false;
+	int CurrentNode = UpstreamNode;
+	while (ReachedChannel == false)
+	{
+		//get receiver information
+		int ReceiverNode, ReceiverRow, ReceiverCol;
+		retrieve_receiver_information(CurrentNode, ReceiverNode, ReceiverRow, ReceiverCol); 
+		//if node is at baselevel then exit
+		if (CurrentNode == ReceiverNode)
+		{
+			ReachedChannel = true;
+			//cout << "You reached a baselevel node, returning baselevel" << endl;
+		}          
+		//if receiver is a channel > threshold then get the stream order
+		if (ReceiverNode == DownstreamNode)
+		{
+			ReachedChannel = true;
+		} 
+		else
+		{
+			//move downstream
+			CurrentNode = ReceiverNode;
+			// update length
+			if (retrieve_flow_length_code_of_node(ReceiverNode) == 1){ length += DataResolution; }
+      else if (retrieve_flow_length_code_of_node(ReceiverNode) == 2){ length += (DataResolution * root_2); }
+		} 
+	}
+	
+	return length;
+}
+
 
 #endif

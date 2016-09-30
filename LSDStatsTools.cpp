@@ -756,6 +756,7 @@ void quantile_quantile_analysis_defined_percentiles(vector<float>& data, vector<
   float q_upper_x = get_percentile(snv,upper_percentile);
   float q_lower_y = get_percentile(vals,lower_percentile);
   float q_upper_y = get_percentile(vals,upper_percentile);
+	cout << "q_lower_x: " << q_lower_x << " q_lower_y: " << q_lower_y << " q_upper_x: " << q_upper_x << " q_upper_y: " << q_upper_y << endl;
 
   float slope = (q_upper_y-q_lower_y)/(q_upper_x-q_lower_x);
 //   cout << "slope = " << slope << endl;
@@ -5707,6 +5708,32 @@ string RemoveSpaces(string toRemove)
   return substr;
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--==
+// This function removes spaces
+// These get introduced if you use the DOS format in your parameter file
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--==
+string FixPath(string PathtoFix)
+{
+  // first get rid of conrol characters
+  string noContrl = RemoveControlCharacters(PathtoFix);
+  
+  string lchar = noContrl.substr(noContrl.length()-1,1);
+  
+  string slash = "/";
+  cout << "Checking pathname, pathname is: " << noContrl << endl;
+  cout << "lchar is " << lchar << " and slash is " << slash << endl;
+
+  if (lchar != slash)
+  {
+    //cout << "You forgot the frontslash at the end of the path. Appending." << endl;
+    noContrl = noContrl+slash;
+  }
+  //cout << "The pathname is: " << pathname << endl;
+  return noContrl;
+}
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
 
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

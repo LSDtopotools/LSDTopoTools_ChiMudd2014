@@ -283,7 +283,7 @@ class LSDRaster
   /// @date 01/01/12
   void write_raster(string filename, string extension);
 
-  /// @brief This writes rasters from Arrays of type <double> to ascii format.
+  /// @brief This calls raster write functions, writing from Arrays of type <double> to raster format.
   /// @details Sorry for duplicating a load of code, but I couldn't think
   /// of a good way to overload the function without passing the raster data array or
   /// breaking someone elses code.
@@ -292,6 +292,16 @@ class LSDRaster
   /// @author DAV
   /// @date 07-12-2015
   void write_double_raster(string filename, string extension);
+  
+  /// @brief Writes out a double array to an ascii
+  void write_double_asc_raster(string string_filename);
+  
+  /// @brief Writes out a double array to a binary flt file
+  void write_double_flt_raster(string filename, string string_filename);
+  
+  /// @brief Writes out a double array to a ENVI bil file (untested!)
+  /// @bug Unlikely to work as Georeferencing not set. DAV to fix.
+  void write_double_bil_raster(string filename, string string_filename);
 
   /// @brief Checks to see if two rasters have the same dimensions
   /// @detail Does NOT check georeferencing
@@ -1162,10 +1172,30 @@ class LSDRaster
   void remove_seas();
 
   /// @brief This function changes any elevation <= threshold to NoDataValue
+  /// @param threshold The thresold, silly
   /// @author SMM
   /// @date 29/10/2014
   void mask_to_nodata_below_threshold(float threshold);
 
+  /// @brief This function changes any data point either above or below threshold to NoDataValue
+  /// @param threshold The threshold value
+  /// @param belowthresholdisnodata a boolean that if true means anything below the 
+  ///   threshold turns to nodata
+  /// @return Returns the masked raster
+  /// @author SMM
+  /// @date 28/9/2016
+  LSDRaster mask_to_nodata_using_threshold(float threshold,bool belowthresholdisnodata);
+
+  /// @brief This function creats an LSDIndexRaster mask (with true == 1 and otherwise nodata)
+  /// from an LSDRaster. Can mask either above or below a threshold
+  /// @param threshold The threshold value
+  /// @param belowthresholdisnodata a boolean that if true means anything below the 
+  ///   threshold turns to nodata
+  /// @return Returns the mask
+  /// @author SMM
+  /// @date 9/9/2016
+  LSDIndexRaster mask_to_indexraster_using_threshold(float threshold,bool belowthresholdisnodata);
+  
   /// @brief This function masks a raster to nodata based on a mask value and
   /// a mask raster
   /// @param Mask_raster the LSDIndexRaster that contains the mask
@@ -2073,8 +2103,8 @@ class LSDRaster
   /// @author SWDG
   /// @date 9/6/16
   LSDRaster PoupulateRasterSingleValue(float value);
-
-  protected:
+  
+protected:
 
   ///Number of rows.
   int NRows;
@@ -2108,7 +2138,7 @@ class LSDRaster
   void create(int ncols, int nrows, float xmin, float ymin,
               float cellsize, float ndv, Array2D<float> data);
   void create(int ncols, int nrows, double xmin, double ymin,
-              double cellsize, double ndv, Array2D<double> data);
+              double cellsize, int ndv, Array2D<double> data);
   void create(int ncols, int nrows, float xmin, float ymin,
               float cellsize, float ndv, Array2D<float> data, map<string,string> GRS);
 
