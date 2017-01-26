@@ -92,13 +92,29 @@ void LSDBasin::create(int JunctionNumber, LSDFlowInfo& FlowInfo, LSDJunctionNetw
 //                                                     ReceiverJunction, ReceiverNode, FlowInfo);
 
   int n_nodes_in_channel = StreamLinkVector.get_n_nodes_in_channel();
-  int basin_outlet = StreamLinkVector.get_node_in_channel(n_nodes_in_channel-2);
+  
+  int basin_outlet;
+  
+  // added some logic in the event of a baselevel node. It gets the basin above the baselevel
+  if(n_nodes_in_channel == 1)
+  {
+    basin_outlet = ChanNet.get_Node_of_Junction(ReceiverVector[Junction]);
+    //cout << "Baselevel node, the basin outlet is: " << basin_outlet << endl;
+  }
+  else
+  {
+    basin_outlet = StreamLinkVector.get_node_in_channel(n_nodes_in_channel-2);
+  }
   BasinNodes = FlowInfo.get_upslope_nodes(basin_outlet);
+  
+  
                                                                                      
   NumberOfCells = int(BasinNodes.size());
   Area = NumberOfCells * (DataResolution*DataResolution);
   
   Beheaded = ChanNet.node_tester(FlowInfo, Junction);
+
+  //cout << "Basin junction is: " << Junction << " and n_nodes are: " << NumberOfCells << endl;
 
   FlowInfo.retrieve_current_row_and_col(ChanNet.get_Node_of_Junction(Junction), Outlet_i, Outlet_j);
     

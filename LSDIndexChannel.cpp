@@ -121,6 +121,13 @@ void LSDIndexChannel::create(int SJN, int EJN, LSDFlowInfo& FlowInfo)
 	StartNode = SJN;
 	EndNode = EJN;
 
+  cout << "Start node: " << StartNode << " and end node: " << EndNode << endl;
+  if (StartNode == EndNode)
+  {
+    cout << "This appears to be a channel made up of a single pixel!" << endl;
+  }
+
+
 	vector<int> RowI;
 	vector<int> ColI;
 	vector<int> NdI;
@@ -164,6 +171,10 @@ void LSDIndexChannel::create(int SJN, int EJN, LSDFlowInfo& FlowInfo)
 	RowSequence = RowI;
 	ColSequence = ColI;
 	NodeSequence = NdI;
+	
+	cout << "The number of nodes is: " << NodeSequence.size() << endl;
+	
+	
 }
 
 
@@ -195,6 +206,12 @@ void LSDIndexChannel::create(int SJ, int SJN, int EJ, int EJN, LSDFlowInfo& Flow
 	EndJunction = EJ;
 	StartNode = SJN;
 	EndNode = EJN;
+
+  cout << "Start node: " << StartNode << " and end node: " << EndNode << endl;
+  if (StartNode == EndNode)
+  {
+    cout << "This appears to be a channel made up of a single pixel!" << endl;
+  }
 
 	vector<int> RowI;
 	vector<int> ColI;
@@ -239,6 +256,8 @@ void LSDIndexChannel::create(int SJ, int SJN, int EJ, int EJN, LSDFlowInfo& Flow
 	RowSequence = RowI;
 	ColSequence = ColI;
 	NodeSequence = NdI;
+
+	cout << "The number of nodes is: " << NodeSequence.size() << endl;
 
 }
 
@@ -325,12 +344,14 @@ int LSDIndexChannel::get_contributing_pixels_at_node(int n_node, LSDFlowInfo& Fl
 int LSDIndexChannel::get_node_in_channel(int n_node)
 {
 	int n_nodes_in_channel = int(NodeSequence.size());
-	cout << "N nodes in channel: " << n_nodes_in_channel << endl;
-	cout << "Node: " << n_node << endl;
+	//cout << "N nodes in channel: " << n_nodes_in_channel << endl;
+	//cout << "Node: " << n_node << endl;
 	if (n_node < 0)
 	{
 		cout << "LINE 330 LSDIndexChannel Not in channel!" << endl;
-		exit(EXIT_FAILURE);
+		cout << "Using the 0 node" << endl;
+		n_node = 0;
+		//exit(EXIT_FAILURE);
 	}
 	if (n_node >= n_nodes_in_channel)
 	{

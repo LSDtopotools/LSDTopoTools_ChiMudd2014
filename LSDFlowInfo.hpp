@@ -405,6 +405,14 @@ class LSDFlowInfo
   /// @date 6/6/14 Happy 3rd birthday Skye!!
   vector<int> Ingest_Channel_Heads(string filename, string extension, int input_switch = 2);
 
+	/// @brief Method to ingest sources from OS MasterMap Water Network Layer (csv) into a vector
+	/// of source nodes so that an LSDJunctionNetwork can be easily created from them.
+	/// @param csv_filename CSV file name
+	/// @return vector of source nodes
+  /// @author FJC
+  /// @date 28/11/16
+  vector<int> Ingest_Channel_Heads_OS(string csv_filename);
+
   // functions for getting flow, discharge, sediment flux, etc
 
   ///@brief This function calculates the contributing pixels.
@@ -427,6 +435,13 @@ class LSDFlowInfo
   ///drainage area.
   ///@return Integer node index.
   int retrieve_largest_base_level();
+
+  /// @brief This gets the base level node for any given node
+  /// @param node the starting node
+  /// @return the base level node
+  /// @author SMM
+  /// @date 18/12/2016
+  int retrieve_base_level_node(int node);
 
   ///@brief This function returns an integer vector containing all the node
   ///indexes upslope of of the node with number node_number_outlet.
@@ -968,7 +983,7 @@ class LSDFlowInfo
   /// @date 19/05/2016
   int get_downslope_node_after_fixed_visited_nodes(int source_node,
                  int outlet_node, int n_nodes_to_visit, LSDIndexRaster& VisitedRaster);
-	
+
 	/// @brief This function gets the flow distance between two nodes
   /// @param UpstreamNode the upstream node
   /// @param Downstreamnode the downstream node
@@ -977,6 +992,31 @@ class LSDFlowInfo
   /// @date 29/09/2016
 	float get_flow_length_between_nodes(int UpstreamNode, int DownstreamNode);
 
+  /// @brief Method to snap a point, given as raster coordinates, to a cell in
+  /// a raster of hilltops.
+  /// @param a Integer row index.
+  /// @param b Integer row index.
+  /// @param search_radius The radius of the search window in pixels.
+  /// @param Hilltops LSDRaster of the hilltops to be snapped to.
+  ///@ return The nodeindex of the snapped point.
+  /// @author SWDG
+  /// @date 23/1/17
+  int snap_to_hilltop(int a, int b, int search_radius, LSDRaster& Hilltops);
+
+  /// @brief Wrapper around snap_to_hilltop function to process a collection of utm points.
+  ///
+  /// @details Writes the the nodeindex of each snapped point to SnappedNodes and the
+  /// coordinate count (first coordinate pair is 0, second is 1 and so on) is written
+  /// to Valid_node_IDs.
+  /// @param x_locs UTM x coordinates.
+  /// @param y_locs UTM y coordinates.
+  /// @param search_radius The radius of the search window in pixels.
+  /// @param Hilltops LSDRaster of the hilltops to be snapped to.
+  /// @param SnappedNodes Empty vector where the snapped nodeindexes are written.
+  /// @param Valid_node_IDs Empty vector where the coordinate count is written.
+  /// @author SWDG
+  /// @date 23/1/17
+  void snap_to_hilltops(vector<float> x_locs, vector<float> y_locs, int search_radius, LSDRaster& Hilltops, vector<int>& SnappedNodes, vector<int>& Valid_node_IDs);
 
   protected:
 
@@ -1077,10 +1117,10 @@ class LSDFlowInfo
   vector<string> BoundaryConditions;
 
   private:
-  void create();
-  void create(string fname);
-  void create(LSDRaster& TopoRaster);
-  void create(vector<string>& temp_BoundaryConditions, LSDRaster& TopoRaster);
+    void create();
+    void create(string fname);
+    void create(LSDRaster& TopoRaster);
+    void create(vector<string>& temp_BoundaryConditions, LSDRaster& TopoRaster);
 };
 
 #endif

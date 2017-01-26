@@ -78,12 +78,14 @@
 #include "TNT/tnt.h"
 #include "LSDFlowInfo.hpp"
 #include "LSDRaster.hpp"
+#include "LSDIndexRaster.hpp"
 #include "LSDChannel.hpp"
 #include "LSDJunctionNetwork.hpp"
 #include "LSDIndexChannel.hpp"
 #include "LSDStatsTools.hpp"
 #include "LSDShapeTools.hpp"
 #include "LSDChiTools.hpp"
+#include "LSDBasin.hpp"
 #include "LSDChiNetwork.hpp"
 using namespace std;
 using namespace TNT;
@@ -428,16 +430,50 @@ void LSDChiTools::chi_map_automator(LSDFlowInfo& FlowInfo,
   map<int,float> area_map;
   map<int,float> flow_distance_map;
   vector<int> node_sequence_vec;
+  
+  // these are vectors that will store information about the individual nodes
+  // that allow us to map the nodes to specific channels during data visualisation
+  
+  // These two maps have each node in the channel (the index) 
+  // linked to a key (either the baselevel key or source key)
+  map<int,int> these_source_keys;
+  map<int,int> these_baselevel_keys;
+  
+  // These two maps link a keys, which are incrmented by one, to the 
+  // junction or node of the baselevel or source
+  map<int,int> this_key_to_source_map; 
+  map<int,int> this_key_to_baselevel_map;
 
   // these are for working with the FlowInfo object
   int this_node,row,col;
+  int this_base_level, this_source_node;
 
   // get the number of channels
+  int source_node_tracker = -1;
+  int baselevel_tracker = -1;
   int n_channels = int(source_nodes.size());
-  
   for(int chan = 0; chan<n_channels; chan++)
   {
     cout << "Sampling channel " << chan+1 << " of " << n_channels << endl;
+    
+    // get the base level
+    this_base_level = FlowInfo.retrieve_base_level_node(source_nodes[chan]);
+    //cout << "Got the base level" << endl;
+    
+    // If a key to this base level does not exist, add one. 
+    if ( this_key_to_baselevel_map.find(this_base_level) == this_key_to_baselevel_map.end() ) 
+    {
+      baselevel_tracker++;
+      cout << "Found a new baselevel. The node is: " << this_base_level << " and key is: " << baselevel_tracker << endl;
+      this_key_to_baselevel_map[this_base_level] = baselevel_tracker;
+    }
+    
+    // now add the source tracker
+    source_node_tracker++;
+    this_source_node = source_nodes[chan];
+    this_key_to_source_map[this_source_node] = source_node_tracker;
+    
+    cout << "The source key is: " << source_node_tracker << " and basin key is: " << baselevel_tracker << endl;
     
     // get this particualr channel (it is a chi network with only one channel)
     LSDChiNetwork ThisChiChannel(FlowInfo, source_nodes[chan], outlet_nodes[chan], 
@@ -474,6 +510,7 @@ void LSDChiTools::chi_map_automator(LSDFlowInfo& FlowInfo,
     
     //cout << "I have " << these_chi_m_means.size() << " nodes." << endl;
     
+
     int n_nodes_in_channel = int(these_chi_m_means.size());
     for (int node = 0; node< n_nodes_in_channel; node++)
     {
@@ -494,6 +531,10 @@ void LSDChiTools::chi_map_automator(LSDFlowInfo& FlowInfo,
         area_map[this_node] = DrainageArea.get_data_element(row,col);
         flow_distance_map[this_node] = FlowDistance.get_data_element(row,col);
         node_sequence_vec.push_back(this_node);
+        
+        these_source_keys[this_node] = source_node_tracker;
+        these_baselevel_keys[this_node] = baselevel_tracker;
+
       }
       else
       {
@@ -501,6 +542,8 @@ void LSDChiTools::chi_map_automator(LSDFlowInfo& FlowInfo,
       }
     }
   }
+  
+  cout << "I am all finished segmenting the channels!" << endl;
   
   // set the opject data members
   M_chi_data_map =m_means_map; 
@@ -510,6 +553,11 @@ void LSDChiTools::chi_map_automator(LSDFlowInfo& FlowInfo,
   flow_distance_data_map = flow_distance_map;
   drainage_area_data_map = area_map;
   node_sequence = node_sequence_vec;
+  
+  source_keys_map = these_source_keys;
+  baselevel_keys_map = these_baselevel_keys;
+  key_to_source_map = this_key_to_source_map;
+  key_to_baselevel_map = this_key_to_baselevel_map;
   
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -750,7 +798,7 @@ void LSDChiTools::print_data_maps_to_file_full(LSDFlowInfo& FlowInfo, string fil
   // open the data file
   ofstream  chi_data_out;
   chi_data_out.open(filename.c_str());
-  chi_data_out << "latitude,longitude,chi,elevation,flow distance,drainage area,m_chi,b_chi" << endl;
+  chi_data_out << "latitude,longitude,chi,elevation,flow distance,drainage area,m_chi,b_chi,source_key,basin_key" << endl;
   
   // find the number of nodes
   int n_nodes = (node_sequence.size());
@@ -775,7 +823,9 @@ void LSDChiTools::print_data_maps_to_file_full(LSDFlowInfo& FlowInfo, string fil
                    << flow_distance_data_map[this_node] << ","
                    << drainage_area_data_map[this_node] << ","
                    << M_chi_data_map[this_node] << ","
-                   << b_chi_data_map[this_node] << endl;
+                   << b_chi_data_map[this_node] << ","
+                   << source_keys_map[this_node] << ","
+                   << baselevel_keys_map[this_node] << endl;
     }
   }
 
@@ -784,6 +834,162 @@ void LSDChiTools::print_data_maps_to_file_full(LSDFlowInfo& FlowInfo, string fil
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// Print data maps to file
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+void LSDChiTools::print_source_keys(LSDFlowInfo& FlowInfo, string filename)
+{
+  
+  // these are for extracting element-wise data from the channel profiles. 
+  int this_node, row,col, key;
+  double latitude,longitude;
+  LSDCoordinateConverterLLandUTM Converter;
+  map<int, int>::iterator it;
+  
+  // open the data file
+  ofstream  source_keys_out;
+  source_keys_out.open(filename.c_str());
+  source_keys_out << "latitude,longitude,source_node,source_key" << endl;
+
+  // loop through the source key map
+  for ( it = key_to_source_map.begin(); it != key_to_source_map.end(); it++ )
+  {
+    key = it->second;
+    this_node = it->first;
+    FlowInfo.retrieve_current_row_and_col(this_node,row,col);
+    get_lat_and_long_locations(row, col, latitude, longitude, Converter); 
+    
+    source_keys_out.precision(9);
+    source_keys_out << latitude << ","
+                   << longitude << "," << this_node << ",";
+    source_keys_out.precision(5);
+    source_keys_out << key << endl;
+  }
+  
+  source_keys_out.close();
+}
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// Print data maps to file
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+void LSDChiTools::print_baselevel_keys(LSDFlowInfo& FlowInfo, LSDJunctionNetwork& JunctionNetwork, string filename)
+{
+  
+  // these are for extracting element-wise data from the channel profiles. 
+  int this_node, this_junc,row,col, key;
+  double latitude,longitude;
+  LSDCoordinateConverterLLandUTM Converter;
+  map<int, int>::iterator it;
+  
+  // open the data file
+  ofstream  baselevel_keys_out;
+  baselevel_keys_out.open(filename.c_str());
+  baselevel_keys_out << "latitude,longitude,baselevel_node,baselevel_junction,baselevel_key" << endl;
+
+  // loop through the source
+  for ( it = key_to_baselevel_map.begin(); it != key_to_baselevel_map.end(); it++ )
+  {
+    key = it->second;
+    this_node = it->first;
+    this_junc = JunctionNetwork.get_Junction_of_Node(this_node, FlowInfo);
+    FlowInfo.retrieve_current_row_and_col(this_node,row,col);
+    get_lat_and_long_locations(row, col, latitude, longitude, Converter); 
+    
+    baselevel_keys_out.precision(9);
+    baselevel_keys_out << latitude << ","
+                   << longitude << "," << this_node << ",";
+    baselevel_keys_out.precision(5);
+    baselevel_keys_out << this_junc <<"," << key << endl;
+  }
+  
+  baselevel_keys_out.close();
+}
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// This function prints the basins and an additional file that has basin centroids
+// and labelling information for plotting
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+void LSDChiTools::print_basins(LSDFlowInfo& FlowInfo, LSDJunctionNetwork& JunctionNetwork, 
+                               vector<int> Junctions, string base_filename)
+{
+  int N_Juncs = Junctions.size();
+  LSDCoordinateConverterLLandUTM Converter;
+  
+  
+  // Get some data members for holding basins and the raster
+  vector<LSDBasin> AllTheBasins;
+  map<int,int> drainage_of_other_basins;
+  LSDIndexRaster BasinMasterRaster;
+    
+  string basin_raster_name = base_filename+"_AllBasins";
+  string basin_info_name = base_filename+"_AllBasinsInfo.csv";
+  
+  ofstream basin_info_out;
+  basin_info_out.open(basin_info_name.c_str());
+  basin_info_out << "latitude,longitude,outlet_latitude,outlet_longitude,outlet_junction" << endl;
+  
+  // Make sure the full lat-long information is printed 
+  basin_info_out.precision(9);
+  
+  // These store row and column information for converting the outlet and centroid to 
+  // latitude and longitude
+  int centroid_i, centroid_j, outlet_i, outlet_j;
+  double out_lat,out_long, cen_lat, cen_long;
+    
+  //cout << "I am trying to print basins, found " << N_BaseLevelJuncs << " base levels." << endl;
+  // Loop through the junctions
+  for(int BN = 0; BN<N_Juncs; BN++)
+  {
+    //cout << "Getting basin " << BN << " and the junction is: "  << BaseLevelJunctions[BN] << endl;
+    LSDBasin thisBasin(Junctions[BN],FlowInfo, JunctionNetwork);
+    //cout << "...got it!" << endl;
+    AllTheBasins.push_back(thisBasin);
+    
+    // This is required if the basins are nested--test the code which numbers
+    // to be overwritten by a smaller basin
+    drainage_of_other_basins[Junctions[BN]] = thisBasin.get_NumberOfCells();
+    
+    
+    // get the centroid and outlet locations 
+    centroid_i = thisBasin.get_Centroid_i();
+    centroid_j = thisBasin.get_Centroid_j();
+    
+    outlet_i = thisBasin.get_Outlet_i();
+    outlet_j = thisBasin.get_Outlet_j();
+    
+    // Find the latitude and longitude of the outlet and centroid 
+    get_lat_and_long_locations(centroid_i, centroid_j, cen_lat, cen_long, Converter);
+    get_lat_and_long_locations(outlet_i, outlet_j, out_lat, out_long, Converter);
+    
+    basin_info_out << cen_lat << "," << cen_long << "," << out_lat << "," << out_long << "," << Junctions[BN] << endl;
+  }
+  basin_info_out.close();
+    
+  // now loop through everything again getting the raster
+  if (N_Juncs > 0)     // this gets the first raster
+  {
+    BasinMasterRaster = AllTheBasins[0].write_integer_data_to_LSDIndexRaster(Junctions[0], FlowInfo);
+  }
+    
+  // now add on the subsequent basins
+  for(int BN = 1; BN<N_Juncs; BN++)
+  {
+    AllTheBasins[BN].add_basin_to_LSDIndexRaster(BasinMasterRaster, FlowInfo,
+                              drainage_of_other_basins, Junctions[BN]);
+  }
+    
+  
+  // We need to use bil format since there is georeferencing
+  string raster_ext = "bil";
+  // print the basin raster
+  BasinMasterRaster.write_raster(basin_raster_name, raster_ext);
+  cout << "Finished with exporting basins!" << endl; 
+
+
+
+}
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // Print data maps to file

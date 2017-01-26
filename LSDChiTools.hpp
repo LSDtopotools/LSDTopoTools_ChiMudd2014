@@ -234,6 +234,37 @@ class LSDChiTools
                                     LSDRaster& DrainageArea, LSDRaster& chi_coordinate, 
                                     int regression_nodes);
 
+    /// @brief This prints a csv file that has the locations of the sources and their keys
+    ///  latitude,longitude,source_node, source_key
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param filename The name of the filename to print to (should have full
+    ///   path and the extension .csv
+    /// @author SMM
+    /// @date 16/01/2017
+    void print_source_keys(LSDFlowInfo& FlowInfo, string filename);
+
+    /// @brief This prints a csv file that has the locations of the baselevels and their keys
+    ///  latitude,longitude,baselevel_junctione, baselevel_key
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param JN the junction network object
+    /// @param filename The name of the filename to print to (should have full
+    ///   path and the extension .csv
+    /// @author SMM
+    /// @date 16/01/2017
+    void print_baselevel_keys(LSDFlowInfo& FlowInfo, LSDJunctionNetwork& JN, string filename);
+
+    /// @brief This prints a basin LSDIndexRaster with basins numbered by outlet junction
+    ///  and a csv file that has the latitude and longitude of both the outlet and the centroid
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param JN the junction network object
+    /// @param Junctions The baselevel junctions to be printed
+    /// @param base_filename The name of the filename to print to (should have full
+    ///   path but no extension. The "_AllBasins" will be added
+    /// @author SMM
+    /// @date 19/01/2017
+    void print_basins(LSDFlowInfo& FlowInfo, LSDJunctionNetwork& JunctionNetwork, 
+                               vector<int> Juntions, string base_filename);
+
     /// @brief This prints a csv file with all the data from the data maps
     ///  the columns are:
     ///  latitude,longitude,chi,elevation,flow distance,drainage area,m_chi,b_chi
@@ -289,7 +320,19 @@ class LSDChiTools
     
     /// A vector to hold the order of the nodes. Starts from longest channel
     /// and then works through sources in descending order of channel lenght
-    vector<int> node_sequence; 
+    vector<int> node_sequence;
+    
+    /// vectors to hold the source nodes and the outlet nodes
+    /// The source keys are indecies into the source_to_key_map.
+    /// In big DEMs the node numbers become huge so for printing efficiency we
+    /// run a key that starts at 0
+    map<int,int> source_keys_map;
+    /// This holds the baselevel key of each node. Again used for visualisation
+    map<int,int> baselevel_keys_map;
+    /// This is a map where the sources are linked to the source nodes. 
+    map<int,int> key_to_source_map; 
+    /// This is a map where the baselevel keys are linked to the baselelvel nodes. 
+    map<int,int> key_to_baselevel_map; 
 
   private:
     void create(LSDRaster& Raster);

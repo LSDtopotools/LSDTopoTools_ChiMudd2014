@@ -1,5 +1,5 @@
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// LSDCRNParameters.hpp
+// LSDCRNParameters.cpp
 //
 // Land Surface Dynamics Cosmogenic Radionuclide Parameters Object
 //

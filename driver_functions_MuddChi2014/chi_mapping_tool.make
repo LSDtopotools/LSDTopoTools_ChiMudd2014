@@ -20,6 +20,7 @@ SOURCES=chi_mapping_tool.cpp \
              ../LSDBasin.cpp \
              ../LSDParticle.cpp \
              ../LSDChiTools.cpp \
+             ../LSDParameterParser.cpp \
              ../LSDCRNParameters.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=chi_mapping_tool.exe

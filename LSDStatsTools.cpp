@@ -60,7 +60,7 @@
 #include <cstdio>
 #include <cassert>
 #include <cmath>
-#include <time.h>
+#include <ctime>
 #include <map>
 #include "TNT/tnt.h"
 #include "TNT/jama_lu.h"
@@ -138,7 +138,71 @@ float ran3(long *idum)
 #undef MSEED
 #undef MZ
 #undef FAC
-//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+//These return the keys from a map
+vector<string> extract_keys(map<string, int> input_map)
+{
+  vector<string> retkey;
+
+  map<string, int>::iterator it;
+  string key;
+  for(it = input_map.begin(); it != input_map.end(); it++)
+  {
+    key = it->first;
+    retkey.push_back(key);
+  }
+  return retkey;
+
+}
+
+vector<string> extract_keys(map<string, float> input_map)
+{
+  vector<string> retkey;
+
+  map<string, float>::iterator it;
+  string key;
+  for(it = input_map.begin(); it != input_map.end(); it++)
+  {
+    key = it->first;
+    retkey.push_back(key);
+  }
+  return retkey;
+}
+
+vector<string> extract_keys(map<string, bool> input_map)
+{
+  vector<string> retkey;
+
+  map<string, bool>::iterator it;
+  string key;
+  for(it = input_map.begin(); it != input_map.end(); it++)
+  {
+    key = it->first;
+    retkey.push_back(key);
+  }
+  return retkey;
+}
+
+vector<string> extract_keys(map<string, string> input_map)
+{
+  vector<string> retkey;
+
+  map<string, string>::iterator it;
+  string key;
+  for(it = input_map.begin(); it != input_map.end(); it++)
+  {
+    key = it->first;
+    retkey.push_back(key);
+  }
+  return retkey;
+}
+
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+
 
 // this function flips an array. Set the flip rows or flip cols to true to flip
 // in these directions
@@ -5637,6 +5701,58 @@ string ReadTextFile(ifstream& File){
   }
 }
 
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=
+// This reads the header from a csv file and returns a vector of strings
+// that are the header columns
+// IMPORTANT!! Headers cannot contain spaces since these get removed!!!
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--==
+vector<string> ReadCSVHeader(string path, string fname)
+{
+
+  string filename = FixPath(path)+ fname;
+
+  // make sure the filename works
+  ifstream ifs(filename.c_str());
+  if( ifs.fail() )
+  {
+    cout << "\nFATAL ERROR: Trying to load csv cosmo data file, but the file" << filename
+         << "doesn't exist; LINE 245 LSDCosmoData" << endl;
+    exit(EXIT_FAILURE);
+  }
+
+  // initiate the string to hold the file
+  string line_from_file;
+  vector<string> this_string_vec;
+  string temp_string;
+
+  // get the first line: these are the headers
+  getline(ifs, line_from_file);
+
+  // create a stringstream
+  stringstream ss(line_from_file);
+
+  while( ss.good() )
+  {
+    string substr;
+    getline( ss, substr, ',' );
+
+    // remove the spaces
+    substr.erase(remove_if(substr.begin(), substr.end(), ::isspace), substr.end());
+
+    // remove control characters
+    substr.erase(remove_if(substr.begin(), substr.end(), ::iscntrl), substr.end());
+
+    // add the string to the string vec
+    this_string_vec.push_back( substr );
+  }
+
+  ifs.close();
+  return this_string_vec;
+}
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=
+
+
 // Reads a string and splits given a delimiter, into a vector, v
 void split_delimited_string(const string& s, char c, vector<string>& v)
 {
@@ -5717,12 +5833,12 @@ string FixPath(string PathtoFix)
 {
   // first get rid of conrol characters
   string noContrl = RemoveControlCharacters(PathtoFix);
-  
+
   string lchar = noContrl.substr(noContrl.length()-1,1);
-  
+
   string slash = "/";
-  cout << "Checking pathname, pathname is: " << noContrl << endl;
-  cout << "lchar is " << lchar << " and slash is " << slash << endl;
+  //cout << "Checking pathname, pathname is: " << noContrl << endl;
+  //cout << "lchar is " << lchar << " and slash is " << slash << endl;
 
   if (lchar != slash)
   {
@@ -6153,4 +6269,110 @@ float fai5(float y1, float y2, float b1, float b2, float a){
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 //End of sinmap code
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// This parses a string into a time struct
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+struct tm Parse_time_string(string time_string)
+{
+  vector<string> space_break;
+  vector<string> ymd_breal;
+  vector<string> hs_break;
+  string ymd_string;
+  string hm_string;
+
+  // these are used in a time struct
+  int year, month, day, hour, minute;
+
+  // create a stringstream
+  stringstream ss(time_string);
+  while( ss.good() )
+  {
+    string substr;
+    getline( ss, substr, ' ' );
+
+    // add the string to the string vec
+    space_break.push_back( substr );
+  }
+
+  ymd_string = space_break[0];
+  hm_string = space_break[1];
+
+  // now get the Y-M-D data
+  stringstream ss2(ymd_string);
+  while( ss2.good() )
+  {
+    string substr;
+    getline( ss2, substr, '-' );
+
+    // add the string to the string vec
+    space_break.push_back( substr );
+  }
+
+  year = atoi(space_break[0].c_str());
+  month = atoi(space_break[1].c_str());
+  day = atoi(space_break[2].c_str());
+
+  cout << year << "," << month << "," << day << ",";
+
+  // now get the Y-M-D data
+  stringstream ss3(hm_string);
+  while( ss3.good() )
+  {
+    string substr;
+    getline( ss3, substr, ':' );
+
+    // add the string to the string vec
+    hs_break.push_back( substr );
+  }
+
+  hour = atoi(hs_break[0].c_str());
+  minute = atoi(hs_break[1].c_str());
+
+  cout << hour << "," << minute << endl;
+
+  struct tm * timeinfo;
+
+  timeinfo->tm_year = year-1900;
+  timeinfo->tm_mon = month-1;
+  timeinfo->tm_mday = day;
+  timeinfo->tm_hour = hour;
+  timeinfo->tm_min = minute;
+
+  //mktime(timeinfo);
+
+  return *timeinfo;
+}
+
+//Returns the distance between 2 pairs of raster indexes
+//SWDG 19/1/17
+float distbetween(int row1, int col1, int row2, int col2){
+  return sqrt(((row2 - row1) * (row2 - row1)) + ((col2 - col1) * (col2 - col1)));
+}
+
+// Normalize the values of an array of floats to between 0 and MaxValue
+// SWDG 25/1/17
+Array2D<float> normalize(Array2D<float> Data, float MaxValue, float NoDataValue){
+
+  int n_rows = Data.dim1();
+  int n_cols = Data.dim2();
+
+  Array2D<float> Normed(n_rows, n_cols, NoDataValue);
+
+  float minimum = Get_Minimum(Data, NoDataValue);
+  float maximum = Get_Maximum(Data, NoDataValue);
+
+  for(int i = 0; i < n_rows; i++){
+    for (int j = 0; j < n_cols; j++){
+      if (Data[i][j] != NoDataValue){
+        Normed[i][j] = ((Data[i][j] - minimum) / (maximum - minimum)) * MaxValue;
+      }
+    }
+  }
+
+  return Normed;
+
+}
+
 #endif

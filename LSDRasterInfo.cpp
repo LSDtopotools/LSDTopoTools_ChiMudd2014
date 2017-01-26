@@ -510,7 +510,21 @@ void LSDRasterInfo::read_header(string filename, string extension)
     if (NoDataExists == 0)
     {
       NoDataValue = -9999;
+      
+      if(extension == "bil")
+      {
+        string header_filename;
+        string header_extension = "hdr";
+        header_filename = filename+dot+header_extension;
+        ofstream file_out;
+        file_out.open(header_filename.c_str(), std::ios_base::app);
+        file_out << "data ignore value = -9999" << endl;
+        file_out.close(); 
+      }
+      
     }
+    
+    
 
     //cout << "Loading ENVI bil file; NCols: " << NCols << " NRows: " << NRows << endl
     //   << "X minimum: " << XMinimum << " YMinimum: " << YMinimum << endl
