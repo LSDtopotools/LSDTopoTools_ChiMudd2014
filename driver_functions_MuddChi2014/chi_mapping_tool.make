@@ -13,7 +13,6 @@ SOURCES=chi_mapping_tool.cpp \
              ../LSDJunctionNetwork.cpp \
              ../LSDIndexChannel.cpp \
              ../LSDChannel.cpp \
-             ../LSDParameterParser.cpp \
              ../LSDIndexChannelTree.cpp \
              ../LSDStatsTools.cpp \
              ../LSDShapeTools.cpp \
