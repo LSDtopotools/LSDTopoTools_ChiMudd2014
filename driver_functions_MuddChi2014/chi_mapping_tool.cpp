@@ -134,6 +134,7 @@ int main (int nNumberofArgs,char *argv[])
   bool_default_map["print_baselevel_keys"] = false;
   bool_default_map["print_basin_raster"] = false;
   bool_default_map["write hillshade"] = false;
+  bool_default_map["print_simple_chi_map_with_basins_to_csv"] = false;
   
   // set default string method
   string_default_map["CHeads_file"] = "NULL";
@@ -340,6 +341,14 @@ int main (int nNumberofArgs,char *argv[])
     cout <<"I am printing a simple chi map for you to csv." << endl;
     string chi_csv_fname = OUT_DIR+DEM_ID+"_chi_coord.csv";
     ChiTool.chi_map_to_csv(FlowInfo, chi_csv_fname, chi_coordinate);
+  }
+
+  if (this_bool_map["print_simple_chi_map_with_basins_to_csv"])
+  {
+    cout <<"I am printing a simple chi map with basins for you to csv." << endl;
+    LSDIndexRaster basin_raster = ChiTool.get_basin_raster(FlowInfo, JunctionNetwork, BaseLevelJunctions);
+    string chi_csv_fname = OUT_DIR+DEM_ID+"_chi_coord_basins.csv";
+    ChiTool.chi_map_to_csv(FlowInfo, chi_csv_fname, chi_coordinate,basin_raster);
   }
 
 

@@ -386,6 +386,52 @@ void LSDChiTools::chi_map_to_csv(LSDFlowInfo& FlowInfo, string chi_map_fname,
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// This prints a chi map to csv with an area threshold in m^2. You feed it the chi map
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+void LSDChiTools::chi_map_to_csv(LSDFlowInfo& FlowInfo, string chi_map_fname, 
+                                 LSDRaster& chi_coord, LSDIndexRaster& basin_raster)
+{
+  
+  ofstream chi_map_csv_out;
+  chi_map_csv_out.open(chi_map_fname.c_str());
+  
+  
+  
+  float this_chi_coord;
+  int this_basin_number;
+  double latitude,longitude;
+  LSDCoordinateConverterLLandUTM Converter;
+  
+  chi_map_csv_out << "latitude,longitude,chi,basin_junction" << endl;
+
+  float NDV = chi_coord.get_NoDataValue();
+
+  for(int row = 0; row<NRows; row++)
+  {
+    for(int col = 0; col<NCols; col++)
+    {
+      this_chi_coord = chi_coord.get_data_element(row,col);
+      this_basin_number = basin_raster.get_data_element(row,col);
+      
+      
+      if (this_chi_coord != NDV)
+      {
+        get_lat_and_long_locations(row, col, latitude, longitude, Converter);
+        chi_map_csv_out.precision(9);
+        chi_map_csv_out << latitude << "," << longitude  << ",";
+        chi_map_csv_out.precision(5);
+        chi_map_csv_out << this_chi_coord << ",";
+        chi_map_csv_out << this_basin_number << endl;
+      }
+    }
+  }
+  
+  chi_map_csv_out.close();
+}
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+
 
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -782,7 +828,53 @@ void LSDChiTools::chi_map_automator_rudimentary(LSDFlowInfo& FlowInfo,
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// This function calculates the basins and an additional file that has basin centroids
+// and labelling information for plotting
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+LSDIndexRaster LSDChiTools::get_basin_raster(LSDFlowInfo& FlowInfo, LSDJunctionNetwork& JunctionNetwork, 
+                               vector<int> Junctions)
+{
+  int N_Juncs = Junctions.size();
+  LSDCoordinateConverterLLandUTM Converter;
+  
+  
+  // Get some data members for holding basins and the raster
+  vector<LSDBasin> AllTheBasins;
+  map<int,int> drainage_of_other_basins;
+  LSDIndexRaster BasinMasterRaster;
 
+  //cout << "I am trying to print basins, found " << N_BaseLevelJuncs << " base levels." << endl;
+  // Loop through the junctions
+  for(int BN = 0; BN<N_Juncs; BN++)
+  {
+    //cout << "Getting basin " << BN << " and the junction is: "  << BaseLevelJunctions[BN] << endl;
+    LSDBasin thisBasin(Junctions[BN],FlowInfo, JunctionNetwork);
+    //cout << "...got it!" << endl;
+    AllTheBasins.push_back(thisBasin);
+    
+    // This is required if the basins are nested--test the code which numbers
+    // to be overwritten by a smaller basin
+    drainage_of_other_basins[Junctions[BN]] = thisBasin.get_NumberOfCells();
+    
+  }
+    
+  // now loop through everything again getting the raster
+  if (N_Juncs > 0)     // this gets the first raster
+  {
+    BasinMasterRaster = AllTheBasins[0].write_integer_data_to_LSDIndexRaster(Junctions[0], FlowInfo);
+  }
+    
+  // now add on the subsequent basins
+  for(int BN = 1; BN<N_Juncs; BN++)
+  {
+    AllTheBasins[BN].add_basin_to_LSDIndexRaster(BasinMasterRaster, FlowInfo,
+                              drainage_of_other_basins, Junctions[BN]);
+  }
+  
+  return BasinMasterRaster;
+
+}
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // Print data maps to file
@@ -987,9 +1079,11 @@ void LSDChiTools::print_basins(LSDFlowInfo& FlowInfo, LSDJunctionNetwork& Juncti
   BasinMasterRaster.write_raster(basin_raster_name, raster_ext);
   cout << "Finished with exporting basins!" << endl; 
 
-
-
 }
+
+
+
+
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // Print data maps to file

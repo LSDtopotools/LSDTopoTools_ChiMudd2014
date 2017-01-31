@@ -185,7 +185,17 @@ class LSDChiTools
     /// @author SMM
     /// @date 03/06/2016 
     void chi_map_to_csv(LSDFlowInfo& FlowInfo, string chi_map_fname, LSDRaster& chi_coord);
-  
+
+    /// @brief This function takes a raster prints to a csv file. Includes the junction number in the file
+    /// @detail the lat and long coordinates in the csv are in WGS84
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param filename The string filename including path and extension
+    /// @param chi_coord the raster of the chi coordinate (printed elsewhere) 
+    /// @param basin_raster A raster with the basin numbers (calculated elsewhere)
+    /// @author SMM
+    /// @date 31/01/2017 
+    void chi_map_to_csv(LSDFlowInfo& FlowInfo, string chi_map_fname, LSDRaster& chi_coord, LSDIndexRaster& basin_raster);
+
     /// @brief This function maps out the chi steepness and other channel
     ///  metrics in chi space from all the sources supplied in the 
     ///  source_nodes vector. The source and outlet nodes vector is 
@@ -233,6 +243,17 @@ class LSDChiTools
                                     LSDRaster& Elevation, LSDRaster& FlowDistance, 
                                     LSDRaster& DrainageArea, LSDRaster& chi_coordinate, 
                                     int regression_nodes);
+
+    /// @brief This returns an LSDIndexRaster with basins numbered by outlet junction
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param JN the junction network object
+    /// @param Junctions The baselevel junctions to be printed
+    /// @return The basin raster
+    /// @author SMM
+    /// @date 19/01/2017
+    LSDIndexRaster get_basin_raster(LSDFlowInfo& FlowInfo, LSDJunctionNetwork& JunctionNetwork, 
+                               vector<int> Juntions);
+
 
     /// @brief This prints a csv file that has the locations of the sources and their keys
     ///  latitude,longitude,source_node, source_key
