@@ -434,9 +434,20 @@ MathJax.Hub.Config({
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_preface_by_author_1">Preface by Author 1</a></li>
-<li><a href="#_introduction">1. Introduction</a></li>
-<li><a href="#_getting_the_software">2. Getting the software</a></li>
+<li><a href="#_preface_by_simon_mudd">Preface by Simon Mudd</a></li>
+<li><a href="#_introduction">1. Introduction</a>
+<ul class="sectlevel2">
+<li><a href="#_background">1.1. Background</a></li>
+</ul>
+</li>
+<li><a href="#_getting_the_software">2. Getting the software</a>
+<ul class="sectlevel2">
+<li><a href="#_starting_up_on_your_own_linux_machine">2.1. Starting up on your own Linux machine</a></li>
+<li><a href="#_starting_up_on_a_non_linux_operating_system_windows_macos">2.2. Starting up on a non-Linux operating system (Windows, MacOS)</a></li>
+<li><a href="#_troubleshooting_a_vagrant_server">2.3. Troubleshooting a vagrant server</a></li>
+<li><a href="#_installing_the_code_and_setting_up_directories">2.4. Installing the code and setting up directories</a></li>
+</ul>
+</li>
 <li><a href="#_preparing_your_data">3. Preparing your data.</a></li>
 <li><a href="#_running_chi_analysis">4. Running chi analysis</a></li>
 <li><a href="#_visualisation">5. Visualisation</a></li>
@@ -445,10 +456,10 @@ MathJax.Hub.Config({
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_preface_by_author_1">Preface by Author 1</h2>
+<h2 id="_preface_by_simon_mudd">Preface by Simon Mudd</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This is the documentation for the chi analysis tool. It is the second generation of the software reported in Mudd et al. 2014. Right now there is not very much documentaiton but that will change in the near future.</p>
+<p>This is the documentation for the chi analysis tool. It is the second generation of the software reported in Mudd et al. 2014. Right now there is not very much documentation but that will change in the near future.</p>
 </div>
 </div>
 </div>
@@ -456,7 +467,37 @@ MathJax.Hub.Config({
 <h2 id="_introduction">1. Introduction</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Chi analysis is awesome.</p>
+<p>This section explains the theory behind analysis of channels using both slope-area analysis and chi analysis. If you just want to run the software skip ahead to the section <a href="#_getting_the_software">Getting the software</a>.</p>
+</div>
+<div class="sect2">
+<h3 id="_background">1.1. Background</h3>
+<div class="paragraph">
+<p>In the late 1800s, <a href="https://en.wikipedia.org/wiki/Grove_Karl_Gilbert">G.K. Gilbert</a> proposed that bedrock channel incision should be proportional to topographic gradients and the amount of water flowing in a channel.</p>
+</div>
+<div class="quoteblock">
+<div class="title">From <a href="https://pubs.er.usgs.gov/publication/70039916">The USGS report on the Geology of the Henry Mountains</a></div>
+<blockquote>
+We have already seen that erosion is favored by declivity. Where the declivity is great the agents of erosion are powerful; where it is small they are weak; where there is no declivity they are powerless. Moreover it has been shown that their power increases with the declivity in more than simple ratio.
+</blockquote>
+<div class="attribution">
+&#8212; G.K. Gilbert<br>
+<cite>Geology of the Henry Mountains 1877</cite>
+</div>
+</div>
+<div class="paragraph">
+<p>Since then, many geomorpholgists have attempted to extract information about erosion rates from channel profiles.
+Chi analysis is a method of extracting information from channel profiles that attempts to compare channels with different discharges first proposed by Leigh Royden and colleagues at MIT.
+<a href="https://lsdtopotools.github.io/">LSDTopoTools</a> has a number of tools for performing chi analysis.</p>
+</div>
+<div class="paragraph">
+<p>This document gives instructions on how to use the segment fitting tool for channel profile analysis
+developed by the Land Surface Dynamics group at the University of Edinburgh.
+The tool is used to examine the geometry of channels using the integral method of channel profile analysis.
+For background to the method, and a description of the algorithms, we refer the reader to
+<a href="http://www.http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al. (2014)</a>.
+For background into the strengths of the integral method of channel profile analysis,
+the user should read <a href="http://mit.edu/perron/www/files/PerronRoyden13.pdf">Perron and Royden (2013, ESPL)</a>.</p>
+</div>
 </div>
 </div>
 </div>
@@ -464,7 +505,213 @@ MathJax.Hub.Config({
 <h2 id="_getting_the_software">2. Getting the software</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>You need to use vagrant. Go to our book. Then run python. More details to come.</p>
+<p>We have attempted, to the best of our ability, to streamline the process of installing our software on any platform (Windows, Linux, MacOS). You will need to install a bit of software. If you have a decent internect connections this should take under an hour. The main rate limiting step is downloading files: You will need to download ~2Gb of software. This requirement is substantially reduced if you want to install on a a native Linux machine.</p>
+</div>
+<div class="sect2">
+<h3 id="_starting_up_on_your_own_linux_machine">2.1. Starting up on your own Linux machine</h3>
+<div class="paragraph">
+<p>If you work on a Linux operating system we have a python script for installing everything. You will need to be connected to the internet, and have python installed. You can skip ahead to the section <a href="#_installing_the_code_and_setting_up_directories">Installing the code and setting up directories</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_starting_up_on_a_non_linux_operating_system_windows_macos">2.2. Starting up on a non-Linux operating system (Windows, MacOS)</h3>
+<div class="paragraph">
+<p>Below are quick instructions. If you have trouble, follow the link above and then go through the complete instructions.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Quick Instructions for using Vagrant for LSDTopoTools</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Download and install <a href="https://www.virtualbox.org/">virtualbox</a>.</p>
+</li>
+<li>
+<p>Download and install <a href="https://www.vagrantup.com/">vagrant</a>. You might have to restart your computer after this.</p>
+</li>
+<li>
+<p>If you are on Windows, download <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">putty.exe</a>. If you are on Linux or MacOS you can skip this (they have built-in equivalents).</p>
+</li>
+<li>
+<p>Make a directory for your vagrant box. We tend to put ours in a directory called <code>VagrantBoxes</code>.</p>
+</li>
+<li>
+<p>Inside that directory make two new directories: <code>LSDTopoTools</code> and <code>Ubuntu</code>. The second directory&#8217;s name doesn&#8217;t matter, it is just for holding a vagrant file (see below). However you <strong>MUST</strong> have the <code>LSDTopoTools</code> directory. The directory name is <strong>case sensitive</strong>!</p>
+</li>
+<li>
+<p>Download one of our vagrantfiles: <a href="https://github.com/LSDtopotools/LSDTT_vagrantfiles" class="bare">https://github.com/LSDtopotools/LSDTT_vagrantfiles</a> into the <code>Ubuntu</code> directory (again, the name of the directory doesn&#8217;t matter).</p>
+</li>
+<li>
+<p>Rename the vagrantfile from the repo (either <code>Vagrantfile_32bit_FFTW</code> or <code>Vagrantfile_64bit_FFTW</code>) simply <code>vagrantfile</code>. Your operating system is almost certainly 64 bit, but on most computers you need to select 32 bit because the default setting is to disable 64 bit guest operating systems. This can be changed but only by expert users.</p>
+</li>
+<li>
+<p>Open a terminal or powershell window and navigate to the directory with the vagrantfile.</p>
+</li>
+<li>
+<p>Run <code>vagrant up</code> from the command line.</p>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+If you are running <code>vagrant up</code> for the first time it can take some time to download the <a href="https://www.vagrantup.com/docs/getting-started/boxes.html">base box</a>. They are several hundred Mb each!
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Run <code>vagrant provision</code> after the box has started.</p>
+</li>
+<li>
+<p>If on Windows, you should now be able to use <code>putty.exe</code> to ssh into your LSDTopoTools server. The host name is almost always <code>127.0.0.1</code> and the port is almost always <code>2222</code>.</p>
+</li>
+<li>
+<p>On Windows, you will need to give a username and password after connecting using <code>putty.exe</code>. The machine is running locally on your computer so nothing is being sent over the internet. The username is always <code>vagrant</code>  and the password is also <code>vagrant</code>.</p>
+</li>
+<li>
+<p>If you are on MacOS or Linux you do not need <code>putty.exe</code>; all you need to do is type <code>vagrant ssh</code> into the command line. See the <a href="https://www.vagrantup.com/docs/getting-started/up.html">vagrant instructions</a>.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_troubleshooting_a_vagrant_server">2.3. Troubleshooting a vagrant server</h3>
+<div class="paragraph">
+<p>There are a few common problems people have when running a vagrant server.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If you are on an old computer, sometimes vagrant times out before the virtual machine boots. This most frequently happens the first time you boot a vagrant machine. The most effective way to fix this is with the canonical IT solution: turning it off and on again. To do that run <code>vagrant halt</code> and <code>vagrant up</code> in succession.</p>
+</li>
+<li>
+<p>If vagrant hangs up in the powershell or terminal window and does not give you back the command prompt, turn it off and on again by typing ctrl-c and then running the vagrant command again.</p>
+</li>
+<li>
+<p>If your files are not synching across your host and vagrant machine, it is probably because there is some misspelling in your <code>LSDTopoTools</code> folder on the host machine. Make sure that folder is in the correct place and is spelled correctly (remember it should be case sensitive!!).</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_installing_the_code_and_setting_up_directories">2.4. Installing the code and setting up directories</h3>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Easy setup quick start</div>
+<div class="paragraph">
+<p>If you just want to get started with the standard setup without any details, do the following:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Go into a Linux terminal. If you are on your own computer and it is not Linux, you will need to start a Vagrant session. You will need <a href="https://www.python.org/">python</a> but this is now standard on most Linux distributions so we will assume you have it.</p>
+</li>
+<li>
+<p>If you used our vagrantfile the setup tool will already be on your vagrant box. It is sitting in the LSDTopoTools directory. You can go there with <code>cd /LSDTopoTools</code>.</p>
+</li>
+<li>
+<p>If you are on your own linux machine you can get the setuptool with:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>$ wget https://raw.githubusercontent.com/LSDtopotools/LSDAutomation/master/LSDTopoToolsSetup.py</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Run the setup tool:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">$ python LSDTopoToolsSetup.py -id 0 -MChi True</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>You are ready to go!!</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<strong>For native Linux users</strong>: The <code>-id</code> flag tells LSDTopoToolsSetup.py where to put the files. In vagrant it always starts in the root directory (this is for file syncing purposes). However, if your native operating system is Linux, then you can either install in your home directory (<code>-id 0</code>) or in the directory where you called LSDTopoToolsSetup.py (<code>-id 1</code>).
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The first thing you need to do is get our python program <strong>LSDTopoToolsSetUp.py</strong>. It lives here: <a href="https://github.com/LSDtopotools/LSDAutomation/blob/master/LSDTopoToolsSetup.py" class="bare">https://github.com/LSDtopotools/LSDAutomation/blob/master/LSDTopoToolsSetup.py</a></p>
+<div class="paragraph">
+<p>You will need to run this file in your Linux environment, so in a terminal window type:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>$ wget https://raw.githubusercontent.com/LSDtopotools/LSDAutomation/master/LSDTopoToolsSetup.py</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If <code>wget</code> doesn&#8217;t work, you can follow the link:
+<a href="https://raw.githubusercontent.com/LSDtopotools/LSDAutomation/master/LSDTopoToolsSetup.py" class="bare">https://raw.githubusercontent.com/LSDtopotools/LSDAutomation/master/LSDTopoToolsSetup.py</a><br>
+Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetup.py</code>.
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Now, in your terminal window run this script. It has some options:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>For the most basic setup, type:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">$ python LSDTopoToolsSetup.py -id 0  -MChi True</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In our Vagrant setup, this will install everything in the root directory (you can got there with <code>$ cd /</code>),  which is the default setup generated by our <a href="https://github.com/LSDtopotools/LSDTT_vagrantfiles">Vagrantfile</a>. If you are not in vagrant the <strong>LSDTopoTools</strong> directories will be in your home directory (you can get there with <code>$ cd ~</code>).</p>
+</div>
+</li>
+<li>
+<p>If you don&#8217;t want <strong>LSDTopoTools</strong> in your home directory, you can install it in your current directory with:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">$ python LSDTopoToolsSetup.py -id 1 -MChi True</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>It turns out the <code>LSDTopoToolsSetup.py</code> tool has a number of options but we will explain these later. If you want a preview of what it does, you can call its help options:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">$ python LSDTopoToolsSetup.py -h</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
 </div>
 </div>
 </div>
