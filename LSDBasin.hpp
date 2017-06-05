@@ -180,6 +180,14 @@ class LSDBasin
   /// @date 17/2/14
   float CalculateBasinMedian(LSDFlowInfo& FlowInfo, LSDRaster Data);
 
+  /// @brief Calculate the percentile value of an LSDRaster which falls inside a basin.
+  /// @param FlowInfo Flowinfo object.
+  /// @param Data Values to find the percentile of.
+  /// @return Percentile value.
+  /// @author SWDG
+  /// @date 5/2/17
+  float CalculateBasinPercentile(LSDFlowInfo& FlowInfo, LSDRaster Data, int Percentile); 
+
   /// @brief Calculate the Standard Deviation of values of an LSDRaster which falls inside a basin.
   /// @param FlowInfo Flowinfo object.
   /// @param Data Values to find the standard deviation of.
@@ -376,6 +384,13 @@ class LSDBasin
   /// @author SWDG
   /// @date 12/12/13
   void set_Perimeter(LSDFlowInfo& FlowInfo);
+
+  /// @brief Prints the perimeter nodes to a csv file
+  /// @param FlowInfo the LSDFlowInfo object
+  /// @param string perimeter_fname
+  /// @author SMM
+  /// @date 26/04/2017
+  void print_perimeter_to_csv(LSDFlowInfo& FlowInfo, string perimeter_fname);
 
   /// @brief Set the four different hillslope length measurements for the basin.
   /// @param FlowInfo Flowinfo object.
