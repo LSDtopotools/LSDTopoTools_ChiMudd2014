@@ -92,29 +92,13 @@ void LSDBasin::create(int JunctionNumber, LSDFlowInfo& FlowInfo, LSDJunctionNetw
 //                                                     ReceiverJunction, ReceiverNode, FlowInfo);
 
   int n_nodes_in_channel = StreamLinkVector.get_n_nodes_in_channel();
-  
-  int basin_outlet;
-  
-  // added some logic in the event of a baselevel node. It gets the basin above the baselevel
-  if(n_nodes_in_channel == 1)
-  {
-    basin_outlet = ChanNet.get_Node_of_Junction(ReceiverVector[Junction]);
-    //cout << "Baselevel node, the basin outlet is: " << basin_outlet << endl;
-  }
-  else
-  {
-    basin_outlet = StreamLinkVector.get_node_in_channel(n_nodes_in_channel-2);
-  }
+  int basin_outlet = StreamLinkVector.get_node_in_channel(n_nodes_in_channel-2);
   BasinNodes = FlowInfo.get_upslope_nodes(basin_outlet);
-  
-  
                                                                                      
   NumberOfCells = int(BasinNodes.size());
   Area = NumberOfCells * (DataResolution*DataResolution);
   
   Beheaded = ChanNet.node_tester(FlowInfo, Junction);
-
-  //cout << "Basin junction is: " << Junction << " and n_nodes are: " << NumberOfCells << endl;
 
   FlowInfo.retrieve_current_row_and_col(ChanNet.get_Node_of_Junction(Junction), Outlet_i, Outlet_j);
     
@@ -302,6 +286,54 @@ float LSDBasin::CalculateBasinMedian(LSDFlowInfo& FlowInfo, LSDRaster Data){
   }
     
   return Median;
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// Calculate percentile basin value.
+// MDH 5/2/17
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+float LSDBasin::CalculateBasinPercentile(LSDFlowInfo& FlowInfo, LSDRaster Data, int Percentile) 
+{
+
+	int i;
+	int j;
+	vector<float> UnsortedData;
+	vector<float> SortedData;
+	vector<size_t> index_map;
+	float P, PercentileValue, Residual;
+
+	for (int q = 0; q < int(BasinNodes.size()); ++q)
+	{
+		FlowInfo.retrieve_current_row_and_col(BasinNodes[q], i, j);
+		//exclude NDV
+		if (Data.get_data_element(i,j) != NoDataValue)
+		{
+			UnsortedData.push_back(Data.get_data_element(i,j));     
+		}
+	}
+  
+	//get size of dataset
+	size_t n = UnsortedData.size();
+  
+	//sort all non NDV values
+	matlab_float_sort(UnsortedData, SortedData, index_map);
+  
+	//find index for percentile
+	P = Percentile*(n/100.);
+	int Pint = round(P);
+
+	//Interpolate to get percentile value
+	Residual = P-Pint;
+	if (Residual > 0)
+	{
+		PercentileValue = SortedData[Pint] + Residual*(SortedData[Pint+1]-SortedData[Pint]);
+	}
+	else
+	{
+		PercentileValue = SortedData[Pint] + Residual*(SortedData[Pint]-SortedData[Pint-1]);
+	}
+
+	return PercentileValue;
 }
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -638,7 +670,8 @@ void LSDBasin::set_AspectMean(LSDFlowInfo& FlowInfo, LSDRaster Aspect){
 // messy and will be improved soon.
 // SWDG 12/12/13
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-void LSDBasin::set_Perimeter(LSDFlowInfo& FlowInfo){
+void LSDBasin::set_Perimeter(LSDFlowInfo& FlowInfo)
+{
 
   int i;
   int j;
@@ -649,18 +682,19 @@ void LSDBasin::set_Perimeter(LSDFlowInfo& FlowInfo){
   Array2D<float> BasinData(NRows, NCols, NoDataValue);
 
   //create subset arrays for just the basin data - this should be rolled into its own method.
-  for (int q = 0; q < int(BasinNodes.size()); ++q){
+  for (int q = 0; q < int(BasinNodes.size()); ++q)
+  {
     
     FlowInfo.retrieve_current_row_and_col(BasinNodes[q], i, j);
       BasinData[i][j] = BasinNodes[q];
     
   }
 
-  for (int q = 0; q < int(BasinNodes.size()); ++q){
+  for (int q = 0; q < int(BasinNodes.size()); ++q)
+  {
     
     FlowInfo.retrieve_current_row_and_col(BasinNodes[q], i, j);
-    
-      NDVCount = 0;
+    NDVCount = 0;
       
       if (i != 0 && j != 0)
       {     
@@ -674,11 +708,12 @@ void LSDBasin::set_Perimeter(LSDFlowInfo& FlowInfo){
         if (BasinData[i][j+1] == NoDataValue){ ++NDVCount; }
         if (BasinData[i+1][j+1] == NoDataValue){ ++NDVCount; }
         
-        if (NDVCount >= 1 && NDVCount < 8){  //increase the first value to get a simpler polygon  (changed to 1 by FJC 23/03/15 to get only internal hilltops.
+        if (NDVCount >= 1 && NDVCount < 8)
+        {  //increase the first value to get a simpler polygon  (changed to 1 by FJC 23/03/15 to get only internal hilltops.
           //edge pixel                       // Otherwise not all external ridges were being excluded from the analysis).
           I.push_back(i);
           J.push_back(j);
-	  B.push_back(BasinNodes[q]);
+          B.push_back(BasinNodes[q]);
         }
       }
       else
@@ -694,6 +729,40 @@ void LSDBasin::set_Perimeter(LSDFlowInfo& FlowInfo){
   Perimeter_nodes = B;
 
 }
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// This prints the perimeter to csv. It can then be ingested to find
+// concave hull of the basin (or the basin outline)
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+void LSDBasin::print_perimeter_to_csv(LSDFlowInfo& FlowInfo, string perimeter_fname)
+{
+  // make sure we have found the perimeter
+  if (int(Perimeter_nodes.size()) == 0)
+  {
+    set_Perimeter(FlowInfo);
+  }
+  
+  // open the file
+  ofstream perim_out;
+  perim_out.open(perimeter_fname.c_str());
+  perim_out << "node,x,y,latitude,longitude" << endl;
+  perim_out.precision(9);
+  
+  float curr_x,curr_y;
+  double curr_lat,curr_long;
+  
+  LSDCoordinateConverterLLandUTM converter;
+  int n_nodes = int(Perimeter_nodes.size());
+  for(int i = 0; i< n_nodes; i++)
+  {
+    FlowInfo.get_x_and_y_from_current_node(Perimeter_nodes[i], curr_x, curr_x);
+    FlowInfo.get_lat_and_long_from_current_node(Perimeter_nodes[i], curr_lat, curr_long,converter);
+    perim_out << Perimeter_nodes[i] << "," << curr_x << "," << curr_y <<"," << curr_lat << "," << curr_long << endl;
+  }
+  perim_out.close();
+
+}
+
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // Set the four different hillslope length measurements for the basin. 
@@ -3898,6 +3967,8 @@ vector<double> LSDCosmoBasin::calculate_effective_pressures_for_calculators(LSDR
   int end_node = int(BasinNodes.size());
   for (int q = 0; q < end_node; ++q)
   {
+    //cout << "node " << q << " of " << end_node << endl;
+    
     
     //exclude NDV from average
     if(topographic_shielding[q] != NoDataValue)

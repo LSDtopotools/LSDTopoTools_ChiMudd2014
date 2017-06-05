@@ -402,6 +402,26 @@ float get_mean(vector<float>& y_data)
   return mean;
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// gets the mean from a population of y_data and ignores no data values
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+float get_mean_ignore_ndv(vector<float>& y_data, float ndv)
+{
+  int n_data_points=0;
+  float total = 0;
+  float mean;
+  for (int i = 0; i< int(y_data.size()); i++)
+  {
+    if (y_data[i] != ndv)
+    {
+      total+=y_data[i];
+      n_data_points++;
+    }
+  }
+  mean = total/float(n_data_points);
+  return mean;
+}
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // gets the mean from a population of y_data
@@ -552,6 +572,43 @@ float get_range_from_vector(vector<float>& y_data, float ndv)
   return range;
 }
 
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// gets the minimum of a population of data
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+float Get_Minimum(vector<float>& y_data, float ndv)
+{
+  float min = 10000;
+  for (int i =0; i < int(y_data.size()); i++)
+  {
+    if (y_data[i] != ndv)
+    {
+      if (y_data[i] < min)
+      {
+        min = y_data[i];
+      }
+    }
+  }
+  return min;
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// gets the maximum of a population of data
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+float Get_Maximum(vector<float>& y_data, float ndv)
+{
+  float max = 0;
+  for (int i =0; i < int(y_data.size()); i++)
+  {
+    if (y_data[i] != ndv)
+    {
+      if (y_data[i] > max)
+      {
+        max = y_data[i];
+      }
+    }
+  }
+  return max;
+}
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // gets the standard deviation from a population of data
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -992,6 +1049,20 @@ float getGaussianRandom(float minimum, float mean, bool allowNegative){
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 vector<float> simple_linear_regression(vector<float>& x_data, vector<float>& y_data, vector<float>& residuals)
 {
+
+  int n_x = int(x_data.size());
+  int n_y = int(y_data.size());
+
+  if (n_x != n_y)
+  {
+    cout << "WARNING simple_linear_regression x and y vecs no the same size. Prepare for segmentation!" << endl;
+  }
+  if (n_x == 0)
+  {
+    cout << "WARNING simple_linear_regression I haven't got x data! Prepare for segmentation!" << endl;
+  }
+
+
   float rounding_cutoff = 1e-12;
 
   int n_rows = x_data.size();
@@ -1016,46 +1087,62 @@ vector<float> simple_linear_regression(vector<float>& x_data, vector<float>& y_d
   LU<float> LU_mat(LHS);
   Array2D<float> solution= LU_mat.solve(RHS);
 
-  vector<float> soln;
-  for(int i = 0; i<2; i++)
+  if (solution.dim1() == 0)
   {
-    soln.push_back(solution[i][0]);
-  }
-
-  // get some statistics
-  float mean = get_mean(y_data);
-  float SST = get_SST(y_data, mean);
-  // now get the predictions
-  vector<float> predicted;
-  vector<float> temp_residuals;
-
-  // get predicted, residuals, etc
-  float SS_reg = 0;
-  float SS_err = 0;
-  //cout << endl;
-  for(int i = 0; i<n_rows; i++)
-  {
-    predicted.push_back(soln[0]*x_data[i] + soln[1]);
-    temp_residuals.push_back(predicted[i]-y_data[i]);
-    if (fabs(temp_residuals[i]) < rounding_cutoff)
+    cout << "WARNING simple_linear_regression Solution data is empty! Prepare for segmentation!" << endl;
+    cout << "Dimensions are: n_x: " << n_x << " solution matrix: " << solution.dim1() << " " << solution.dim2() << endl;
+    cout << "WARNING: There is an anomaly for this segment and I cannot proceed to the linear regression (Is it a dam ?), I am returning -9999 for m and b chi values"<< endl;
+    vector<float> soln_nodata;
+    for(int i = 0; i<2; i++)
     {
-      temp_residuals[i] = 0;
+      soln_nodata.push_back(-9999);
     }
-    SS_reg+=(predicted[i]-mean)*(predicted[i]-mean);
-
-    SS_err+=temp_residuals[i]*temp_residuals[i];
-
-    //cout << "RESIDUAL, i: " << i << " pred: " << predicted[i] << " data: " << y_data[i] << " resid: " << temp_residuals[i] << endl;
+    return soln_nodata;
   }
 
-  // now get R^2
-  soln.push_back(1 - SS_err/SST);
+  else
+  {
+    vector<float> soln;
+    for(int i = 0; i<2; i++)
+    {
+      soln.push_back(solution[i][0]);
+    }
 
-  // now get the durbin_watson statistic
-  soln.push_back( get_durbin_watson_statistic(temp_residuals) );
+    // get some statistics
+    float mean = get_mean(y_data);
+    float SST = get_SST(y_data, mean);
+    // now get the predictions
+    vector<float> predicted;
+    vector<float> temp_residuals;
 
-  residuals = temp_residuals;
-  return soln;
+    // get predicted, residuals, etc
+    float SS_reg = 0;
+    float SS_err = 0;
+    //cout << endl;
+    for(int i = 0; i<n_rows; i++)
+    {
+      predicted.push_back(soln[0]*x_data[i] + soln[1]);
+      temp_residuals.push_back(predicted[i]-y_data[i]);
+      if (fabs(temp_residuals[i]) < rounding_cutoff)
+      {
+        temp_residuals[i] = 0;
+      }
+      SS_reg+=(predicted[i]-mean)*(predicted[i]-mean);
+
+      SS_err+=temp_residuals[i]*temp_residuals[i];
+
+      //cout << "RESIDUAL, i: " << i << " pred: " << predicted[i] << " data: " << y_data[i] << " resid: " << temp_residuals[i] << endl;
+    }
+
+    // now get R^2
+    soln.push_back(1 - SS_err/SST);
+
+    // now get the durbin_watson statistic
+    soln.push_back( get_durbin_watson_statistic(temp_residuals) );
+
+    residuals = temp_residuals;
+    return soln;
+  }
 
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -1080,6 +1167,48 @@ void least_squares_linear_regression(vector<float> x_data,vector<float> y_data, 
   gradient = SS_xy/SS_xx;
   intercept = y_mean - gradient*x_mean;
 }
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// orthogonal linear regression
+// 01/04/2017 SMM No foolin
+// This comes from davegiles.blogspot.co.uk/2014/11/orthogonal-regression-first-steps.html
+// NOTE: THis is more generally called Total Least Squares
+//  There is a solution using matrices that is probably compuationally faster
+//  Might want to implement that in the future if this is slow
+//  Note R^2 comes from the simple least squares
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+vector<float> orthogonal_linear_regression( vector<float>& x_data, vector<float>& y_data, float& intercept, float& gradient, float& R_squared)
+{
+  vector<float> means(2,0.0);
+
+  float SS_xx=0;
+  float SS_yy=0;
+  float SS_xy=0;
+  float x_mean = get_mean(x_data);
+  float y_mean = get_mean(y_data);
+  //float n_nodes = float(x_data.size());
+  for(int i = 0; i<int(x_data.size()); ++i)
+  {
+    SS_xx += (x_data[i]-x_mean)*(x_data[i]-x_mean);
+    SS_yy += (y_data[i]-y_mean)*(y_data[i]-y_mean);
+    SS_xy += (x_data[i]-x_mean)*(y_data[i]-y_mean);
+  }
+  // This isn't needed since the (n_nodes-1) cancels out.
+  //SS_xx = SS_xx/(n_nodes-1);
+  //SS_yy = SS_yy/(n_nodes-1);
+  //SS_xy = SS_xy/(n_nodes-1);
+
+  gradient = (SS_yy-SS_xx+sqrt( (SS_yy-SS_xx)*(SS_yy-SS_xx)+ 4*SS_xy*SS_xy ))/(2*SS_xy);
+  intercept = y_mean - gradient*x_mean;
+
+  means[0] = x_mean;
+  means[1]= y_mean;
+  R_squared = SS_xy*SS_xy/(SS_xx*SS_yy);
+  return means;
+
+}
+
+
 
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -1396,20 +1525,22 @@ double interp2D_bilinear(vector<double>& x_locs, vector<double>& y_locs, Array2D
     // reverse to positive order if reversed
     if( x_locs[0] > x_locs[1])
     {
+      //cout << "Reversing x" << endl;
       is_x_reversed = true;
       reverse(x_locs.begin(),x_locs.end());
     }
     if( y_locs[0] > y_locs[1])
     {
+      //cout << "Reversing y" << endl;
       is_y_reversed = true;
       reverse(y_locs.begin(),y_locs.end());
     }
 
-
     // first find the index of the x data
     if(x_interp < x_locs[0])
     {
-      cout << "x is too small for 2D interpolation, defaulting to ndv";
+      cout << "x is too small for 2D interpolation, defaulting to ndv" << endl;
+      cout << "x_locs[0]" << x_locs[0] << " x interp: " << x_interp << endl;
       x_index = ndv_index;
     }
     else if (x_interp > x_locs[n_xlocs-1])
@@ -1433,7 +1564,8 @@ double interp2D_bilinear(vector<double>& x_locs, vector<double>& y_locs, Array2D
     // now get the index of the y data
     if(y_interp < y_locs[0])
     {
-      cout << "y is too small for 2D interpolation, defaulting to ndv";
+      cout << "y is too small for 2D interpolation, defaulting to ndv" << endl;
+      cout << "y_locs[0]" << y_locs[0] << " y interp: " << y_interp << endl;
       y_index = ndv_index;
     }
     else if (y_interp > y_locs[n_ylocs-1])
@@ -2176,8 +2308,138 @@ vector< vector < vector<int> > > partition_driver_to_vecvecvec(int k, int minimu
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// This returns combinations. It prints to screen.
+// The vector v is empty; it is used for storing data. 
+// We using n choose Maxk (so say, 10 integers in combos of three means n = 10, k =3)
+// Maxk is the maximum numer of integers you use.  
+// from
+// http://www.cs.utexas.edu/users/djimenez/utsa/cs3343/lecture25.html
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+void combinations (vector<int> v, int start, int n, int k, int maxk) 
+{
+  int i;
+  if (int(v.size()) <= maxk)
+  {
+    cout << "FATAL ERROR your vector is too small for combinations (LSDStatsTools)" << endl;
+    exit(EXIT_FAILURE);
+  }
 
-//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  // k here counts through positions in the maxk-element v.
+  //if k > maxk, then the v is complete and we can use it.
+  if (k > maxk) 
+  {
+    //insert code here to use combinations as you please */
+    //cout << "maxk is: " << maxk << endl;
+    for (i=1; i<=maxk; i++) 
+    {
+      cout << v[i] << " ";
+    }
+    cout << endl;
+    return;
+  }
+
+  // for this k'th element of the v, try all start..n
+  //elements in that position
+  for (i=start; i<=n; i++) 
+  {
+    v[k] = i;
+
+    // recursively generate combinations of integers
+    // from i+1..n
+    combinations (v, i+1, n, k+1, maxk);
+  }
+}
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// This returns combinations. It prints to screen.
+// The vector v is empty; it is used for storing data. 
+// We using n choose Maxk (so say, 10 integers in combos of three means n = 10, k =3)
+// Maxk is the maximum numer of integers you use.  
+// from
+// http://www.cs.utexas.edu/users/djimenez/utsa/cs3343/lecture25.html
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+void combinations (vector<int> v, int start, int n, int k, int maxk, vector<vector <int> >& these_combinations) 
+{
+  
+  int i;
+  if (int(v.size()) <= maxk)
+  {
+    cout << "FATAL ERROR your vector is too small for combinations (LSDStatsTools)" << endl;
+    exit(EXIT_FAILURE);
+  }
+
+  // k here counts through positions in the maxk-element v.
+  //if k > maxk, then the v is complete and we can use it.
+  if (k > maxk) 
+  {
+    //insert code here to use combinations as you please */
+    //cout << "maxk is: " << maxk << endl;
+    vector<int> this_combo;
+    for (i=1; i<=maxk; i++) 
+    {
+      this_combo.push_back( v[i]);
+    }
+    these_combinations.push_back(this_combo);
+    return;
+  }
+
+  // for this k'th element of the v, try all start..n
+  //elements in that position
+  for (i=start; i<=n; i++) 
+  {
+    v[k] = i;
+
+    // recursively generate combinations of integers
+    // from i+1..n
+    combinations (v, i+1, n, k+1, maxk,these_combinations);
+  }
+}
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// This just takes two inputs, the number of integers (starting from 1) and
+// the "choose" variable (k)
+vector< vector<int> > combinations(int n, int k, bool zero_indexed) 
+{
+  
+  vector< vector<int> > combovecvec;
+  vector<int> v(n+1);
+  
+  combinations(v, 1, n, 1, k,combovecvec);
+  
+  // Flag for zero indexing. A stupid, brute force way to do it but it works
+  if (zero_indexed)
+  {
+    for(int i = 0; i< int(combovecvec.size()); i++)
+    {
+      for(int j = 0; j<k; j++)
+      {
+        combovecvec[i][j] = combovecvec[i][j]-1;
+      }
+    }
+  }
+
+
+  // print results for bug checking
+  //for(int i = 0; i< int(combovecvec.size()); i++)
+  //{
+  //  for(int j = 0; j<k; j++)
+  //  {
+  //    cout << combovecvec[i][j] << " ";
+  //  }
+  //  cout << endl;
+  //}
+  return combovecvec;
+}
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // an integer partition algorithm
 // Algorithm and original Pascal implementation: Frank Ruskey, 1995.
 // Translation to C: Joe Sawada, 1997
@@ -2203,11 +2465,11 @@ void integer_partition(int n, int k, int t, vector<int>& p)
     integer_partition (n-k,j,t+1, p);
   }
 }
-//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 
 
-//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // an integer partition algorithm
 // Algorithm and original Pascal implementation: Frank Ruskey, 1995.
 // Translation to C: Joe Sawada, 1997
@@ -2219,7 +2481,7 @@ void integer_partition(int n, int k, int t, vector<int>& p)
 // Skiena, S. Implementing Discrete Mathematics: Combinatorics and Graph Theory with Mathematica. Reading, MA: Addison-Wesley, 1990.
 // this is a further adaptation that only presents solution to the partition
 // with segments of a minimum length
-//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 void partitions_with_minimum_length(int n, int k, int t, int min_length, vector<int>& p)
 {
 
@@ -3460,6 +3722,24 @@ float calculate_MLE_from_residuals(vector<float>& residuals, float sigma)
   return MLE_tot;
 }
 
+// get the least squared maximum likelihood estimator based on residuals
+float calculate_RMSE_from_residuals(vector<float>& residuals)
+{
+  //cout << "sigma is: " << sigma << endl;
+
+  // get the number of samples
+  int n_samples = residuals.size();
+  float inv_samp = 1/float(n_samples);
+  float sum = 0;
+  for (int i = 0; i<n_samples; i++)
+  {
+    sum+=sqrt(residuals[i]*residuals[i]);
+  }
+  float RMSE = sum*inv_samp;
+  return RMSE;
+}
+
+
 string itoa(int num)
 {
     stringstream converter;
@@ -3860,12 +4140,14 @@ void log_bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, floa
 //FC 13/11/12; modified by DM 04/12/12
 // WARNING - will not work on vectors with negative values (e.g. hilltop curvature). If using
 // vector of negative values take the absolute values before passing to function.
-//
+// UPDATE: Works on negative values
 // Modified by FC 30/09/13 to calculate the range of the 95th percentile for each bin -
 // used for channel head prediction through chi segment fitting.  Changed from log binning to
 // regular binning.
 // Modified by FC 13/01/13 to calculate the median of each bin and return the standard error.
 //
+// SMM comment: can this do negative values now??
+//  Also, do we need bin_lower_limit? 31/05/2017
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, float bin_width,
                   vector<float>&  MeanX_output, vector<float>& MeanY_output,
@@ -3880,7 +4162,7 @@ void bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, float bi
   float max_X = InputVectorX[n_data-1];
   float min_X = InputVectorX[1];
 
-  cout << "LSDStatsTools line 1757, n_data_X: " << InputVectorX.size() << " and Y: " << InputVectorY.size() << endl;
+  //cout << "LSDStatsTools line 1757, n_data_X: " << InputVectorX.size() << " and Y: " << InputVectorY.size() << endl;
 
   for (int i = 0; i < n_data; ++i)
   {
@@ -3902,7 +4184,7 @@ void bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, float bi
     lower_limit = 0;
   }
   int NBins = int( (upper_limit - lower_limit)/bin_width )+1;
-  cout << "Upper limit: " << upper_limit << " Lower limit: " << lower_limit << " NBins: " << NBins << endl;
+  //cout << "Upper limit: " << upper_limit << " Lower limit: " << lower_limit << " NBins: " << NBins << endl;
 
   // Looping through all the rows and columns and calculating which bin the
   // contributing area is in, and putting the slope in this bin
@@ -4015,7 +4297,11 @@ void bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, float bi
       //find the median of the dependent variable Y
       sort(YDataVector.begin(), YDataVector.end());
       int YDataSize = YDataVector.size();
-      MedianY.push_back(YDataVector[floor(YDataSize/2)]);
+      //cout << "Median calculation, Y size: " << YDataSize << endl;
+      //cout << "Element of median: " << floor(YDataSize/2) << endl;
+      //cout << "Median is: " << YDataVector[floor(YDataSize/2)] << endl;
+      MedianY[bin_id] = YDataVector[floor(YDataSize/2)];
+      
     }
   }
 
@@ -4746,8 +5032,8 @@ double rad(double degree)
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // conversion from radians to degrees - SWDG 12/12/13
-//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 float deg(float radians)
 {
   float pi = 3.14159265;
@@ -4761,7 +5047,150 @@ double deg(double radians)
   return (radians/M_PI)*deg;
 }
 
-//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// Get the angle between two vectors in radians
+// These vectors are mathematical vectors with a starting point at 0,0.
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+float angle_between_vectors(float x1, float y1, float x2, float y2)
+{
+  float dot = x1*x2 + y1*y2;      // dot product
+  float det = x1*y2 - y1*x2;      // determinant
+  float angle = atan2(det, dot);
+  return angle;
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// Get the angle between two vectors in radians
+// We need to calculate the (x1,y1) and (x2,y2) coordinates by moving
+// the vectors to intercept (0,0)
+// the bool vectors_point_downstream is true if the vector's first element is the
+// upstream node in a channel and false if the first node is downstream.
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+float angle_between_two_vector_datasets(vector<float>& x1_data, vector<float>& y1_data,
+                                        vector<float>& x2_data, vector<float>& y2_data,
+                                        bool vectors_point_downstream)
+{
+  vector<float> v1_floats = get_directional_vector_coords_from_dataset(x1_data, y1_data, vectors_point_downstream);
+  vector<float> v2_floats = get_directional_vector_coords_from_dataset(x2_data, y2_data, vectors_point_downstream);
+
+  float angle = angle_between_vectors(v1_floats[0], v1_floats[1], v2_floats[0], v2_floats[1]);
+
+  return angle;
+
+}
+
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// This function takes x and y data as vectors and returns a 2 element vector
+// where the 0 element is the x1 component of a directional vector
+// and the 1 element is the y1 component of a directional vector
+// vector vector vector, Victor.
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+vector<float> get_directional_vector_coords_from_dataset(vector<float> x_data, vector<float>& y_data,
+                      bool vectors_point_downstream)
+{
+  // if the vectors point downstream we need to reverse the order of the nodes.
+  if (vectors_point_downstream)
+  {
+    reverse(x_data.begin(),x_data.end());
+    reverse(y_data.begin(),y_data.end());
+  }
+
+  // get the vector intercept and slopes
+  float intercept, gradient, R2;
+  vector<float> vector_mean = orthogonal_linear_regression( x_data, y_data, intercept, gradient, R2);
+
+  //cout << endl << "===================" << endl << "I am getting vector coords." << endl;
+  //cout << "Gradient is: " << gradient << endl;
+
+
+  float x1,y1;
+  int quadrant = -99;   // this is for bug checking
+  // quadrants are
+  // 4 | 1
+  // -----
+  // 3 | 2
+
+  // now we go through a lot of tedious logic to figure out which direction
+  // the vector is pointing
+  if( vector_mean[0] > x_data[0] )
+  {
+    if ( vector_mean[1] > y_data[0])
+    {
+      quadrant = 1;
+      x1 = 1.0;
+      if(gradient > 0)
+      {
+        y1 = gradient;
+
+      }
+      else
+      {
+        y1 = -gradient;
+
+      }
+    }
+    else
+    {
+      x1 = 1.0;
+      quadrant = 2;
+      if(gradient > 0)
+      {
+        y1 = -gradient;
+      }
+      else
+      {
+        y1 = gradient;
+      }
+    }
+  }
+  else
+  {
+    if ( vector_mean[1] > y_data[0])
+    {
+      quadrant = 4;
+      x1 = -1.0;
+      if(gradient > 0)
+      {
+        y1 = gradient;
+      }
+      else
+      {
+        y1 = -gradient;
+      }
+    }
+    else
+    {
+      quadrant = 3;
+      x1 = -1.0;
+      if(gradient > 0)
+      {
+        y1 = -gradient;
+      }
+      else
+      {
+        y1 = gradient;
+      }
+    }
+  }
+  if (quadrant == -99)
+  {
+    cout << "Something has gone wrong in the vector angle code, I didn't find a quadrant" << endl;
+  }
+  //cout << "quadrant is: " << quadrant << endl;
+  //cout << "x,y are: " << x1 << " " << y1 << endl;
+  //cout << "======================" << endl << endl;
+
+  // okay, print the results
+  vector<float> vec_coords(2,0.0);
+  vec_coords[0] = x1;
+  vec_coords[1] = y1;
+  return vec_coords;
+}
+
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // Get the data for a boxplot from an unsorted vector of floats, which does not
 // contain any NDV values.
 //
@@ -4770,7 +5199,7 @@ double deg(double radians)
 // 2Percentile 25Percentile median mean 75Percentile 98Percentile minimum maximum
 //
 // SWDG 12/11/15
-//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 vector<float> BoxPlot(vector<float> data){
 
   vector<float> Boxplot;
@@ -6351,22 +6780,33 @@ float distbetween(int row1, int col1, int row2, int col2){
   return sqrt(((row2 - row1) * (row2 - row1)) + ((col2 - col1) * (col2 - col1)));
 }
 
-// Normalize the values of an array of floats to between 0 and MaxValue
+// Normalize the values of an array terrain shape index values to between 0 and MaxValue.
+// pass in percentiles eg 98 for the 98th percentile to truncate the data
+// about the median. For no truncation pass in 0 and 100.
 // SWDG 25/1/17
-Array2D<float> normalize(Array2D<float> Data, float MaxValue, float NoDataValue){
+Array2D<float> normalize_terrain_index(Array2D<float> Data, float lower_percentile, float upper_percentile, float MaxValue, float NoDataValue){
 
   int n_rows = Data.dim1();
   int n_cols = Data.dim2();
 
   Array2D<float> Normed(n_rows, n_cols, NoDataValue);
+  vector<float> flat = Flatten_Without_Nodata(Data, NoDataValue);
 
-  float minimum = Get_Minimum(Data, NoDataValue);
-  float maximum = Get_Maximum(Data, NoDataValue);
+  //because of the nature of the index the 'max' value == the upper percentile
+  float minimum = get_percentile(flat, upper_percentile);
+  float maximum = get_percentile(flat, lower_percentile);
 
   for(int i = 0; i < n_rows; i++){
     for (int j = 0; j < n_cols; j++){
       if (Data[i][j] != NoDataValue){
-        Normed[i][j] = ((Data[i][j] - minimum) / (maximum - minimum)) * MaxValue;
+        float tmp = Data[i][j];
+        if (Data[i][j] > maximum){
+          tmp = maximum;
+        }
+        if (Data[i][j] < minimum){
+          tmp = minimum;
+        }
+        Normed[i][j] = ((tmp - minimum) / (maximum - minimum)) * MaxValue;
       }
     }
   }
@@ -6374,5 +6814,29 @@ Array2D<float> normalize(Array2D<float> Data, float MaxValue, float NoDataValue)
   return Normed;
 
 }
+
+// Implementation of the Jordan Curve theorem to test if a given point is inside
+// a polygon.
+// returns an integer counting the number of times a ray traced from the point (XCoord,YCoord)
+// crosses the border of the polygon.
+// An even return value (0 is even) means the point is outside the polygon, and an odd
+// value means the point is inside the polygon.
+//
+// Adapted from: http://stackoverflow.com/a/2922778/1627162
+// SWDG - 25/1/17
+int PointInPolygon(int VertexCount, float XCoords[], float YCoords[], float XCoord, float YCoord){
+
+  int c = 0;
+  int j = VertexCount - 1;
+
+  for (int i = 0; i < VertexCount; ++i){
+    if (((YCoords[i] > YCoord) != (YCoords[j] > YCoord)) && (XCoord < (XCoords[j] - XCoords[i]) * (YCoord-YCoords[i]) / (YCoords[j] - YCoords[i]) + XCoords[i])){
+      c++;
+    }
+    j = i;
+  }
+  return c;
+}
+
 
 #endif

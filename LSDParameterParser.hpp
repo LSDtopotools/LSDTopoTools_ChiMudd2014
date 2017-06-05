@@ -23,7 +23,7 @@
 //
 // Developer can be contacted by simon.m.mudd _at_ ed.ac.uk
 //
-//    Simon Mudd                                                    
+//    Simon Mudd
 //    University of Edinburgh
 //    School of GeoSciences
 //    Drummond Street
@@ -80,7 +80,7 @@ class LSDParameterParser
     /// @author SMM
     /// @date 3/07/2015
     LSDParameterParser(string PathName, string FileName)
-                     { create(PathName,FileName); }  
+                     { create(PathName,FileName); }
 
     /// @brief This is the function for reading parameters
     /// @ detail It is identical to the parse_line function in LSDStatsTools but
@@ -107,6 +107,12 @@ class LSDParameterParser
     /// @date 03/11/2016
     void parse_file_IO();
 
+    /// @brief This forces parsing of all the parameters into strings
+    /// @detail It is used for copying parameter files
+    /// @author SMM
+    /// @date 16/03/2017
+    void force_parse();
+
     /// @brief This parses all of the defalt parameter maps
     /// @param default_param_f a map of the default parameters, keys are string, values are floats
     /// @param default_param_i a map of the default parameters, keys are string, values are int
@@ -114,7 +120,7 @@ class LSDParameterParser
     /// @param default_param_s a map of the default parameters, keys are string, values are string
     /// @author SMM
     /// @date 09/11/2016
-    void parse_all_parameters(map<string,float> default_map_f, 
+    void parse_all_parameters(map<string,float> default_map_f,
                       map<string,int> default_map_i, map<string,bool> default_map_b,
                       map<string,string> default_map_s);
 
@@ -132,22 +138,22 @@ class LSDParameterParser
     /// @author SMM
     /// @date 03/11/2016
     void parse_int_parameters(map<string,int> default_map);
-    
+
     /// @brief This function takes a default map and converts it into the parameters
     ///  by comparing the keys to the parsed parameter file
     /// @param default_param a map of the default parameters, keys are string, values are bool
     /// @author SMM
     /// @date 03/11/2016
     void parse_bool_parameters(map<string,bool> default_map);
-    
+
     /// @brief This function takes a default map and converts it into the parameters
     ///  by comparing the keys to the parsed parameter file
     /// @param default_param a map of the default parameters, keys are string, values are strings
     /// @author SMM
     /// @date 03/11/2016
-    void parse_string_parameters(map<string,string> default_map);        
+    void parse_string_parameters(map<string,string> default_map);
 
-    /// @brief This function takes a parameter from the string map and parses it 
+    /// @brief This function takes a parameter from the string map and parses it
     ///  into a vector of strings
     /// @param key the string that is the key into the string map
     /// @return A vector of strings
@@ -155,7 +161,7 @@ class LSDParameterParser
     /// @date 09/11/2016
     vector<string> parse_string_vector(string key);
 
-    /// @brief This function takes a parameter from the string map and parses it 
+    /// @brief This function takes a parameter from the string map and parses it
     ///  into a vector of ints
     /// @param key the string that is the key into the string map
     /// @return A vector of ints
@@ -163,7 +169,7 @@ class LSDParameterParser
     /// @date 09/11/2016
     vector<int> parse_int_vector(string key);
 
-    /// @brief This function takes a parameter from the string map and parses it 
+    /// @brief This function takes a parameter from the string map and parses it
     ///  into a vector of floats
     /// @param key the string that is the key into the string map
     /// @return A vector of floats
@@ -174,8 +180,8 @@ class LSDParameterParser
     /// @brief This forces the read and wirte extensions to bil
     /// @author SMM
     /// @date 02/11/16
-    void force_bil_extension(); 
-    
+    void force_bil_extension();
+
     /// @return read_extension
     string get_dem_read_extension() const        { return dem_read_extension; }
     /// @return write_extension
@@ -201,7 +207,7 @@ class LSDParameterParser
     /// @return the float parameters
     map<string,string> get_string_parameters() const     { return string_parameters; }
 
-    /// @brief This checks to see if boundary condtions have been assigned and 
+    /// @brief This checks to see if boundary condtions have been assigned and
     /// if not defaults to no flux boundaries
     /// @author SMM
     /// @date 02/11/2016
@@ -213,7 +219,7 @@ class LSDParameterParser
     /// @date 02/11/2016
     void check_file_extensions_and_paths();
 
-    /// @brief this returns the string before the last dot in a string. 
+    /// @brief this returns the string before the last dot in a string.
     /// so for example if you gave it paramfile.param it would return paramfile
     /// @param this_string the string you want truncated
     /// @return the truncated string
@@ -224,66 +230,89 @@ class LSDParameterParser
     /// @brief This prints your parameters to file so you can check if the
     ///  parameters have been ingested properly
     /// @author SMM
-    /// @date 0/11/2016
+    /// @date 01/11/2016
     void print_parameters();
 
+    /// @brief This prints your parameters to file so you can check if the
+    ///  parameters have been ingested properly. You tell it what the file is called
+    /// @param fname_prefix the name of the fname (with extension, no path)
+    /// @author SMM
+    /// @date 16/03/2017
+    void print_parameters(string fname_prefix);
     
+    /// @brief This is used to update a parameter file within LSDTopoTools
+    ///  and is primarily intended to be used in spawning operations, 
+    ///  e.g. where you select a bunch of catchemetns and create driver
+    ///    functions for each one that can be run on different CPUs. 
+    /// @param parameter_fname the name of the output parameter file
+    /// @param new_read_path the new path. 
+    /// @param new_read_fname the new read filename (no extension!)
+    /// @param new_write_path says what it does on the tin
+    /// @param new_write_fname no extension for this file
+    /// @param replace_parameters a map of <string,string> that replaces parameters
+    /// @author SMM
+    /// @date 15/03/2017
+    void replace_and_print_parameter_file(string parameter_fname,
+                                     string new_read_path, string new_read_fname,
+                                     string new_write_path, string new_write_fname,
+                                     map<string,string> replace_parameters);
+
   protected:
 
     /// The path to the parameter file (used if no read or wirte path is supplied)
     string param_file_path;
-    
+
     /// The path to the parameter file (used if no read or wirte path is supplied)
     string param_fname;
 
     /// The exteniosn of the rasters; either bil, asc or flt
     string dem_read_extension;
-    
+
     /// The exteniosn of the rasters; either bil, asc or flt
     string dem_write_extension;
 
     /// Path to which files will be written
     string write_path;
-    
-    /// Path from which files will be written
+
+    /// Path from which files will be written 
     string read_path;
-    
+
     /// Prefix of files to be written (i.e., no path, no extension)
     string write_fname;
-    
+
     /// Prefix of files to be read (i.e., no path, no extension)
     string read_fname;
-    
+
     /// The prefix of the channelheads filename
     string CHeads_file;
 
-    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- 
-    /// the four boundary conditions on the raster for the flow info object 
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    /// the four boundary conditions on the raster for the flow info object
     vector<string> boundary_conditions;
 
     /// This is the map of all the paramters read from file, in string format
     /// you use the default parameter maps to convert the strings to the
-    /// parameter values you want. 
+    /// parameter values you want.
     map<string,string> parameter_map;
-    
+
     /// This is used for bug checking: all defaults used are then passed to this
     /// map, which can be printed and used to check the spelling of the default
     /// parameters
     map<string,string> defaults_used_map;
-    
+
     /// Also for bug checking: contains the parameters where parameters have been
     /// read from the file
     map<string,string> parameters_read_map;
 
     /// This holds float parameters
     map<string,float> float_parameters;
-    
+
     /// This holds integer parameters
     map<string,int> int_parameters;
 
     /// This holds string parameters
     map<string,string> string_parameters;
-    
+
     /// This holds bool parameters
     map<string,bool> bool_parameters;
 

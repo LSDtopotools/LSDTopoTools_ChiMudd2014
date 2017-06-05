@@ -199,6 +199,28 @@ class LSDFlowInfo
   void retrieve_current_row_and_col(int current_node,int& curr_row,
                                              int& curr_col);
 
+  ///@brief Get the X and Y coordinates of a given node.
+  ///@param current_node Integer index of a given node.
+  ///@param current_X Empty integer to be assigned the X coordinate of the given
+  ///node.
+  ///@param current_Y Empty integer to be assigned the Y coordinate of the given
+  ///node.
+  /// @author BG
+  /// @date 20/02/2017
+  void get_x_and_y_from_current_node(int current_node,float& current_X, float& current_Y);
+
+
+  ///@brief Get the lat and longitude coordinates of a given node.
+  ///@param current_node Integer index of a given node.
+  ///@param current_lat latitude. Will be replaced by function
+  ///@param current_long longitude. Will be replaced by function
+  ///@param Converter A coordinate converter object
+  /// @author SMM
+  /// @date 26/04/2017
+  void get_lat_and_long_from_current_node(int current_node, double& current_lat, double& current_long, LSDCoordinateConverterLLandUTM Converter);
+
+
+
   ///@brief This function takes a vector of node indices and prints a csv
   ///file that can be read by arcmap
   ///@param nodeindex vec is a vector of nodeindices (which are ints)
@@ -273,6 +295,12 @@ class LSDFlowInfo
   /// @date 19/9/2014
   vector<int> retrieve_donors_to_node(int current_node);
 
+  /// @brief returns the draiange area of a node in square km
+  /// @param this_node node of interest
+  /// @return draiange area in square km
+  /// @author FJC
+  /// @date 06/02/17
+  float get_DrainageArea_square_km(int this_node);
 
   // get functions
 
@@ -392,6 +420,35 @@ class LSDFlowInfo
   /// @date 01/016/12
   void pickle(string filename);
 
+  /// @brief This loads a csv file, putting the data into a data map
+  /// @param filename The name of the csv file including path and extension
+  /// @author SMM (ported into FlowInfo FJC 23/03/17)
+  /// @date 16/02/2017
+  map<string, vector<string> > load_csv_data(string filename);
+
+  /// @brief This gets a data column from the csv file
+  /// @param column_name a string that holds the column name
+  /// @return a vector of strings: this holds the data.
+  /// @author SMM (ported into FlowInfo FJC 23/03/17)
+  /// @date 17/02/2017
+  vector<string> get_data_column(string column_name, map<string, vector<string> > data_map);
+
+  /// @brief This gets a data column from the csv file, and converts it to a
+  ///   float vector
+  /// @param column_name a string that holds the column name
+  /// @return a vector of floats: this holds the data.
+  /// @author SMM (ported into FlowInfo FJC 23/03/17)
+  /// @date 17/02/2017
+  vector<float> data_column_to_float(string column_name, map<string, vector<string> > data_map);
+
+  /// @brief This gets a data column from the csv file, and converts it to an
+  ///   int vector
+  /// @param column_name a string that holds the column name
+  /// @return a vector of ints: this holds the data.
+  /// @author SMM (ported into FlowInfo FJC 23/03/17)
+  /// @date 17/02/2017
+  vector<int> data_column_to_int(string column_name, map<string, vector<string> > data_map);
+
   /// @brief Method to ingest the channel heads raster generated using channel_heads_driver.cpp
   /// into a vector of source nodes so that an LSDJunctionNetwork can be created easily
   /// from them.  **UPDATE** if the extension is a csv file it reads the node indices directly
@@ -404,6 +461,22 @@ class LSDFlowInfo
   /// @author SWDG updated SMM updated DTM
   /// @date 6/6/14 Happy 3rd birthday Skye!!
   vector<int> Ingest_Channel_Heads(string filename, string extension, int input_switch = 2);
+
+  /// @brief Method to ingest the channel heads raster generated using channel_heads_driver.cpp
+  /// into a vector of source nodes so that an LSDJunctionNetwork can be created easily
+  /// from them.  **UPDATE** if the extension is a csv file it reads the node indices directly
+  /// **UPDATE, FJC 20/01/16 - changed default input switch to 2**
+  /// ***********UPDATE - overloaded function to read in the column headers using the csv logic
+  /// rather than assume that the columns have to be in a specific order. ONLY WORKS WITH CSV
+  /// EXTENSIONS. FJC 23/03/17*************************
+  /// @details Assumes the FlowInfo object has the same dimensions as the channel heads raster.
+  /// @param filename of the channel heads raster.
+  /// @param extension of the channel heads raster.
+  /// @param (optional) input_switch, ONLY NEEDED FOR LOADING .csv FILES! An integer to determine whether to use the node index (0 -> default), row and column indices (1), or point coordinates from .csv file (2) to locate the channel heads
+  /// @return Vector of source nodes.
+  /// @author SWDG updated SMM updated DTM
+  /// @date 6/6/14 Happy 3rd birthday Skye!!
+  vector<int> Ingest_Channel_Heads(string filename, int input_switch = 2);
 
 	/// @brief Method to ingest sources from OS MasterMap Water Network Layer (csv) into a vector
 	/// of source nodes so that an LSDJunctionNetwork can be easily created from them.
@@ -693,6 +766,22 @@ class LSDFlowInfo
   /// @date 11/02/14
   int get_node_index_of_coordinate_point(float X_coordinate, float Y_coordinate);
 
+  /// @brief Get vector of nodeindices from csv file
+  /// @param csv_filename input csv file
+  /// @return vector<int> with nodeindices. Ignores nodatavalues
+  /// @author FJC
+  /// @date 14/02/17
+void get_nodeindices_from_csv(string csv_filename, vector<int>& NIs, vector<float>& X_coords, vector<float>& Y_coords);
+
+  /// @brief Function to return the closest value of a raster to a specified node index
+  /// @param NodeIndex of interest
+  /// @param InputRaster raster to return value of
+  /// @param search_radius rectangular window to search for, in n_pixels
+  /// @return float value of raster closest to the node index
+  /// @author FJC
+  /// @date 08/02/17
+  float snap_RasterData_to_Node(int NodeIndex, LSDRaster& InputRaster, int search_radius);
+
   ///@brief A get sources version that uses the flow accumulation pixels.
   ///@param FlowPixels LSDIndexRaster of flow accumulation in pixels.
   ///@param threshold Integer flow accumulation threshold.
@@ -936,6 +1025,28 @@ class LSDFlowInfo
   LSDIndexRaster find_cells_influenced_by_nodata(LSDIndexRaster& Bordered_mask,
                                  LSDRaster& Topography);
 
+  
+  /// @brief This function looks at all uplope nodes and sees if any are bordered
+  ///  by nodata.
+  /// @param nodeindex The node index of the node in question
+  /// @param test_raster and LSDRaster that is to be tested
+  /// @return true if the node is influenced by nodata
+  /// @author SMM
+  /// @date 29/05/2017
+  bool is_upstream_influenced_by_nodata(int nodeindex, LSDRaster& test_raster);
+
+  /// @brief This function gets nodes that are possibly on basin edge by
+  ///  removing those that do not border NoData. Intended to be passed
+  ///  to function for finding concave hull of basin
+  /// @param outlet node The node of the outlet
+  /// @param Topography this is the LSDRaster containing topographic data
+  /// @return A vector with the node indices of nodes that are adjacent to 
+  ///  nodata within the basin
+  /// @author SMM
+  /// @date 25/04/2017
+  vector<int> basin_edge_extractor(int outlet_node, LSDRaster& Topography);
+
+
   /// @brief This function returns all the values from a raster for a corresponding
   /// input vector of node indices.
   /// @param An LSDRaster - must have same dimensions as the LSDFlowInfo object
@@ -991,6 +1102,14 @@ class LSDFlowInfo
   /// @author FJC
   /// @date 29/09/2016
 	float get_flow_length_between_nodes(int UpstreamNode, int DownstreamNode);
+
+  /// @brief This function gets the Euclidian distance between two nodes
+  /// @param node_A the first node
+  /// @param node_B the second node
+  /// @return distance between the two nodes
+  /// @author FJC
+  /// @date 17/02/17
+  float get_Euclidian_distance(int node_A, int node_B);
 
   /// @brief Method to snap a point, given as raster coordinates, to a cell in
   /// a raster of hilltops.

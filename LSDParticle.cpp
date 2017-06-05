@@ -1372,9 +1372,15 @@ void LSDCRNParticle::update_36Cl_SSfull(double erosion_rate, LSDCRNParameters& C
 void LSDCRNParticle::update_21Ne_conc(double dt,double erosion_rate, LSDCRNParameters& CRNp)
 {
   double Gamma_neutron= CRNp.Gamma[0];					// in g/cm^2
-
-  Conc_21Ne = Conc_21Ne +  CRNp.S_t*exp(-effective_dLoc/Gamma_neutron)*Gamma_neutron*CRNp.P0_21Ne*
+  if (erosion_rate == 0)
+  {
+    Conc_21Ne = Conc_21Ne +  CRNp.S_t*exp(-effective_dLoc/Gamma_neutron)*CRNp.P0_21Ne*dt;
+  }
+  else
+  {
+    Conc_21Ne = Conc_21Ne +  CRNp.S_t*exp(-effective_dLoc/Gamma_neutron)*Gamma_neutron*CRNp.P0_21Ne*
                (exp(dt*erosion_rate/Gamma_neutron) - 1)/erosion_rate;
+  }
 }
 
 

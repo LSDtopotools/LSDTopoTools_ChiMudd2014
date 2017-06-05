@@ -656,7 +656,7 @@ void LSDChannel::create_LSDC(int SJ, int SJN, int EJ, int EJN, LSDFlowInfo& Flow
 }
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// this function prints the LSDChannel to an LSDIndexRaster 
+// this function prints the LSDChannel to an LSDIndexRaster
 //
 // FJC 21/08/15
 //
@@ -672,21 +672,21 @@ LSDIndexRaster LSDChannel::print_channel_to_IndexRaster(LSDFlowInfo& FlowInfo)
   NoDataValue = FlowInfo.get_NoDataValue();
   GeoReferencingStrings = FlowInfo.get_GeoReferencingStrings();
   Array2D<int> nodes_in_channel(NRows,NCols,NoDataValue);
-  
+
   for (int row = 0; row<NRows; row++)
   {
     for (int col = 0; col<NCols; col++)
     {
-      for (int i = 0; i < RowSequence.size(); i++)
+      for (int i = 0; i < int(RowSequence.size()); i++)
       {
         if (RowSequence[i] == row && ColSequence[i] == col)
         {
           nodes_in_channel[row][col] = NodeSequence[i];
         }
-      } 
+      }
     }
   }
-  
+
   LSDIndexRaster Channel(NRows,NCols, XMinimum, YMinimum, DataResolution, NoDataValue, nodes_in_channel, GeoReferencingStrings);
   return Channel;
 }
@@ -748,7 +748,7 @@ void LSDChannel::calculate_chi(float downslope_chi, float m_over_n, float A_0, L
 // SMM 2014
 //
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-void LSDChannel::calculate_chi(float downslope_chi, float m_over_n, float A_0, 
+void LSDChannel::calculate_chi(float downslope_chi, float m_over_n, float A_0,
                             LSDRaster& FlowAccum, LSDFlowInfo& FlowInfo )
 {
   float root2 = 1.41421356;
@@ -985,17 +985,10 @@ int LSDChannel::calculate_channel_heads(int min_seg_length_for_channel_heads, fl
     int end_node = Chi.size();
     float test_value;
     float max_test_value = 0;
-    int best_chan_seg = 0;
-    int best_hill_seg = 0;
     int start_node = 0;
     int node_index = 0;
-    float chan_gradient = 0;
-    float hill_gradient = 0;
-    float chan_intercept = 0;
-    float hill_intercept = 0;
-    float chi_intersection = 0;
     float elev_intersection = 0;
-    
+
     vector<float>::iterator vec_iter_start;
     vector<float>::iterator vec_iter_end;
 
@@ -1003,11 +996,6 @@ int LSDChannel::calculate_channel_heads(int min_seg_length_for_channel_heads, fl
     for (int hill_seg_length = min_seg_length_for_channel_heads; hill_seg_length <= end_node-min_seg_length_for_channel_heads; hill_seg_length++)
     {
       int chan_seg_length = end_node - hill_seg_length;
-
-      //cout << endl;
-      //cout << "Size of channel: " << Chi.size() << endl;
-      //cout << "Size of hillslope: " << hill_seg_length << " and chann seg length: " << chan_seg_length << " total length: " << hill_seg_length+chan_seg_length << endl;
-      //cout << endl;
 
       // assigning the chi values of the hillslope segment
       hillslope_chi.resize(hill_seg_length);
@@ -1032,7 +1020,7 @@ int LSDChannel::calculate_channel_heads(int min_seg_length_for_channel_heads, fl
       vec_iter_start = Elevation.begin()+start_node+hill_seg_length;
       vec_iter_end = vec_iter_start+chan_seg_length;
       channel_elev.assign(vec_iter_start,vec_iter_end);
-      
+
       // performing linear regression on the channel segment
       vector<float> residuals_chan;
       vector<float> results_chan = simple_linear_regression(channel_chi,channel_elev, residuals_chan);
@@ -1049,19 +1037,11 @@ int LSDChannel::calculate_channel_heads(int min_seg_length_for_channel_heads, fl
       if (test_value > max_test_value)
       {
          max_test_value = test_value;
-         best_hill_seg = hill_seg_length;
-         best_chan_seg = chan_seg_length;
-         hill_gradient = results_hill[0];
-         chan_gradient = results_chan[0];
-         hill_intercept = results_hill[1];
-         chan_intercept = results_chan[1];
          elev_intersection = channel_elev.front();
-         chi_intersection = channel_chi.front();
+         //chi_intersection = channel_chi.front();
       }
 
     }
-    //cout << "Channel gradient: " << chan_gradient << " Channel intercept: " << chan_intercept << " Hillslope gradient: " << hill_gradient
-    //<< " Hillslope intercept: " << hill_intercept << endl;
 
     //Getting the node index of the channel heads
     for (unsigned int i = 0; i < Elevation.size(); i++)
@@ -1071,8 +1051,6 @@ int LSDChannel::calculate_channel_heads(int min_seg_length_for_channel_heads, fl
         node_index =  NodeSequence[i];
       }
     }
-    //cout << "Chi of channel head: " << chi_intersection << " Elevation of channel head: " << elev_intersection << endl;
-    //cout << "Finished finding channel heads in LSDCHannel" << endl;
 
     return node_index;
 }
@@ -1080,15 +1058,15 @@ int LSDChannel::calculate_channel_heads(int min_seg_length_for_channel_heads, fl
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // This function writes a channel to a CSV file
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-void LSDChannel::write_channel_to_csv(string path, string filename, LSDRaster& flow_dist)  
+void LSDChannel::write_channel_to_csv(string path, string filename, LSDRaster& flow_dist)
 {
-  
+
   ofstream chan_out;
   string chan_fname = path+filename+"_chan.csv";
   chan_out.open(chan_fname.c_str());
-    
+
   int NNodes = NodeSequence.size();
-  
+
   // make sure elevation chi and area vectors exist
   if (int(Elevation.size()) !=  NNodes)
   {
@@ -1099,19 +1077,19 @@ void LSDChannel::write_channel_to_csv(string path, string filename, LSDRaster& f
   {
     vector<float> temp(NNodes,0);
     Chi = temp;
-  } 
+  }
   if (int(DrainageArea.size()) !=  NNodes)
   {
     vector<float> temp(NNodes,0);
     DrainageArea = temp;
-  }  
- 
-  
+  }
+
+
   int this_row,this_col;
   float x,y;
-  
+
   int id = 0;
-  
+
   chan_out << "id,x,y,row,column,distance_from_outlet,elevation,drainge_area,chi" << endl;
   for(int node = 0; node<NNodes; node++)
   {
@@ -1119,17 +1097,17 @@ void LSDChannel::write_channel_to_csv(string path, string filename, LSDRaster& f
     this_row = RowSequence[node];
     this_col = ColSequence[node];
     x = XMinimum + float(this_col)*DataResolution + 0.5*DataResolution;
-    
+
     // Slightly different logic for y because the DEM starts from the top corner
     y = YMinimum + float(NRows-this_row)*DataResolution - 0.5*DataResolution;
-    
-    
-    chan_out << id << "," << x << "," << y << "," << this_row << "," 
+
+
+    chan_out << id << "," << x << "," << y << "," << this_row << ","
              << this_col << "," << flow_dist.get_data_element(this_row,this_col) << ","
              << Elevation[node] <<"," << DrainageArea[node] <<","<<Chi[node] << endl;
   }
   chan_out.close();
-}   
+}
 
 
 #endif

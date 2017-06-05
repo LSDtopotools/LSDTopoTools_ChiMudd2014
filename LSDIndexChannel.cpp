@@ -121,7 +121,7 @@ void LSDIndexChannel::create(int SJN, int EJN, LSDFlowInfo& FlowInfo)
 	StartNode = SJN;
 	EndNode = EJN;
 
-  cout << "Start node: " << StartNode << " and end node: " << EndNode << endl;
+  //cout << "Start node: " << StartNode << " and end node: " << EndNode << endl;
   if (StartNode == EndNode)
   {
     cout << "This appears to be a channel made up of a single pixel!" << endl;
@@ -171,10 +171,10 @@ void LSDIndexChannel::create(int SJN, int EJN, LSDFlowInfo& FlowInfo)
 	RowSequence = RowI;
 	ColSequence = ColI;
 	NodeSequence = NdI;
-	
-	cout << "The number of nodes is: " << NodeSequence.size() << endl;
-	
-	
+
+	//cout << "The number of nodes is: " << NodeSequence.size() << endl;
+
+
 }
 
 
@@ -207,7 +207,7 @@ void LSDIndexChannel::create(int SJ, int SJN, int EJ, int EJN, LSDFlowInfo& Flow
 	StartNode = SJN;
 	EndNode = EJN;
 
-  cout << "Start node: " << StartNode << " and end node: " << EndNode << endl;
+  //cout << "Start node: " << StartNode << " and end node: " << EndNode << endl;
   if (StartNode == EndNode)
   {
     cout << "This appears to be a channel made up of a single pixel!" << endl;
@@ -257,8 +257,130 @@ void LSDIndexChannel::create(int SJ, int SJN, int EJ, int EJN, LSDFlowInfo& Flow
 	ColSequence = ColI;
 	NodeSequence = NdI;
 
-	cout << "The number of nodes is: " << NodeSequence.size() << endl;
+ //cout << "The number of nodes is: " << NodeSequence.size() << endl;
 
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// creates an index channel from two X and Y coordinate points. It will snap
+// the upstream point to a threshold drainage area to ensure that you are on
+// a channel.  Then moves downstream until you are within a reasonable distance
+// from the downstream point.
+// If this create function is used then the start and end junctions are not
+// assigned in the object
+// reads in a vector of X and Y coords where:
+// upstream_X = X_coords[0]
+// downstream_X = X_coords[1]
+// upstream_Y = Y_coords[0]
+// downstream_Y = Y_coords[1]
+//
+// FJC 17/02/17
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+void LSDIndexChannel::create(vector<float>& X_coords, vector<float>& Y_coords, LSDFlowInfo& FlowInfo, float threshold_area, float threshold_distance)
+{
+	cout << "Threshold area is: " << threshold_area << " Threshold distance is: " << threshold_distance << endl;
+	// populate the protected variables
+	NRows = FlowInfo.get_NRows();
+	NCols = FlowInfo.get_NCols();
+	XMinimum = FlowInfo.get_XMinimum();
+	YMinimum = FlowInfo.get_YMinimum();
+	DataResolution = FlowInfo.get_DataResolution();
+	NoDataValue = FlowInfo.get_NoDataValue();
+	GeoReferencingStrings =  FlowInfo.get_GeoReferencingStrings();
+
+	float upstream_X = X_coords[0];
+	float downstream_X = X_coords[1];
+	float upstream_Y = Y_coords[0];
+	float downstream_Y = Y_coords[1];
+
+	cout << "upstream X: " << upstream_X << " downstream X: " << downstream_X << " upstream Y: " << upstream_Y << " downstream Y: " << downstream_Y << endl;
+
+	// don't set junctions for this create routine
+	StartJunction = -1;
+	EndJunction = -1;
+
+	// find the nearest channel node to the upstream X and Y coords
+	int ThisNode = FlowInfo.get_node_index_of_coordinate_point(upstream_X, upstream_Y);
+	cout << "Node index: " << ThisNode << endl;
+	int ThisRow, ThisCol, ChanNode;
+	FlowInfo.retrieve_current_row_and_col(ThisNode, ThisRow, ThisCol);
+	// get the drainage area of this node
+	int ThisCP = FlowInfo.retrieve_contributing_pixels_of_node(ThisNode);
+	float ThisArea = ThisCP*DataResolution*DataResolution;
+	bool reached_chan = false;
+	if (ThisArea >= threshold_area)
+	{
+		// you are already at the channel
+		ChanNode = ThisNode;
+		NodeSequence.push_back(ThisNode);
+		RowSequence.push_back(ThisRow);
+		ColSequence.push_back(ThisCol);
+		cout << "At the channel!" << endl;
+	}
+	else
+	{
+		while(reached_chan == false)
+		{
+			int ReceiverNode, ReceiverRow, ReceiverCol;
+			FlowInfo.retrieve_receiver_information(ThisNode,ReceiverNode, ReceiverRow, ReceiverCol);
+			if (ThisNode == ReceiverNode)
+			{
+				cout << "WARNING: at base level. Can't get an index channel." << endl;
+				break;
+			}
+			int ReceiverCP = FlowInfo.retrieve_contributing_pixels_of_node(ReceiverNode);
+			float ReceiverArea = ReceiverCP*DataResolution*DataResolution;
+			//cout << "ReceiverNode: " << ReceiverNode << " ReceiverArea: " << ReceiverArea << endl;
+			if (ReceiverArea >= threshold_area)
+			{
+				// reached the channel
+				reached_chan = true;
+				ChanNode = ReceiverNode;
+				NodeSequence.push_back(ReceiverNode);
+				RowSequence.push_back(ReceiverRow);
+				ColSequence.push_back(ReceiverCol);
+				cout << "At the channel!" << endl;
+			}
+			else
+			{
+				// move to the next receiver
+				ThisNode = ReceiverNode;
+			}
+		}
+	}
+
+	if (reached_chan == true)
+	{
+		cout << "Got the starting point, now moving downstream" << endl;
+		// got the nearest channel to the starting coordinate point. Now move downstream and create the index channel.
+		StartNode = ChanNode;
+		// get the node index of the downstream coordinate point
+		int DownstreamNode = FlowInfo.get_node_index_of_coordinate_point(downstream_X, downstream_Y);
+		bool reached_downstream = false;
+		ThisNode = StartNode;
+		while (reached_downstream == false)
+		{
+			int ReceiverNode, ReceiverRow, ReceiverCol;
+			FlowInfo.retrieve_receiver_information(ThisNode,ReceiverNode, ReceiverRow, ReceiverCol);
+			NodeSequence.push_back(ReceiverNode);
+			RowSequence.push_back(ReceiverRow);
+			ColSequence.push_back(ReceiverCol);
+			// check the receiver node and see how far it is from the end node
+			float dist_to_end = FlowInfo.get_Euclidian_distance(ReceiverNode, DownstreamNode);
+			if (dist_to_end < threshold_distance)
+			{
+				cout << "You are within the threshold distance of the end point!" << endl;
+				reached_downstream = true;
+				EndNode = ReceiverNode;
+			}
+			else
+			{
+				// move downstream
+				ThisNode = ReceiverNode;
+			}
+		}
+	}
 }
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -432,6 +554,96 @@ void LSDIndexChannel::append_index_channel_to_index_raster(LSDIndexRaster& old_r
 	LSDIndexRaster Channel_loc(NRows,NCols, XMinimum, YMinimum, DataResolution, NoDataValue, Channel_array,GeoReferencingStrings);
 	old_raster = Channel_loc;
 }
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// this gets the x and y coordinates of all points in the channel
+//
+// FJC 17/02/17
+//
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+void LSDIndexChannel::get_coordinates_of_channel_nodes(vector<double>& X_coordinates, vector<double>& Y_coordinates)
+{
+  vector<double> X_coords_temp;
+  vector<double> Y_coords_temp;
+
+  int n_nodes_in_channel = int(NodeSequence.size());
+
+  for (int i = 0; i < n_nodes_in_channel; ++i)
+  {
+    // get the x and y coords for this row and col
+    int row = RowSequence[i];
+    int col = ColSequence[i];
+    double x = XMinimum + float(col)*DataResolution + 0.5 * DataResolution;
+    double y = YMinimum + float(NRows - row)*DataResolution - 0.5*DataResolution;
+    X_coords_temp.push_back(x);
+    Y_coords_temp.push_back(y);
+  }
+
+  // copy to vectors
+  X_coordinates = X_coords_temp;
+  Y_coordinates = Y_coords_temp;
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+void LSDIndexChannel::get_coordinates_of_channel_nodes(vector<float>& X_coordinates, vector<float>& Y_coordinates)
+{
+  vector<float> X_coords_temp;
+  vector<float> Y_coords_temp;
+
+  int n_nodes_in_channel = int(NodeSequence.size());
+
+  for (int i = 0; i < n_nodes_in_channel; ++i)
+  {
+    // get the x and y coords for this row and col
+    int row = RowSequence[i];
+    int col = ColSequence[i];
+    float x = XMinimum + float(col)*DataResolution + 0.5 * DataResolution;
+    float y = YMinimum + float(NRows - row)*DataResolution - 0.5*DataResolution;
+    X_coords_temp.push_back(x);
+    Y_coords_temp.push_back(y);
+  }
+
+  // copy to vectors
+  X_coordinates = X_coords_temp;
+  Y_coordinates = Y_coords_temp;
+}
+
+
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// This function writes an index channel to a CSV file
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+void LSDIndexChannel::write_channel_to_csv(string path, string filename)
+{
+
+  ofstream chan_out;
+  string chan_fname = path+filename+"_index_chan.csv";
+  chan_out.open(chan_fname.c_str());
+
+  int NNodes = NodeSequence.size();
+
+  int this_row,this_col;
+  float x,y;
+
+  int id = 0;
+
+  chan_out << "id,x,y,row,column" << endl;
+  for(int node = 0; node<NNodes; node++)
+  {
+    id++;
+    this_row = RowSequence[node];
+    this_col = ColSequence[node];
+    x = XMinimum + float(this_col)*DataResolution + 0.5*DataResolution;
+
+    // Slightly different logic for y because the DEM starts from the top corner
+    y = YMinimum + float(NRows-this_row)*DataResolution - 0.5*DataResolution;
+
+    chan_out << id << "," << x << "," << y << "," << this_row << ","
+             << this_col << endl;
+  }
+  chan_out.close();
+}
+
 
 
 

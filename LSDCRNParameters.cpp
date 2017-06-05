@@ -1167,12 +1167,15 @@ void LSDCRNParameters::set_newCRONUS_parameters()
   // Also linke to the nishizumii standards
   // These come with Cosmocalc version 2.0
   // http://www.ucl.ac.uk/~ucfbpve/cosmocalc/updates.html
+  
+  // UPDATE The Al, Ne, He and 14C data come from the newcronus production files:
+  // https://bitbucket.org/cronusearth/cronus-calc/src/bfdbded294a6432b9f4262a3859aee9fb9df9b18/de/production/physpars.m?at=master&fileviewer=file-view-default
   P0_10Be = 4.075213;          // in a/g/yr
-  P0_26Al = 31.10;         // in a/g/yr
-  P0_14C = 15.21;          // in a/g/yr
+  P0_26Al = 27.9;         // in a/g/yr
+  P0_14C = 12.2;          // in a/g/yr
   P0_36Cl = 58.95;         // in a/g/yr
-  P0_21Ne = 18.23;         // in a/g/yr
-  P0_3He = 121.59;         // in a/g/yr
+  P0_21Ne = 16.63;         // in a/g/yr
+  P0_3He = 118.0;         // in a/g/yr
 
   // in g/cm^2
   Gamma[0] = 160;
@@ -1180,6 +1183,7 @@ void LSDCRNParameters::set_newCRONUS_parameters()
   Gamma[2] = 11039.2402217;
   Gamma[3] = 4320;
 
+  // ONLY 10Be reflects new CRONUS!!!!!!!
   // dimensionless
   F_10Be[0] = 0.98374;
   F_10Be[1] = 0.0137188126531;
