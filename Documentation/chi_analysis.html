@@ -438,6 +438,7 @@ MathJax.Hub.Config({
 <li><a href="#_introduction">1. Introduction</a>
 <ul class="sectlevel2">
 <li><a href="#_background">1.1. Background</a></li>
+<li><a href="#_background_information">1.2. Background information</a></li>
 </ul>
 </li>
 <li><a href="#_getting_the_software">2. Getting the software</a>
@@ -507,6 +508,63 @@ For background to the method, and a description of the algorithms, we refer the 
 <a href="http://www.http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al. (2014)</a>.
 For background into the strengths of the integral method of channel profile analysis,
 the user should read <a href="http://mit.edu/perron/www/files/PerronRoyden13.pdf">Perron and Royden (2013, ESPL)</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_background_information">1.2. Background information</h3>
+<div class="paragraph">
+<p>These formulations can be generalised into the stream power incision model:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[E = K A^m S^n\]
+</div>
+</div>
+<div class="paragraph">
+<p>where $E$ is the long-term fluvial incision rate, $A$ is the upstream drainage area, $S$ is the channel gradient, $K$ is the erodibility coefficient, which is a measure of the efficiency of the incision process, and $m$ and $n$ are constant exponents.  In order to model landscape evolution, equation () is often combined with detachment-limited mass balance, where:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\frac{\partial z}{\partial t} = U - E = U - K A^m \Big(\frac{\partial z}{\partial x_d}\Big)^n\]
+</div>
+</div>
+<div class="stemblock">
+<div class="content">
+\[sqrt(4) = 2\]
+</div>
+</div>
+<div class="paragraph">
+<p>where $z$ is the elevation of the channel bed, $t$ is time, $x_d$ is the distance downstream, and $U$ is the rock uplift rate, equivalent to the rate of baselevel lowering if the baselevel elevation is fixed \citep{howard_channel_1983,howard_detachment-limited_1994,whipple_dynamics_1999}.</p>
+</div>
+<div class="paragraph">
+<p>In order to examine fluvial response to climatic and tectonic forcing, equation () is often rearranged for channel slope, assuming uniform incision rate \citep{hack_stream-profile_1973,flint_stream_1974,sklar_river_1998,whipple_dynamics_1999,wobus_tectonics_2006}:</p>
+</div>
+<div class="paragraph">
+<p>$S = k_{sn} A^{-\theta}$</p>
+</div>
+<div class="paragraph">
+<p>where $\theta = m/n$, and represents the concavity of the channel profile, and $k_{sn} = (E/K)^{\frac{1}{n}}$, and represents the steepness of the profile.  $\theta$ and $k_{sn}$ are referred to as the concavity and steepness indices respectively. Equation () therefore predicts a power-law relationship between slope and drainage area, which is often represented on a logarithmic scale (Figure BLAH).  The concavity and steepness indices can be extracted from plots of slope against drainage area along a channel, where $\theta$ is the gradient of a best-fit line through the data, and $k_{sn}$ is the y-intercept. These slope-area plots have been used by many studies to examine fluvial response to climate, lithology and tectonics \citep[e.g.][]{flint_stream_1974,tarboton_scaling_1989,kirby_quantifying_2001,wobus_tectonics_2006}.</p>
+</div>
+<div class="paragraph">
+<p>However, there are limitations with using these plots of slope against drainage area in order to analyse channel profiles.  Topographic data is inherently noisy, either as a result of fine-scale sediment transport processes, or from processing of the data in the creation of DEMs.  Furthermore, this noise is amplified by the derivation of the topographic surface in order to extract values for channel gradient \citep{perron_integral_2013}.  This noise leads to significant scatter within the profile trends, potentially obscuring any deviations from the power law signal which may represent changes in process, lithology, climate or uplift.  In order to circumvent these problems, more recent studies have turned to the `integral method' of slope-area analysis, which normalises river profiles for their drainage area, allowing comparison of the steepness of channels across basins of different size \citep{royden_evolution_2000,harkins_transient_2007,perron_integral_2013,mudd_statistical_2014}. The integral method only requires the extraction of elevation and drainage area along the channel, and is therefore less subject to topographic noise than slope-area analysis.  The technique involves integrating equation ~\ref{eq:stream_power_slope}, assuming spatially constant incision equal to uplift (steady-state) and erodibility:</p>
+</div>
+<div class="paragraph">
+<p>$z(x) = z(x_b) + \Bigg(\frac{E}{K}\Bigg)^{\frac{1}{n}} \int_{x_b}^{x} \frac{dx}{A(x)^{\frac{m}{n}}}$</p>
+</div>
+<div class="paragraph">
+<p>where the integration is performed upstream from baselevel ($x_b$) to a chosen point on the river channel, $x$.  The profile is then normalised to a reference drainage area ($A_0$) to ensure the integrand is dimensionless:</p>
+</div>
+<div class="paragraph">
+<p>\(z(x) = z(x_b) + \Bigg(\frac{U}{K{A_0}^m}\Bigg)^{\frac{1}{n}} \chi\)</p>
+</div>
+<div class="paragraph">
+<p>where the longitudinal coordinate $\chi$ is equal to:</p>
+</div>
+<div class="paragraph">
+<p>$\chi = \int_{x_b}^{x} \Bigg(\frac{A_0}{A(x)}\Bigg)^{m/n} dx$</p>
+</div>
+<div class="paragraph">
+<p>The longitudinal coordinate $\chi$ has dimensions of length, and is linearly related to the elevation $z(x)$.  Therefore, if a channel incises based on the stream power incision model, then its profile should be linear on a plot of elevation against $\chi$ according to equation (). As well as providing a method to test whether channel profiles obey common incision models, $\chi$-plots also provide means of testing the appropriate $\theta$ for a channel \citep{perron_integral_2013,mudd_statistical_2014}.  If the integral analysis is performed for all channels within a basin, the correct value of $\theta$ can be determined by identifying at which value all of the channels are both linear in $\chi$-elevation space, and collinear, where main channel and tributaries all collapse onto a single profile (Figure \ref{fig:chi_plot}).</p>
 </div>
 </div>
 </div>

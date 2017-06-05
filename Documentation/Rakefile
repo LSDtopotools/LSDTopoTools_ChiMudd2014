@@ -14,7 +14,7 @@ namespace :book do
     puts " -- HTML output at chi_analysis.html"
 
     puts "Converting to PDF... (this one takes a while)"
-    `bundle exec asciidoctor-pdf chi_analysis.asc -o chi_analysis.pdf`
+      `bundle exec asciidoctor-pdf -r asciidoctor-mathematical chi_analysis.asc -o chi_analysis.pdf`
     puts " -- PDF  output at chi_analysis.pdf"
   end
   
