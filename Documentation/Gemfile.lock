@@ -22,19 +22,17 @@ GEM
       nokogiri (~> 1.6.1)
       rubyzip (>= 1.1.1)
     hashery (2.1.2)
-    json (2.0.2)
+    json (2.1.0)
     mini_portile2 (2.1.0)
-    nokogiri (1.6.8-x86-mingw32)
+    nokogiri (1.6.8.1-x64-mingw32)
       mini_portile2 (~> 2.1.0)
-      pkg-config (~> 1.1.7)
     pdf-core (0.2.5)
-    pdf-reader (1.4.0)
+    pdf-reader (1.4.1)
       Ascii85 (~> 1.0.0)
       afm (~> 0.2.1)
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
-    pkg-config (1.1.7)
     polyglot (0.3.5)
     posix-spawn (0.3.11)
     prawn (1.2.1)
@@ -49,17 +47,17 @@ GEM
     pygments.rb (0.6.3)
       posix-spawn (~> 0.3.6)
       yajl-ruby (~> 1.2.0)
-    rake (11.2.2)
+    rake (12.0.0)
     ruby-rc4 (0.1.5)
-    rubyzip (1.2.0)
-    thread_safe (0.3.5)
+    rubyzip (1.2.1)
+    thread_safe (0.3.6)
     treetop (1.5.3)
       polyglot (~> 0.3)
     ttfunk (1.2.2)
     yajl-ruby (1.2.1)
 
 PLATFORMS
-  x86-mingw32
+  x64-mingw32
 
 DEPENDENCIES
   asciidoctor (= 1.5.0)
@@ -74,4 +72,4 @@ DEPENDENCIES
   thread_safe
 
 BUNDLED WITH
-   1.12.1
+   1.15.0
