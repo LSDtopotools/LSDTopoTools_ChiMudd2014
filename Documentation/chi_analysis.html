@@ -452,7 +452,13 @@ MathJax.Hub.Config({
 <li><a href="#_installing_the_code_and_setting_up_directories">2.4. Installing the code and setting up directories</a></li>
 </ul>
 </li>
-<li><a href="#_preparing_your_data">3. Preparing your data.</a></li>
+<li><a href="#_preparing_your_data">3. Preparing your data.</a>
+<ul class="sectlevel2">
+<li><a href="#_get_some_data">3.1. Get some data</a></li>
+<li><a href="#_use_gdal">3.2. Use gdal</a></li>
+<li><a href="#_stupid_nodata">3.3. Stupid nodata</a></li>
+</ul>
+</li>
 <li><a href="#_running_the_chi_analysis">4. Running the chi analysis</a>
 <ul class="sectlevel2">
 <li><a href="#_the_parameter_file">4.1. The parameter file</a></li>
@@ -515,7 +521,7 @@ the user should read <a href="http://mit.edu/perron/www/files/PerronRoyden13.pdf
 <div class="sect3">
 <h4 id="_channel_incision_and_geometry">1.1.1. Channel incision and geometry</h4>
 <div class="paragraph">
-<p>Following observations made by early workers such as Gilbert, later workers proposed models to explain erosion rates in channels. Many of these models state that erosion rate is proportional to both topographic slope and to discharge. The relasionship to discharge is related to a number of factors, including how likeley the river is to pluck material from the bed, and how much sediment it can carry. Bedload can damage the bed and thus bedload particles can act as "tools" to erode the bed. A number of formulations to capture this behaviour have been proposed (e.g. <a href="http://gsabulletin.gsapubs.org/content/94/6/739">Howard and Kerby, 1983</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/94WR00757/abstract">Howard, 1994</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/1999JB900120/abstract">Whipple and Tucker 1999</a>; [Gasparini and Brandon, 2011]<a href="http://onlinelibrary.wiley.com/doi/10.1029/2009JF001655/abstract" class="bare">http://onlinelibrary.wiley.com/doi/10.1029/2009JF001655/abstract</a>) and these formulations can be generalised into the stream power incision model (SPIM):</p>
+<p>Following observations made by early workers such as Gilbert, later workers proposed models to explain erosion rates in channels. Many of these models state that erosion rate is proportional to both topographic slope and to discharge. The relasionship to discharge is related to a number of factors, including how likeley the river is to pluck material from the bed, and how much sediment it can carry. Bedload can damage the bed and thus bedload particles can act as "tools" to erode the bed. A number of formulations to capture this behaviour have been proposed (e.g. <a href="http://gsabulletin.gsapubs.org/content/94/6/739">Howard and Kerby, 1983</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/94WR00757/abstract">Howard, 1994</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/1999JB900120/abstract">Whipple and Tucker 1999</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/2009JF001655/abstract">Gasparini and Brandon, 2011</a>) and these formulations can be generalised into the stream power incision model (SPIM):</p>
 </div>
 <div class="stemblock">
 <div class="content">
@@ -792,8 +798,132 @@ Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetu
 <div class="sect1">
 <h2 id="_preparing_your_data">3. Preparing your data.</h2>
 <div class="sectionbody">
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Essential information about data preparation</div>
 <div class="paragraph">
-<p>Use GDAL. And also DEM_preprocessing. They are both great.</p>
+<p>Our software calculates metrics over entire landscapes and along channels, and needs to measure distances and lengths. For this reason the data <strong>must</strong> be in a <a href="https://geonet.esri.com/thread/23160">projected reference system</a>. Because converting data types is nontrivial, we have opted to assume a certain reference system:</p>
+</div>
+<div class="paragraph">
+<p><strong>All your raster data (i.e., your topographic data and subsidiary datasets) need to be in <a href="https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system">UTM</a> coordinate system.</strong></p>
+</div>
+<div class="paragraph">
+<p>We use [<a href="https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system" class="bare">https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system</a>] since it is a global dataset. However you will need to look up the UTM zone of your data. We use <a href="http://www.dmap.co.uk/utmworld.htm">this map</a> to determine our UTM zone.</p>
+</div>
+<div class="paragraph">
+<p><strong>If you fail to convert to UTM these programs will probably crash!</strong></p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_get_some_data">3.1. Get some data</h3>
+<div class="paragraph">
+<p>There are many sources of topogaphic data, which we will not repeat here, but if you are looking for an easy interaface to get either lidar or SRTM data, we suggest <a href="http://www.opentopography.org/">opentopography</a>. This site is not ust for USA-based lidar but also has very nice interfaces for <a href="http://opentopo.sdsc.edu/lidar?format=sd">global data sets</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_use_gdal">3.2. Use gdal</h3>
+<div class="paragraph">
+<p>When you download topographic data, it will come in all manner of formats, with all manner of coordinate systems. You need to convert the data into <strong>ENVI bil</strong> format and project it into UTM coordinates. You can do all this using <a href="http://www.gdal.org/">GDAL</a>.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<strong>DO NOT</strong> use ESRI bil format! Use <strong>ENVI bil</strong> format. They have similar names but the data format is different!!!
+</td>
+</tr>
+</table>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Getting GDAL</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If you use our vagrant setup GDAL is already installed. This is appropriate for Windows and MacOS users.</p>
+</li>
+<li>
+<p>If you use Ubuntu, use: <code>sudo apt-get gdal-bin</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>If you want to learn all about GDAL you can look at our book: <a href="http://lsdtopotools.github.io/LSDTT_book/#_gdal_2" class="bare">http://lsdtopotools.github.io/LSDTT_book/#_gdal_2</a></p>
+</div>
+<div class="paragraph">
+<p>However, all you really need to use is <strong>gdalwarp</strong>.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to the folder where your data is sitting.</p>
+</li>
+<li>
+<p>Call <strong>gdalwarp</strong>:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">$ gdalwarp -t_srs '+proj=utm +zone=19 +south +datum=WGS84' -of ENVI InputDEM.tif Output_DEM.bil</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>The above all contains the essentials:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><code>-t_srs '+proj=utm +zone=19 +south +datum=WGS84'</code> says you want to project into UTM zone 19 south. Change the "south" and the "zone" accordingly. For example, if you want zone 44 north, use <code>-t_srs '+proj=utm +zone=44 +north +datum=WGS84'</code>.</p>
+</li>
+<li>
+<p><code>-of ENVI</code> means you want ENVI bil format.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>If you want to control the spacing of the points, include:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">$ gdalwarp -t_srs '+proj=utm +zone=19 +south +datum=WGS84' -tr 30 30 -r cubic -of ENVI InputDEM.tif Output_DEM.bil</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>In this case the two extra flags are:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><code>-tr 30 30</code>: Resample to 30 metres in the x any y directions. Change the number for a different resolution.</p>
+</li>
+<li>
+<p><code>-r cubic</code>: This is the resampling method. <strong>DO NOT</strong> use the default; it is nearest neighbour and will result in a striped DEM.</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>If you want to clip the DEM add <code>-te &lt;x_min&gt; &lt;y_min&gt; &lt;x_max&gt; &lt;y_max&gt;</code> where you put the maximum and minimum extents within the <code>&lt;&gt;</code> symbols.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_stupid_nodata">3.3. Stupid nodata</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Often you get messed up NoData. That is, you get some gigantic number for nodata or the nodata doesn&#8217;t register on the projected DEM. You can attempt to fix this with gdal using the flag <code>dstnodata -9999</code>. However this doesn&#8217;t always work. Luckily, we have programed some code to try and remove weird numbers, so when you run the code (see the section <a href="#_running_the_chi_analysis">Running the chi analysis</a>) you turn the <code>remove_seas</code> switch to true and that should sort you out.</p>
+</li>
+<li>
+<p>Sometimes you get holes in your data. This is annoying. We have code to deal with that, but for now I will just say that you should use the <a href="http://www.opentopography.org/">opentopography</a> data server to get SRTM data as it is seamless. Note that for chi analysis, 30 metre resolution data is probably sufficient: see <a href="http://www.earth-surf-dynam.net/4/627/2016/">Grieve et al, 2016</a> and <a href="http://www.earth-surf-dynam.net/5/211/2017/">Purinton and Bookhagen, 2017</a>.</p>
+</li>
+</ol>
+</div>
 </div>
 </div>
 </div>
