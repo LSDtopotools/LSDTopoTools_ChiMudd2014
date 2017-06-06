@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.0">
+<meta name="author" content="Simon M. Mudd, School of GeoSciences, University of Edinburgh">
+<title>User guide to chi analysis</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic|Noto+Serif:400,400italic,700,700italic|Droid+Sans+Mono:400">
+<style>
+/* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
+/* Remove the comments around the @import statement below when using this as a custom stylesheet */
+/*@import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic|Noto+Serif:400,400italic,700,700italic|Droid+Sans+Mono:400";*/
+article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,summary{display:block}
+audio,canvas,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+[hidden],template{display:none}
+script{display:none!important}
+html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}
+body{margin:0}
+a{background:transparent}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+abbr[title]{border-bottom:1px dotted}
+b,strong{font-weight:bold}
+dfn{font-style:italic}
+hr{-moz-box-sizing:content-box;box-sizing:content-box;height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type="button"],input[type="reset"],input[type="submit"]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type="checkbox"],input[type="radio"]{box-sizing:border-box;padding:0}
+input[type="search"]{-webkit-appearance:textfield;-moz-box-sizing:content-box;-webkit-box-sizing:content-box;box-sizing:content-box}
+input[type="search"]::-webkit-search-cancel-button,input[type="search"]::-webkit-search-decoration{-webkit-appearance:none}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,*:before,*:after{-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+#map_canvas img,#map_canvas embed,#map_canvas object,.map_canvas img,.map_canvas embed,.map_canvas object{max-width:none!important}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+.antialiased,body{-webkit-font-smoothing:antialiased}
+img{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+p.lead,.paragraph.lead>p,#preamble>.sectionbody>.paragraph:first-of-type p{font-size:1.21875em;line-height:1.6}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0;direction:ltr}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:none}
+p{font-family:inherit;font-weight:400;font-size:1em;line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #ddddd8;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em;height:0}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{font-size:1em;line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol,ul.no-bullet,ol.no-bullet{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0;font-size:1em}
+ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
+ul.square{list-style-type:square}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ul.no-bullet{list-style:none}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+abbr,acronym{text-transform:uppercase;font-size:90%;color:rgba(0,0,0,.8);border-bottom:1px dotted #ddd;cursor:help}
+abbr{text-transform:none}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote cite{display:block;font-size:.9375em;color:rgba(0,0,0,.6)}
+blockquote cite:before{content:"\2014 \0020"}
+blockquote cite a,blockquote cite a:visited{color:rgba(0,0,0,.6)}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media only screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede}
+table thead,table tfoot{background:#f7f8f7;font-weight:bold}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt,table tr:nth-of-type(even){background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{display:table-cell;line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.clearfix:before,.clearfix:after,.float-group:before,.float-group:after{content:" ";display:table}
+.clearfix:after,.float-group:after{clear:both}
+*:not(pre)>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background-color:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed}
+pre,pre>code{line-height:1.45;color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;text-rendering:optimizeSpeed}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{display:inline-block;color:rgba(0,0,0,.8);font-size:.75em;line-height:1.4;background-color:#f7f7f7;border:1px solid #ccc;-webkit-border-radius:3px;border-radius:3px;-webkit-box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em white inset;box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em #fff inset;margin:-.15em .15em 0 .15em;padding:.2em .6em .2em .5em;vertical-align:middle;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menu{color:rgba(0,0,0,.8)}
+b.button:before,b.button:after{position:relative;top:-1px;font-weight:400}
+b.button:before{content:"[";padding:0 3px 0 2px}
+b.button:after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin-left:auto;margin-right:auto;margin-top:0;margin-bottom:0;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header:before,#header:after,#content:before,#content:after,#footnotes:before,#footnotes:after,#footer:before,#footer:after{content:" ";display:table}
+#header:after,#content:after,#footnotes:after,#footer:after{clear:both}
+#content{margin-top:1.25em}
+#content:before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #ddddd8}
+#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #ddddd8;padding-bottom:8px}
+#header .details{border-bottom:1px solid #ddddd8;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:-ms-flexbox;display:-webkit-flex;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span:before{content:"\00a0\2013\00a0"}
+#header .details br+span.author:before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark:before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber:after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #ddddd8;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #efefed;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media only screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+#toc.toc2{margin-top:0!important;background-color:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #efefed;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #efefed;left:auto;right:0}}@media only screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}#content #toc{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:100%;background-color:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:rgba(255,255,255,.8);line-height:1.44}
+.sect1{padding-bottom:.625em}
+@media only screen and (min-width:768px){.sect1{padding-bottom:1.25em}}.sect1+.sect1{border-top:1px solid #efefed}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor:before,h2>a.anchor:before,h3>a.anchor:before,#toctitle>a.anchor:before,.sidebarblock>.content>.title>a.anchor:before,h4>a.anchor:before,h5>a.anchor:before,h6>a.anchor:before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock>caption.title{white-space:nowrap;overflow:visible;max-width:0}
+.paragraph.lead>p,#preamble>.sectionbody>.paragraph:first-of-type p{color:rgba(0,0,0,.85)}
+table.tableblock #preamble>.sectionbody>.paragraph:first-of-type p{font-size:inherit}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:none}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #ddddd8;color:rgba(0,0,0,.6)}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border-style:solid;border-width:1px;border-color:#e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;-webkit-border-radius:4px;border-radius:4px}
+.exampleblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child{margin-bottom:0}
+.sidebarblock{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+.sidebarblock>:first-child{margin-top:0}
+.sidebarblock>:last-child{margin-bottom:0}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock pre:not(.highlight),.listingblock pre[class="highlight"],.listingblock pre[class^="highlight "],.listingblock pre.CodeRay,.listingblock pre.prettyprint{background:#f7f7f8}
+.sidebarblock .literalblock pre,.sidebarblock .listingblock pre:not(.highlight),.sidebarblock .listingblock pre[class="highlight"],.sidebarblock .listingblock pre[class^="highlight "],.sidebarblock .listingblock pre.CodeRay,.sidebarblock .listingblock pre.prettyprint{background:#f2f1f1}
+.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{-webkit-border-radius:4px;border-radius:4px;word-wrap:break-word;padding:1em;font-size:.8125em}
+.literalblock pre.nowrap,.literalblock pre[class].nowrap,.listingblock pre.nowrap,.listingblock pre[class].nowrap{overflow-x:auto;white-space:pre;word-wrap:normal}
+@media only screen and (min-width:768px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:.90625em}}@media only screen and (min-width:1280px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:1em}}.literalblock.output pre{color:#f7f7f8;background-color:rgba(0,0,0,.9)}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;-webkit-border-radius:4px;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.listingblock>.content{position:relative}
+.listingblock code[data-lang]:before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:#999}
+.listingblock:hover code[data-lang]:before{display:block}
+.listingblock.terminal pre .command:before{content:attr(data-prompt);padding-right:.5em;color:#999}
+.listingblock.terminal pre .command:not([data-prompt]):before{content:"$"}
+table.pyhltable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.pyhltable td{vertical-align:top;padding-top:0;padding-bottom:0}
+table.pyhltable td.code{padding-left:.75em;padding-right:0}
+pre.pygments .lineno,table.pyhltable td:not(.code){color:#999;padding-left:0;padding-right:.5em;border-right:1px solid #ddddd8}
+pre.pygments .lineno{display:inline-block;margin-right:.25em}
+table.pyhltable .linenodiv{background:none!important;padding-right:0!important}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock blockquote p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote:before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.5em;margin-right:.5ex;text-align:right}
+.quoteblock .quoteblock{margin-left:0;margin-right:0;padding:.5em 0;border-left:3px solid rgba(0,0,0,.6)}
+.quoteblock .quoteblock blockquote{padding:0 0 0 .75em}
+.quoteblock .quoteblock blockquote:before{display:none}
+.verseblock{margin:0 1em 1.25em 1em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.05em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract{margin:0 0 1.25em 0;display:block}
+.quoteblock.abstract blockquote,.quoteblock.abstract blockquote p{text-align:left;word-spacing:0}
+.quoteblock.abstract blockquote:before,.quoteblock.abstract blockquote p:first-of-type:before{display:none}
+table.tableblock{max-width:100%;border-collapse:separate}
+table.tableblock td>.paragraph:last-child p>p:last-child,table.tableblock th>p:last-child,table.tableblock td>p:last-child{margin-bottom:0}
+table.spread{width:100%}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all th.tableblock,table.grid-all td.tableblock{border-width:0 1px 1px 0}
+table.grid-all tfoot>tr>th.tableblock,table.grid-all tfoot>tr>td.tableblock{border-width:1px 1px 0 0}
+table.grid-cols th.tableblock,table.grid-cols td.tableblock{border-width:0 1px 0 0}
+table.grid-all *>tr>.tableblock:last-child,table.grid-cols *>tr>.tableblock:last-child{border-right-width:0}
+table.grid-rows th.tableblock,table.grid-rows td.tableblock{border-width:0 0 1px 0}
+table.grid-all tbody>tr:last-child>th.tableblock,table.grid-all tbody>tr:last-child>td.tableblock,table.grid-all thead:last-child>tr>th.tableblock,table.grid-rows tbody>tr:last-child>th.tableblock,table.grid-rows tbody>tr:last-child>td.tableblock,table.grid-rows thead:last-child>tr>th.tableblock{border-bottom-width:0}
+table.grid-rows tfoot>tr>th.tableblock,table.grid-rows tfoot>tr>td.tableblock{border-width:1px 0 0 0}
+table.frame-all{border-width:1px}
+table.frame-sides{border-width:0 1px}
+table.frame-topbot{border-width:1px 0}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{display:table-cell;line-height:1.6;background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+td>div.verse{white-space:pre}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+ol>li p,ul>li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.unstyled,ol.unnumbered,ul.checklist,ul.none{list-style-type:none}
+ul.unstyled,ol.unnumbered,ul.checklist{margin-left:.625em}
+ul.checklist li>p:first-child>.fa-check-square-o:first-child,ul.checklist li>p:first-child>input[type="checkbox"]:first-child{margin-right:.25em}
+ul.checklist li>p:first-child>input[type="checkbox"]:first-child{position:relative;top:1px}
+ul.inline{margin:0 auto .625em auto;margin-left:-1.375em;margin-right:0;padding:0;list-style:none;overflow:hidden}
+ul.inline>li{list-style:none;float:left;margin-left:1.375em;display:block}
+ul.inline>li>*{display:block}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1{padding-right:.75em;font-weight:bold}
+td.hdlist1,td.hdlist2{vertical-align:top}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist>table tr>td:first-of-type{padding:0 .75em;line-height:1}
+.colist>table tr>td:last-of-type{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:solid 4px #fff;-webkit-box-shadow:0 0 0 1px #ddd;box-shadow:0 0 0 1px #ddd}
+.imageblock.left,.imageblock[style*="float: left"]{margin:.25em .625em 1.25em 0}
+.imageblock.right,.imageblock[style*="float: right"]{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none}
+span.footnote,span.footnoteref{vertical-align:super;font-size:.875em}
+span.footnote a,span.footnoteref a{text-decoration:none}
+span.footnote a:active,span.footnoteref a:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em 0;border-width:1px 0 0 0}
+#footnotes .footnote{padding:0 .375em;line-height:1.3;font-size:.875em;margin-left:1.2em;text-indent:-1.2em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+.gist .file-data>table{border:0;background:#fff;width:100%;margin-bottom:0}
+.gist .file-data>table td.line-data{width:99%}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background-color:#00fafa}
+.black{color:#000}
+.black-background{background-color:#000}
+.blue{color:#0000bf}
+.blue-background{background-color:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background-color:#fa00fa}
+.gray{color:#606060}
+.gray-background{background-color:#7d7d7d}
+.green{color:#006000}
+.green-background{background-color:#007d00}
+.lime{color:#00bf00}
+.lime-background{background-color:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background-color:#7d0000}
+.navy{color:#000060}
+.navy-background{background-color:#00007d}
+.olive{color:#606000}
+.olive-background{background-color:#7d7d00}
+.purple{color:#600060}
+.purple-background{background-color:#7d007d}
+.red{color:#bf0000}
+.red-background{background-color:#fa0000}
+.silver{color:#909090}
+.silver-background{background-color:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background-color:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background-color:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background-color:#fafa00}
+span.icon>.fa{cursor:default}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note:before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip:before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning:before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution:before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important:before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background-color:rgba(0,0,0,.8);-webkit-border-radius:100px;border-radius:100px;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]:after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+h1,h2{letter-spacing:-.01em}
+dt,th.tableblock,td.content{text-rendering:optimizeLegibility}
+p,td.content{letter-spacing:-.01em}
+p strong,td.content strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background-color:#fffef7;border-color:#e0e0dc;-webkit-box-shadow:0 1px 4px #e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@media print{@page{margin:1.25cm .75cm}
+*{-webkit-box-shadow:none!important;box-shadow:none!important;text-shadow:none!important}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare):after,a[href^="https:"]:not(.bare):after,a[href^="mailto:"]:not(.bare):after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]:after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img{page-break-inside:avoid}
+thead{display:table-header-group}
+img{max-width:100%!important}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #ddddd8!important;padding-bottom:0!important}
+.sect1{padding-bottom:0!important}
+.sect1+.sect1{border:0!important}
+#header>h1:first-child{margin-top:1.25rem}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em 0}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span:before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]:before{display:block}
+#footer{background:none!important;padding:0 .9375em}
+#footer-text{color:rgba(0,0,0,.6)!important;font-size:.9em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  }
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.4.0/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<h1>User guide to chi analysis</h1>
+<div class="details">
+<span id="author" class="author">Simon M. Mudd, School of GeoSciences, University of Edinburgh</span><br>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_preface_by_simon_mudd">Preface by Simon Mudd</a></li>
+<li><a href="#_introduction">1. Introduction</a>
+<ul class="sectlevel2">
+<li><a href="#_background">1.1. Background</a>
+<ul class="sectlevel3">
+<li><a href="#_channel_incision_and_geometry">1.1.1. Channel incision and geometry</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#_getting_the_software">2. Getting the software</a>
+<ul class="sectlevel2">
+<li><a href="#_starting_up_on_your_own_linux_machine">2.1. Starting up on your own Linux machine</a></li>
+<li><a href="#_starting_up_on_a_non_linux_operating_system_windows_macos">2.2. Starting up on a non-Linux operating system (Windows, MacOS)</a></li>
+<li><a href="#_troubleshooting_a_vagrant_server">2.3. Troubleshooting a vagrant server</a></li>
+<li><a href="#_installing_the_code_and_setting_up_directories">2.4. Installing the code and setting up directories</a></li>
+</ul>
+</li>
+<li><a href="#_preparing_your_data">3. Preparing your data.</a></li>
+<li><a href="#_running_the_chi_analysis">4. Running the chi analysis</a>
+<ul class="sectlevel2">
+<li><a href="#_the_parameter_file">4.1. The parameter file</a></li>
+<li><a href="#_parameter_file_options">4.2. Parameter file options</a>
+<ul class="sectlevel3">
+<li><a href="#_example_parameter_file">4.2.1. Example parameter file</a></li>
+<li><a href="#_output_data_formats">4.2.2. Output data formats</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#_visualisation">5. Visualisation</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_preface_by_simon_mudd">Preface by Simon Mudd</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This is the documentation for the chi analysis tool. It is the second generation of the software reported in Mudd et al. 2014. Right now there is not very much documentation but that will change in the near future.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_introduction">1. Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section explains the theory behind analysis of channels using both slope-area analysis and chi analysis. If you just want to run the software skip ahead to the section <a href="#_getting_the_software">Getting the software</a>.</p>
+</div>
+<div class="sect2">
+<h3 id="_background">1.1. Background</h3>
+<div class="paragraph">
+<p>In the late 1800s, <a href="https://en.wikipedia.org/wiki/Grove_Karl_Gilbert">G.K. Gilbert</a> proposed that bedrock channel incision should be proportional to topographic gradients and the amount of water flowing in a channel.</p>
+</div>
+<div class="quoteblock">
+<div class="title">From <a href="https://pubs.er.usgs.gov/publication/70039916">The USGS report on the Geology of the Henry Mountains</a></div>
+<blockquote>
+We have already seen that erosion is favored by declivity. Where the declivity is great the agents of erosion are powerful; where it is small they are weak; where there is no declivity they are powerless. Moreover it has been shown that their power increases with the declivity in more than simple ratio.
+</blockquote>
+<div class="attribution">
+&#8212; G.K. Gilbert<br>
+<cite>Geology of the Henry Mountains 1877</cite>
+</div>
+</div>
+<div class="paragraph">
+<p>Since then, many geomorpholgists have attempted to extract information about erosion rates from channel profiles.
+Chi analysis is a method of extracting information from channel profiles that attempts to compare channels with different discharges first proposed by Leigh Royden and colleagues at MIT.
+<a href="https://lsdtopotools.github.io/">LSDTopoTools</a> has a number of tools for performing chi analysis.</p>
+</div>
+<div class="paragraph">
+<p>This document gives instructions on how to use the segment fitting tool for channel profile analysis
+developed by the Land Surface Dynamics group at the University of Edinburgh.
+The tool is used to examine the geometry of channels using the integral method of channel profile analysis.
+For background to the method, and a description of the algorithms, we refer the reader to
+<a href="http://www.http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al. (2014)</a>.
+For background into the strengths of the integral method of channel profile analysis,
+the user should read <a href="http://mit.edu/perron/www/files/PerronRoyden13.pdf">Perron and Royden (2013, ESPL)</a>.</p>
+</div>
+<div class="sect3">
+<h4 id="_channel_incision_and_geometry">1.1.1. Channel incision and geometry</h4>
+<div class="paragraph">
+<p>Following observations made by early workers such as Gilbert, later workers proposed models to explain erosion rates in channels. Many of these models state that erosion rate is proportional to both topographic slope and to discharge. The relasionship to discharge is related to a number of factors, including how likeley the river is to pluck material from the bed, and how much sediment it can carry. Bedload can damage the bed and thus bedload particles can act as "tools" to erode the bed. A number of formulations to capture this behaviour have been proposed (e.g. <a href="http://gsabulletin.gsapubs.org/content/94/6/739">Howard and Kerby, 1983</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/94WR00757/abstract">Howard, 1994</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/1999JB900120/abstract">Whipple and Tucker 1999</a>; [Gasparini and Brandon, 2011]<a href="http://onlinelibrary.wiley.com/doi/10.1029/2009JF001655/abstract" class="bare">http://onlinelibrary.wiley.com/doi/10.1029/2009JF001655/abstract</a>) and these formulations can be generalised into the stream power incision model (SPIM):</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[E = K A^m S^n\]
+</div>
+</div>
+<div class="paragraph">
+<p>where <em>E</em> is the long-term fluvial incision rate, <em>A</em> is the upstream drainage area, <em>S</em> is the channel gradient, <em>K</em> is an erodibility coefficient, which is a measure of the efficiency of the incision process, and <em>m</em> and _n$_are constant exponents.  In order to model landscape evolution, the SPIM is often combined with detachment-limited mass balance, where:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\frac{\partial z}{\partial t} = U - E = U - K A^m \Big(\frac{\partial z}{\partial x_d}\Big)^n\]
+</div>
+</div>
+<div class="paragraph">
+<p>where <em>z</em> is the elevation of the channel bed, <em>t</em> is time, <em>x<sub>d</sub></em> is the distance downstream, and <em>U</em> is the rock uplift rate, equivalent to the rate of baselevel lowering if the baselevel elevation is fixed.</p>
+</div>
+<div class="paragraph">
+<p>In order to examine fluvial response to climatic and tectonic forcing, this differential equation is often rearranged for channel slope, assuming uniform incision rate:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[S = k_{sn} A^{-\theta}\]
+</div>
+</div>
+<div class="paragraph">
+<p>where \(\theta\) = <em>m/n</em>, and represents the concavity of the channel profile, and \(k_{sn} = (E/K)^{\frac{1}{n}}\), and represents the steepness of the profile.  \(\theta\) and <em>k<sub>sn</sub></em> are referred to as the concavity and steepness indices respectively. This relasionship therefore predicts a power-law relationship between slope and drainage area, which is often represented on a logarithmic scale.  The concavity and steepness indices can be extracted from plots of slope against drainage area along a channel, where \(\theta\) is the gradient of a best-fit line through the data, and <em>k<sub>sn</sub></em> is the y-intercept. These slope-area plots have been used by many studies to examine fluvial response to climate, lithology and tectonics (e.g., <a href="http://onlinelibrary.wiley.com/doi/10.1029/WR010i005p00969/abstract">Flint, 1974</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/WR025i009p02037/abstract">Tarbonton et al., 1989</a>; <a href="http://geology.gsapubs.org/content/29/5/415.short">Kirby and Whipple 2001</a>; <a href="http://specialpapers.gsapubs.org/content/398/55.full.pdf">Wobus et al., 2006</a>).</p>
+</div>
+<div class="paragraph">
+<p>However, there are limitations with using these plots of slope against drainage area in order to analyse channel profiles.  Topographic data is inherently noisy, either as a result of fine-scale sediment transport processes, or from processing of the data in the creation of DEMs.  Furthermore, this noise is amplified by the derivation of the topographic surface in order to extract values for channel gradient (<a href="http://onlinelibrary.wiley.com/doi/10.1002/esp.3302/abstract">Perron and Royden, 2013</a>).  This noise leads to significant scatter within the profile trends, potentially obscuring any deviations from the power law signal which may represent changes in process, lithology, climate or uplift.  In order to circumvent these problems, more recent studies have turned to the `integral method' of slope-area analysis, which normalises river profiles for their drainage area, allowing comparison of the steepness of channels across basins of different size. The integral method only requires the extraction of elevation and drainage area along the channel, and is therefore less subject to topographic noise than slope-area analysis.  The technique involves integrating equation the stream power equation along the channel, assuming spatially constant incision equal to uplift (steady-state) and erodibility:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[z(x) = z(x_b) + \Bigg(\frac{E}{K}\Bigg)^{\frac{1}{n}} \int_{x_b}^{x} \frac{dx}{A(x)^{\frac{m}{n}}}\]
+</div>
+</div>
+<div class="paragraph">
+<p>where the integration is performed upstream from baselevel (<em>x<sub>b</sub></em>) to a chosen point on the river channel, <em>x</em>.  The profile is then normalised to a reference drainage area (<em>A<sub>0</sub></em>) to ensure the integrand is dimensionless:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[z(x) = z(x_b) + \Bigg(\frac{U}{K{A_0}^m}\Bigg)^{\frac{1}{n}} \chi\]
+</div>
+</div>
+<div class="paragraph">
+<p>where the longitudinal coordinate \(\chi\) is equal to:</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\chi = \int_{x_b}^{x} \Bigg(\frac{A_0}{A(x)}\Bigg)^{m/n} dx\]
+</div>
+</div>
+<div class="paragraph">
+<p>The longitudinal coordinate \(\chi\) has dimensions of length, and is linearly related to the elevation <em>z(x)</em>.  Therefore, if a channel incises based on the stream power incision model, then its profile should be linear on a plot of elevation against $\chi$ according to equation (). As well as providing a method to test whether channel profiles obey common incision models, \(\chi\)-plots also provide means of testing the appropriate \(\theta\) for a channel (<a href="http://onlinelibrary.wiley.com/doi/10.1002/esp.3302/abstract">Perron and Royden, 2013</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/full">Mudd et al., 2014</a>).  If the integral analysis is performed for all channels within a basin, the correct value of \(\theta\) can be determined by identifying at which value all of the channels are both linear in \(\chi\)-elevation space, and collinear, where main channel and tributaries all collapse onto a single profile.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_getting_the_software">2. Getting the software</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>We have attempted, to the best of our ability, to streamline the process of installing our software on any platform (Windows, Linux, MacOS). You will need to install a bit of software. If you have a decent internect connections this should take under an hour. The main rate limiting step is downloading files: You will need to download ~2Gb of software. This requirement is substantially reduced if you want to install on a a native Linux machine.</p>
+</div>
+<div class="sect2">
+<h3 id="_starting_up_on_your_own_linux_machine">2.1. Starting up on your own Linux machine</h3>
+<div class="paragraph">
+<p>If you work on a Linux operating system we have a python script for installing everything. You will need to be connected to the internet, and have python installed. You can skip ahead to the section <a href="#_installing_the_code_and_setting_up_directories">Installing the code and setting up directories</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_starting_up_on_a_non_linux_operating_system_windows_macos">2.2. Starting up on a non-Linux operating system (Windows, MacOS)</h3>
+<div class="paragraph">
+<p>Below are quick instructions. If you have trouble, follow the link above and then go through the complete instructions.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Quick Instructions for using Vagrant for LSDTopoTools</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Download and install <a href="https://www.virtualbox.org/">virtualbox</a>.</p>
+</li>
+<li>
+<p>Download and install <a href="https://www.vagrantup.com/">vagrant</a>. You might have to restart your computer after this.</p>
+</li>
+<li>
+<p>If you are on Windows, download <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">putty.exe</a>. If you are on Linux or MacOS you can skip this (they have built-in equivalents).</p>
+</li>
+<li>
+<p>Make a directory for your vagrant box. We tend to put ours in a directory called <code>VagrantBoxes</code>.</p>
+</li>
+<li>
+<p>Inside that directory make two new directories: <code>LSDTopoTools</code> and <code>Ubuntu</code>. The second directory&#8217;s name doesn&#8217;t matter, it is just for holding a vagrant file (see below). However you <strong>MUST</strong> have the <code>LSDTopoTools</code> directory. The directory name is <strong>case sensitive</strong>!</p>
+</li>
+<li>
+<p>Download one of our vagrantfiles: <a href="https://github.com/LSDtopotools/LSDTT_vagrantfiles" class="bare">https://github.com/LSDtopotools/LSDTT_vagrantfiles</a> into the <code>Ubuntu</code> directory (again, the name of the directory doesn&#8217;t matter).</p>
+</li>
+<li>
+<p>Rename the vagrantfile from the repo (either <code>Vagrantfile_32bit_FFTW</code> or <code>Vagrantfile_64bit_FFTW</code>) simply <code>vagrantfile</code>. Your operating system is almost certainly 64 bit, but on most computers you need to select 32 bit because the default setting is to disable 64 bit guest operating systems. This can be changed but only by expert users.</p>
+</li>
+<li>
+<p>Open a terminal or powershell window and navigate to the directory with the vagrantfile.</p>
+</li>
+<li>
+<p>Run <code>vagrant up</code> from the command line.</p>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+If you are running <code>vagrant up</code> for the first time it can take some time to download the <a href="https://www.vagrantup.com/docs/getting-started/boxes.html">base box</a>. They are several hundred Mb each!
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Run <code>vagrant provision</code> after the box has started.</p>
+</li>
+<li>
+<p>If on Windows, you should now be able to use <code>putty.exe</code> to ssh into your LSDTopoTools server. The host name is almost always <code>127.0.0.1</code> and the port is almost always <code>2222</code>.</p>
+</li>
+<li>
+<p>On Windows, you will need to give a username and password after connecting using <code>putty.exe</code>. The machine is running locally on your computer so nothing is being sent over the internet. The username is always <code>vagrant</code>  and the password is also <code>vagrant</code>.</p>
+</li>
+<li>
+<p>If you are on MacOS or Linux you do not need <code>putty.exe</code>; all you need to do is type <code>vagrant ssh</code> into the command line. See the <a href="https://www.vagrantup.com/docs/getting-started/up.html">vagrant instructions</a>.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_troubleshooting_a_vagrant_server">2.3. Troubleshooting a vagrant server</h3>
+<div class="paragraph">
+<p>There are a few common problems people have when running a vagrant server.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If you are on an old computer, sometimes vagrant times out before the virtual machine boots. This most frequently happens the first time you boot a vagrant machine. The most effective way to fix this is with the canonical IT solution: turning it off and on again. To do that run <code>vagrant halt</code> and <code>vagrant up</code> in succession.</p>
+</li>
+<li>
+<p>If vagrant hangs up in the powershell or terminal window and does not give you back the command prompt, turn it off and on again by typing ctrl-c and then running the vagrant command again.</p>
+</li>
+<li>
+<p>If your files are not synching across your host and vagrant machine, it is probably because there is some misspelling in your <code>LSDTopoTools</code> folder on the host machine. Make sure that folder is in the correct place and is spelled correctly (remember it should be case sensitive!!).</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_installing_the_code_and_setting_up_directories">2.4. Installing the code and setting up directories</h3>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Easy setup quick start</div>
+<div class="paragraph">
+<p>If you just want to get started with the standard setup without any details, do the following:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Go into a Linux terminal. If you are on your own computer and it is not Linux, you will need to start a Vagrant session. You will need <a href="https://www.python.org/">python</a> but this is now standard on most Linux distributions so we will assume you have it.</p>
+</li>
+<li>
+<p>If you used our vagrantfile the setup tool will already be on your vagrant box. It is sitting in the LSDTopoTools directory. You can go there with <code>cd /LSDTopoTools</code>.</p>
+</li>
+<li>
+<p>If you are on your own linux machine you can get the setuptool with:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>$ wget https://raw.githubusercontent.com/LSDtopotools/LSDAutomation/master/LSDTopoToolsSetup.py</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Run the setup tool:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">$ python LSDTopoToolsSetup.py -id 0 -MChi True</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>You are ready to go!!</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<strong>For native Linux users</strong>: The <code>-id</code> flag tells LSDTopoToolsSetup.py where to put the files. In vagrant it always starts in the root directory (this is for file syncing purposes). However, if your native operating system is Linux, then you can either install in your home directory (<code>-id 0</code>) or in the directory where you called LSDTopoToolsSetup.py (<code>-id 1</code>).
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The first thing you need to do is get our python program <strong>LSDTopoToolsSetUp.py</strong>. It lives here: <a href="https://github.com/LSDtopotools/LSDAutomation/blob/master/LSDTopoToolsSetup.py" class="bare">https://github.com/LSDtopotools/LSDAutomation/blob/master/LSDTopoToolsSetup.py</a></p>
+<div class="paragraph">
+<p>You will need to run this file in your Linux environment, so in a terminal window type:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>$ wget https://raw.githubusercontent.com/LSDtopotools/LSDAutomation/master/LSDTopoToolsSetup.py</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If <code>wget</code> doesn&#8217;t work, you can follow the link:
+<a href="https://raw.githubusercontent.com/LSDtopotools/LSDAutomation/master/LSDTopoToolsSetup.py" class="bare">https://raw.githubusercontent.com/LSDtopotools/LSDAutomation/master/LSDTopoToolsSetup.py</a><br>
+Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetup.py</code>.
+</td>
+</tr>
+</table>
+</div>
+</li>
+<li>
+<p>Now, in your terminal window run this script. It has some options:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>For the most basic setup, type:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">$ python LSDTopoToolsSetup.py -id 0  -MChi True</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In our Vagrant setup, this will install everything in the root directory (you can got there with <code>$ cd /</code>),  which is the default setup generated by our <a href="https://github.com/LSDtopotools/LSDTT_vagrantfiles">Vagrantfile</a>. If you are not in vagrant the <strong>LSDTopoTools</strong> directories will be in your home directory (you can get there with <code>$ cd ~</code>).</p>
+</div>
+</li>
+<li>
+<p>If you don&#8217;t want <strong>LSDTopoTools</strong> in your home directory, you can install it in your current directory with:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">$ python LSDTopoToolsSetup.py -id 1 -MChi True</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>It turns out the <code>LSDTopoToolsSetup.py</code> tool has a number of options but we will explain these later. If you want a preview of what it does, you can call its help options:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">$ python LSDTopoToolsSetup.py -h</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_preparing_your_data">3. Preparing your data.</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Use GDAL. And also DEM_preprocessing. They are both great.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_running_the_chi_analysis">4. Running the chi analysis</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The chi analysis, and a host of other analyses, are run using the <strong>chi_mapping_tool.exe</strong> program. If you followed the instructions in the section <a href="#_getting_the_software">Getting the software</a> you will already have this program compiled.</p>
+</div>
+<div class="paragraph">
+<p>The program <strong>chi_mapping_tool.exe</strong> runs with two inputs when you call the program:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The path to the parameter file. This <strong>MUST</strong> inclde the trailing slash (i.e., <code>/LSDTopoTools/Topographic_projects/Test_data</code> is incorrect whereas <code>/LSDTopoTools/Topographic_projects/Test_data/</code> is correct).</p>
+</li>
+<li>
+<p>The name of the parameter file.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>So if the parameter file is located at <code>/LSDTopoTools/Topographic_projects/Test_data</code> and it is called <code>test_chi_map.param</code>, you run the program with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">$ ./chi_mapping_tool.exe /LSDTopoTools/Topographic_projects/Test_data test_chi_map.param</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As we will see momentarily, the data an the parameter file can be in different locations, although in general it might be sensible to place the parameter file in the sample directory as the data.</p>
+</div>
+<div class="paragraph">
+<p>The code is run using a parameter file, within which users can set the data they want to print to file. Regardless of which data they choose to print to file, a file will be printed with the extension <code>_Input.param</code> which prints out all the parameters used in the analysis (including the default parameters). This file can be used to verify if the correct parameters have been used in the analysis.</p>
+</div>
+<div class="sect2">
+<h3 id="_the_parameter_file">4.1. The parameter file</h3>
+<div class="paragraph">
+<p>The parameter file has keywords followed by a value. The format of this file is similar to the files used in the <code>LSDTT_analysis_from_paramfile</code> program, which you can read about in the section <a href="#Running your first analysis">[Running your first analysis]</a>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The parameter file has a specific format, but the filename can be anything you want. We tend to use the extensions <code>.param</code> and <code>.driver</code> for these files, but you could use the extension <code>.MyDogSpot</code> if that tickled your fancy.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The parameter file has keywords followed by the <code>:</code> character. After that there is a space and the value.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Chi mapping parameter file format</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Lines beginning with <code>#</code> are comments.</p>
+</li>
+<li>
+<p>Keywords or phrases are followed by a colon (<code>:</code>).</p>
+</li>
+<li>
+<p>The order of the keywords do not matter.</p>
+</li>
+<li>
+<p>Keywords are not sensitive, but must match expected keywords.</p>
+</li>
+<li>
+<p>If a keyword is not found, a default value is assigned.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_parameter_file_options">4.2. Parameter file options</h3>
+<div class="paragraph">
+<p>Below are options for the parameter files. Note that all DEMs must be in ENVI <code>bil</code> format (<strong>DO NOT</strong> use ArcMap&#8217;s bil format: these are two different things. See the section <a href="#What data does LSDTopoToolbox take?">[What data does LSDTopoToolbox take?]</a> if you want more details).
+The reason we use <code>bil</code> format is because it retains georeferencing which is essential to our file output since many of the files output to <code>csv</code> format with latitude and longitude as coordinates.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 1. File input and output options. <strong>These do not have defaults and MUST be declared</strong>.</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Keyword</th>
+<th class="tableblock halign-left valign-top">Input type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">write path</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The path to which data is written. <strong>The code will NOT create a path: you need to make the write path before you start running the program.</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">read path</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The path from which data is read.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">write fname</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The prefix of rasters to be written <strong>without extension</strong>.
+For example if this is <code>Test</code> and you have selected <code>bil</code> format then a fill operation will result in a file called <code>Test_Fill.bil</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">read fname</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The filename of the raster to be read without extension. For example if the raster is <code>MyRaster.bil</code>, read fname will be <code>MyRaster</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">channel heads fname</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The filename of a channel heads file. You can import channel heads. If this is set to <code>NULL</code> then the channels will be calculated using a pixel threshold.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 2. DEM preprocessing. These just help you clean data and perform very basic operations.</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Keyword</th>
+<th class="tableblock halign-left valign-top">Input type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">minimum_elevation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If you have the <code>remove_seas</code> keyword set to true, the program will change any elevation node below this value to NoData.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">maximum_elevation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">30000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If you have the <code>remove_seas</code> keyword set to true, the program will change any elevation node above this value to NoData.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">remove_seas</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, this changes extreme value in the elevation to NoData.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">min_slope_for_fill</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.001</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The minimum slope between pixels for use in the fill function.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">raster_is_filled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, the code assumes the raster is already filled and doesn&#8217;t perform the filling routine. This should save some time in computation, but make sure the raster really is filled or else you will get segmentation faults!</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">only_check_parameters</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, this checks parameter values but doesn&#8217;t run any analyses. Mainly used to see if raster files exist.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 3. Options for determining which channels and basins to analyse, including settings for the fill function.</caption>
+<colgroup>
+<col style="width: 16%;">
+<col style="width: 16%;">
+<col style="width: 16%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Keyword</th>
+<th class="tableblock halign-left valign-top">Input type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">threshold_contributing_pixels</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The number of pixes required to generate a channel (i.e., the source threshold).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">minimum_basin_size_pixels</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The minimum number of pixels in a basin for it to be retained. This operation works on the baselevel basins: subbasins within a large basin are retained.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">test_drainage_boundaries</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool (true or 1 will work)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A boolean that, if set to true, will eliminate basins with pixels drainage from the edge. This is to get rid of basins that may be truncated by the edge of the DEM (and thus will have incorrect chi values).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">only_take_largest_basin</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool (true or 1 will work)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If this is true, a chi map is created based only upon the largest basin in the raster.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 4. Basic printing operations. For simple rasters and network data that doesn&#8217;t require chi analysis.</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Keyword</th>
+<th class="tableblock halign-left valign-top">Input type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">convert_csv_to_geojson</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, this converts any csv file (except for slope-area data) to geojson format. This format takes up much more space than csv (file sizes can be 10x larger) but is georeferenced and can be loaded directly into a GIS. Also useful for webmapping. It assumes your raster is in UTM coordinates, and prints points with latitude and longitude in WGS84.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_stream_order_raster</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints the stream order raster (but printing this to csv is more efficient, use <code>print_channels_to_csv</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_channels_to_csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prints the channel network to a csv file. Includes stream order and other useful information. Much more memory efficient than printing the whole raster.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_junction_index_raster</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints the junction index raster (but printing this to csv is more efficient, use <code>print_junctions_to_csv</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_junctions_to_csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prints the junction indices to a csv file. Much more memory efficient than printing the whole raster.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_fill_raster</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints the fill raster.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_DrainageArea_raster</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints the drainage area raster (units are m<sup>2</sup>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">write hillshade</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints the hillshade raster. The format of this is stupidly different from other printing calls for a stupid inheretance reason. Try to ignore. Most GIS routines have a hillshading options but for some reason they look crappier than our in-house hillshading. I&#8217;m not sure why but if you want a hillshade I recommend using this function.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 5. Parameters for calculating the chi coordinate.</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Keyword</th>
+<th class="tableblock halign-left valign-top">Input type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A_0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The <strong>A<sub>0</sub></strong> parameter (which nondimensionalises area) for chi analysis. This is in m<sup>2</sup>. Note that when <strong>A_0</strong> = 1 then the slope in chi space is the same as the channel steepness index (often denoted by <strong>k<sub>s</sub></strong>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">m_over_n</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The <strong>m/n</strong> paramater (sometimes known as the concavity index) for calculating chi. Note that if you do any <em>m/n</em> analysis (either <code>calculate_MLE_collinearity</code> or <code>print_profiles_fxn_movern_csv</code>) this <em>m/n</em> value will be replaced.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">threshold_pixels_for_chi</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">For most calculations in the <strong>chi_mapping_tool</strong> chi is calcualted everywhere, but for some printing operations, such as printing of basic chi maps (<code>print_simple_chi_map_with_basins_to_csv</code>, <code>print_chi_coordinate_raster</code>, <code>print_simple_chi_map_to_csv</code>) you don&#8217;t want chi everywhere (this is especially true when writing a simple csv file) so we have this parameter that sets chi to NoData below these threshold contributing pixels. If this is greater than <code>threshold_contributing_pixels</code> it will default to <code>threshold_contributing_pixels</code>.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 6. Parameters for trying to constrain the <em>m/n</em> ratio, including slope-area analysis.</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Keyword</th>
+<th class="tableblock halign-left valign-top">Input type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">start_movern</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">In several of the <em>m/n</em> testing functions, the program starts at this <em>m/n</em> value and then iterates through a number of increasing <em>m/n</em> values, calculating the goodness of fit to each one.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">delta_movern</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">In several of the <em>m/n</em> testing functions, the program increments <em>m/n</em> by this value.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">n_movern</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">In several of the <em>m/n</em> testing functions, the program increments <em>m/n</em> this number of times.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SA_vertical_interval</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">20</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This parameter is used for slope-area analysis. Each channel is traced downslope. A slope (or gradient) is caluclated by dividing the fall in the channel elevation over the flow distance; the program aims to calcualte the slope at as near to a fixed vertical interval as possible following advice of Wobus et al 2006.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">log_A_bin_width</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This is for slope-area analysis. The raw slope-area data is always a horrendus mess. To get something that is remotely sensible you must bin the data. We bin the data in bins of the logarithm of the Area in metres^2. This is the log bin width.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_slope_area_data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This prints the slope-area analysis to a csv file. It includes the raw data and binned data. It is organised by both source and basin so you analyise different channels. See the section on outputs for full details.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 7. Parameters for calculating the segments of similar chi slope (\(M_{\chi}\)). More details on the use of these parameters can be found in <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al., JGR-ES 2014</a>.</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Keyword</th>
+<th class="tableblock halign-left valign-top">Input type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">n_iterations</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">20</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The number of iterterations of random sampling of the data to construct segments. The sampling probability of individual nodes is determined by the skip parameter. Note that if you want to get a deterministic sampling of the segments you need to set this to 1 and set <code>skip</code> to 0. If you are using Monte Carlo sampling you should set this to at least 20 (but probably not more than 100).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">target_nodes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">80</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The number of nodes in a segment finding routine. Channels are broken into subdomains of aroung this length and then segmenting occurs on these subdomains. This limit is required because of the computational expense of segmentation, which goes as the factorial (!!!) of the number of nodes. Select between 80-120. A higher number here will take <strong>much</strong> longer to compute.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">minimum_segment_length</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The minimum length of a segment in sampled data nodes. The actual length is approxamately this parameter times (1+skip). Note that the computational time required goes nonlinearly up the smaller this number. Note that this sets the shortest knickzone you can detect, although the algorithm can detect waterfalls where there is a jump between segments.  It should be between 6-20.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">skip</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">During Monte Carlo sampling of the channel network, nodes are sampled by skipping nodes after a sampled node. The skip value is the mean number of skipped nodes after each sampled node. For example, if skip = 1, on average every other node will be sampled. Skip of 0 means every node is sampled (in which case the n_iterations should be set to 1, because there will be no variation in the fit between iterations). If you want Monte Carlo sampling, set between 1 and 4.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">sigma</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This represents the variability in elevation data (if the DEM has elevation in metres, then this parameter will be in metres). It should include both uncertainty in the elevation data as well as the geomorphic variability: the size of roughness elements, steps, boulders etc in the channel that may lead to a channel profile diverging from a smooth long profile. That is, it is not simply a function of the uncertainty of the DEM, but also a funciton of topographic roughness so will be greater than the DEM uncertainty.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">basic_Mchi_regression_nodes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This works with the basic chi map: segments are not calculated. Instead, a moving window, with a length set by this parameter, is moved over the channel nodes to calculate the chi slope. This method is very similar to methods used to calculate normalised channel steepness (<em>k<sub>sn</sub></em>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">n_nodes_to_visit</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The chi map starts with the longest channel in each basin and then works in tributaries in sequence. This parameter determines how many nodes onto a receiver channel you want to go when calculating the chi slope at the bottom of a tributary.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 8. Keywords for setting which analyses to be preformed and which files to print. <strong>These are all booleans!</strong> **Defaults are all false so these parameters must be set to true to perform analyses and print to file.</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Input type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_stream_order_raster</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a raster of the stream orders.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_junction_index_raster</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a raster with the junction indices.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_fill_raster</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a filled raster</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print DrainageArea_raster</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a raster of the draiange area in m<sup>2</sup>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_chi_coordinate_raster</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a raster with the chi coordinate (in m). Note that if you want to control the size of the data symbols in a visualisation, you should select the <code>print_simple_chi_map_to_csv</code> option.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_simple_chi_map_to_csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file with latitude, longitude and the chi coordinate. Can be converted to a shapefile or GeoJSON with our python mapping scripts. This options gives more flexibility in visualisation than the raster, since in the raster data points will only render as one pixel.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_simple_chi_map_to_csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file with latitude, longitude and the chi coordinate. Can be converted to a shapefile or GeoJSON with our python mapping scripts. This options gives more flexibility in visualisation than the raster, since in the raster data points will only render as one pixel.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_segmented_M_chi_map_to_csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file with latitude, longitude and a host of chi information including the chi slope, chi intercept, drainage area, chi coordinate and other features of the drainage network. The \(M_{\chi}\) values are calculated with the segmentation algorithm of <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al. 2014</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_basic_M_chi_map_to_csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file with latitude, longitude and a host of chi information including the chi slope, chi intercept, drainage area, chi coordinate and other features of the drainage network. The \(M_{\chi}\) values are calculated with a rudimentary smoothing window that has a size determined by the parameter <code>basic_Mchi_regression_nodes</code>.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 9. Parameters for dealing with precipitation and discharge. These allow the user to drive chi with drischarge rather than drainage area. It is somewhat rudimentary at the moment in that it  assumes the rainfall rate in length per time is translated into some constant discharge.</caption>
+<colgroup>
+<col style="width: 16%;">
+<col style="width: 16%;">
+<col style="width: 16%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Keyword</th>
+<th class="tableblock halign-left valign-top">Input type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">precipitation_fname</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NULL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This is the name (without path or extension) of the precipitation file. There is not much error checking with this file! You <strong>MUST</strong> pass a file that is the same size as the topography raster!</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">use_precipitation_raster_for_chi</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">When true, the program will use precipitation to generate a discharge raster and this will be used to calculate chi, rather than drainage area.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="sect3">
+<h4 id="_example_parameter_file">4.2.1. Example parameter file</h4>
+<div class="paragraph">
+<p>Below is an exaple parameter file. This file is included in the repository along with the driver functions.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-paramfile" data-lang="paramfile"># Parameters for performing chi analysis
+# Comments are preceeded by the hash symbol
+# Documentation can be found here:
+# http://lsdtopotools.github.io/LSDTT_book/#_chi_analysis_part_3_getting_chi_gradients_for_the_entire_landscape
+
+# These are parameters for the file i/o
+# IMPORTANT: You MUST make the write directory: the code will not work if it doens't exist.
+read path: /LSDTopoTools/Topographic_projects/Test_data
+write path: /LSDTopoTools/Topographic_projects/Test_data
+read fname: Mandakini
+channel heads fname: NULL
+
+# Parameter for filling the DEM
+min_slope_for_fill: 0.0001
+
+# Parameters for selecting channels and basins
+
+threshold_contributing_pixels: 200000
+minimum_basin_size_pixels: 50000
+test_drainage_boundaries: false
+
+# Parameters for chi analysis
+A_0: 1000
+m_over_n: 0.45
+threshold_pixels_for_chi: 20000
+
+n_iterations: 20
+target_nodes: 80
+minimum_segment_length: 10
+sigma: 10.0
+skip: 2
+
+# The data that you want printed to file
+only_check_parameters: true
+print_stream_order_raster: false
+print_DrainageArea_raster: false
+print_segmented_M_chi_map_to_csv: true</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_output_data_formats">4.2.2. Output data formats</h4>
+<div class="paragraph">
+<p>Data is written to either rasters or csv files. The rasters are all in <code>bil</code> format, which you can read about in the section: <a href="#What data does LSDTopoToolbox take?">[What data does LSDTopoToolbox take?]</a></p>
+</div>
+<div class="paragraph">
+<p>The <strong>csv</strong> files are comma seperated value files which can be read by spreadsheets and GIS software.
+These files all have labeled columns so their contents can be easily views.
+All of the files contain <strong>latitude</strong> and <strong>longitude</strong> columns. These columns are projected into the <strong>WGS84</strong> coordinate system for ease of plotting in GIS software.</p>
+</div>
+<div class="sect4">
+<h5 id="_viewing_data_and_converting_to_gis_ready_formats">Viewing data and converting to GIS ready formats</h5>
+<div class="paragraph">
+<p>If the user has opted to print data in <code>csv</code> format, they can use our visualisation tools to convert the data into GIS-ready formats.</p>
+</div>
+<div class="paragraph">
+<p>Users should first clone the <a href="https://github.com/LSDtopotools/LSDMappingTools">mapping tools respoitory</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">$ git clone https://github.com/LSDtopotools/LSDMappingTools.git</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In this repository the user needs to get a helping script called <code>LSDOSystemTools.py</code>. You can fetch this script using the <code>wget</code> tool:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">$ wget https://github.com/LSDtopotools/LSDAutomation/raw/master/LSDOSystemTools.py</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The user can then run the script <code>TestMappingToolsPoint.py</code>, activating the <code>TestMappingToolsLassoCSV</code> function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">if __name__ == "__main__":
+    TestMappingToolsLassoCSV()</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>and changing the target directory to the directory storing the csv files:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">def TestMappingToolsLassoCSV():
+    DataDirectory = "C://VagrantBoxes//LSDTopoTools//Topographic_projects//Test_data//"
+    LSDP.ConvertAllCSVToGeoJSON(DataDirectory)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that this is if your run the python script within windows. If you run it within your agrant Linux machine the directory would be:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">def TestMappingToolsLassoCSV():
+    DataDirectory = "/LSDTopoTools/Topographic_projects/Test_data/"
+    LSDP.ConvertAllCSVToGeoJSON(DataDirectory)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can convert all <code>csv</code> files into either shapefiles or GeoJSON files.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">    LSDP.ConvertAllCSVToGeoJSON(DataDirectory)
+    LSDP.ConvertAllCSVToShapefile(DataDirectory)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>These files can then be read by your favourite GIS.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_visualisation">5. Visualisation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>We use python, since it is much better than the alternatives. Don&#8217;t ever use Matlab.</p>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2017-06-05 16:55:19 GMT Daylight Time
+</div>
+</div>
+</body>
+</html>
