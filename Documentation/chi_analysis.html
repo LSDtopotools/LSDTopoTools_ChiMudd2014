@@ -469,12 +469,19 @@ MathJax.Hub.Config({
 <li><a href="#_parameters_for_exploring_the_em_m_n_em_ratio">4.2.6. Parameters for exploring the <em>m/n</em> ratio</a></li>
 <li><a href="#_parameters_for_segmentation_of_channels">4.2.7. Parameters for segmentation of channels</a></li>
 <li><a href="#_printing_of_simple_chi_maps">4.2.8. Printing of simple chi maps</a></li>
-<li><a href="#_chi_maps_with_segmentation_and_basina_dn_channel_selection">4.2.9. Chi maps with segmentation and basina dn channel selection</a></li>
+<li><a href="#_chi_maps_with_segmentation_and_basin_and_channel_selection">4.2.9. Chi maps with segmentation and basin and channel selection</a></li>
 <li><a href="#_parameters_for_dealing_with_discharge_rather_than_drainage_area">4.2.10. Parameters for dealing with discharge rather than drainage area</a></li>
 </ul>
 </li>
 <li><a href="#_example_parameter_file">4.3. Example parameter file</a></li>
 <li><a href="#_output_data_formats">4.4. Output data formats</a></li>
+<li><a href="#_the_different_outputs_and_how_to_get_them">4.5. The different outputs and how to get them</a>
+<ul class="sectlevel3">
+<li><a href="#_raster_output">4.5.1. Raster output</a></li>
+<li><a href="#_point_data_usually_output_as_csv">4.5.2. Point data (usually output as csv)</a></li>
+<li><a href="#_point_data_file_formats">4.5.3. Point data file formats</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#_visualisation">5. Visualisation</a></li>
@@ -881,7 +888,7 @@ You need to convert your rasters to UTM coordinates! If you fail to do this at b
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Navigate to the folder where your data is sitting.</p>
+<p>Navigate to the folder where your data is sitting (in Linux, e.g. within you vagrant Linux session).</p>
 </li>
 <li>
 <p>Call <strong>gdalwarp</strong>:</p>
@@ -1308,13 +1315,13 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">A_0</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The <strong>A<sub>0</sub></strong> parameter (which nondimensionalises area) for chi analysis. This is in m<sup>2</sup>. Note that when <strong>A_0</strong> = 1 then the slope in chi space is the same as the channel steepness index (often denoted by <strong>k<sub>s</sub></strong>).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The <em>A<sub>0</sub></em> parameter (which nondimensionalises area) for chi analysis. This is in m<sup>2</sup>. Note that when <em>A<sub>0</sub></em> = 1 then the slope in chi space is the same as the channel steepness index (often denoted by <em>k<sub>s</sub></em>).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">m_over_n</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.5</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The <strong>m/n</strong> parameter (sometimes known as the concavity index) for calculating chi. Note that if you do any <em>m/n</em> analysis (either <code>calculate_MLE_collinearity</code> or <code>print_profiles_fxn_movern_csv</code>) this <em>m/n</em> value will be replaced.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The <em>m/n</em> parameter (sometimes known as the concavity index) for calculating chi. Note that if you do any <em>m/n</em> analysis (either <code>calculate_MLE_collinearity</code> or <code>print_profiles_fxn_movern_csv</code>) this <em>m/n</em> value will be replaced.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">threshold_pixels_for_chi</p></td>
@@ -1500,7 +1507,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </table>
 </div>
 <div class="sect3">
-<h4 id="_chi_maps_with_segmentation_and_basina_dn_channel_selection">4.2.9. Chi maps with segmentation and basina dn channel selection</h4>
+<h4 id="_chi_maps_with_segmentation_and_basin_and_channel_selection">4.2.9. Chi maps with segmentation and basin and channel selection</h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 9. Options for chi maps and secondary data files that split channels and basins</caption>
 <colgroup>
@@ -1691,6 +1698,164 @@ ENVI bil should not be mistaken for ESRI bil. Make sure you are using ENVI bil f
 </div>
 </li>
 </ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_different_outputs_and_how_to_get_them">4.5. The different outputs and how to get them</h3>
+<div class="paragraph">
+<p>To get the various outputs, you need to tell the <strong>chi mapping tool</strong> using the parameter file. These tables tell you what flags to use and what data you will get.</p>
+</div>
+<div class="sect3">
+<h4 id="_raster_output">4.5.1. Raster output</h4>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 11. These are basic rasters that don&#8217;t require chi analysis.</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">parameter file switch</th>
+<th class="tableblock halign-left valign-top">Filename contains</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">write hillshade: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_hs.bil</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This prints a hillshade raster. Seems yto give better results than hillshade functions in GIS software. Also much faster. Much of our plotting tools make nice looking maps when you drape hillshade over elevation data so we suggest you turn this on the first time you analyse a landscape.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_fill_raster: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_fill.bil</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This prints the fill raster. Filling is computationally expensive so you can do this the first time you run a DEM and then use the <code>raster_is_filled</code> flag later to speed up computation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_DrainageArea_raster: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_DArea.bil</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This prints the drainage area raster. Drainage area is calculated using the <a href="http://www.sciencedirect.com/science/article/pii/S0169555X12004618">Fastscape</a> D8 flow routing algorithm.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_basin_raster: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_AllBasins.bil</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This prints the a basin raster raster. Each basin gets an integer value that is keyed to the baselevel. These correspond to the <code>baselevel_key</code> that appears in csv data files.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_chi_coordinate_raster: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_chi_coord.bil</strong> or <strong>_chi_coordQ.bil</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This prints the chi coordinate. It uses the <em>A<sub>0</sub></em> and <em>m/n</em> values set by the <code>A_0</code> and <code>m_over_n</code> flags in the parameter file (defaults are 1 m<sup>2</sup> and 0.5, respectively). The raster will cacluated chi using drainage area, which results in the <strong>_chi_coord.bil</strong> file, unless the switch <code>use_precipitation_raster_for_chi</code> is set to true, in which case a discharge will be calucalted from a preciptation raster and this discharge will be used to calculate chi, resulting in a <strong>_chi_coordQ.bil</strong> file.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_discharge_raster: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_Q.bil</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If <code>use_precipitation_raster_for_chi</code> is set to true, the discharge will be calculated and printed to a raster. Note that there is no eral hydrology in this calculation: one should think of it as a number representing the relative supply of water along the channel network. "Discharge" is calcualted simply by accumulating the volume of precipitation from each pixel, so precipitation is supplied in m/yr and "discharge" is in m<sup>3</sup>/yr.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_chi_no_discharge: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_chi_coord.bil</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Used only if you have set <code>use_precipitation_raster_for_chi</code> and <code>print_chi_coordinate_raster</code> to true, and you want a chi coordinate raster that is based on drainage area in addition to one based on discharge. Used for comparison purposes, so you can see how big of a change spatially heterogeneous precipitation causes to the chi coordinate.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_point_data_usually_output_as_csv">4.5.2. Point data (usually output as csv)</h4>
+<div class="paragraph">
+<p>The table below gives a brief description of the output files. After the table we show the format for each of these files.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If the <code>convert_csv_to_geojson</code> flag is set to <code>true</code> then the csv data headers will be recast as geojson point attributes.
+</td>
+</tr>
+</table>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 12. Point data avaialbel in csv or geojson format</caption>
+<colgroup>
+<col style="width: 12%;">
+<col style="width: 12%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">parameter file switch</th>
+<th class="tableblock halign-left valign-top">Filename contains</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Data columns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_channels_to_csv: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_CN.csv</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prints the channel network to csv.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>latitude,longitude,Junction Index,Stream Order,NI</em>
+</p><p class="tableblock"><em>NI</em> is the node index (an index into individual pixels in the DEM), and <em>Junction Index</em> is an index into the <code>LSDJunctionNetwork</code> object. Latitude and longitude are in WGS84.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_junctions_to_csv: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_JN.csv</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prints junction numbers to csv.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>junction,node,x,y,latitude,longitude,stream_order</em>
+</p><p class="tableblock"><em>junction</em> is the junction index. Latitude and longitude are in WGS84, whereas <em>x</em> and <em>y</em> are in the local UTM coordinates.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_simple_chi_map_to_csv: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_chi_coord.csv</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prints a very basic chi map.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>latitude,longitude,chi</em>
+</p><p class="tableblock">Latitude and longitude are in WGS84, chi is in metres.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_simple_chi_map_with_basins_to_csv: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_chi_coord_basins.csv</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prints a very basic chi map, but includes the basin.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>latitude,longitude,chi,basin_junction</em>
+</p><p class="tableblock">Latitude and longitude are in WGS84, chi is in metres. The <em>basin_junction</em> refers to the junction number of the baselevel junction for each node. Allows one to plot these profiles by basin.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_simple_chi_map_with_basins_to_csv: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_chi_coord_basins.csv</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prints a very basic chi map, but includes the basin.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>latitude,longitude,chi,basin_junction</em>
+</p><p class="tableblock">Latitude and longitude are in WGS84, chi is in metres. The <em>basin_junction</em> refers to the junction number of the baselevel junction for each node. Allows one to plot these profiles by basin.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_basic_M_chi_map_to_csv: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_MChiBasic.csv</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This is a very rudimentary version of a map of chi slope (if <em>A<sub>0</sub></em> = 1, then this is the same as the channel steepness index). No segmentation is performed, it simply calculates chi slope from smoothed profiles.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>latitude,longitude,chi,elevation,flow distance,drainage area,m_chi,b_chi,source_key,basin_key</em>
+</p><p class="tableblock">Latitude and longitude are in WGS84, chi and flow distance are in metres. Drainage area is in m<sup>2</sup>. <em>M_chi</em> is the slope in chi space, equivalent to <em>k<sub>sn</sub></em> if <em>A<sub>0</sub></em> is set to 1. <em>b_chi</em> is the intercept of the chi segment. The <em>source_key</em> and <em>basin_key</em> are indices into the basins and sources.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_basic_M_chi_map_to_csv: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_MChiSegmented.csv</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This uses segmentation to calculate chi slopes (if <em>A<sub>0</sub></em> = 1, then this is the same as the channel steepness index) following the <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/full">Mudd et al, 2014</a> algorithms.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>latitude,longitude,chi,elevation,flow distance,drainage area,m_chi,b_chi,source_key,basin_key</em>
+</p><p class="tableblock">Latitude and longitude are in WGS84, chi and flow distance are in metres. Drainage area is in m<sup>2</sup>. <em>M_chi</em> is the slope in chi space, equivalent to <em>k<sub>sn</sub></em> if <em>A<sub>0</sub></em> is set to 1. <em>b_chi</em> is the intercept of the chi segment. The <em>source_key</em> and <em>basin_key</em> are indices into the basins and sources.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">check_chi_maps: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_checkchi.csv</strong> and <strong>_checkchiQ.csv</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This is used with the discharge-based chi calculation to compare chi values using discharge (<code>_checkchiQ.csv</code>) vs drainage area (<code>_checkchi.csv</code>).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>latitude,longitude,chi,elevation,flow distance,drainage area,source_key,basin_key</em>
+</p><p class="tableblock">Latitude and longitude are in WGS84, chi and flow distance are in metres. Drainage area is in m<sup>2</sup>. The <em>source_key</em> and <em>basin_key</em> are indices into the basins and sources.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_point_data_file_formats">4.5.3. Point data file formats</h4>
+
 </div>
 </div>
 </div>
