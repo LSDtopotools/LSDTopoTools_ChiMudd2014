@@ -437,11 +437,8 @@ MathJax.Hub.Config({
 <li><a href="#_preface_by_simon_mudd">Preface by Simon Mudd</a></li>
 <li><a href="#_introduction">1. Introduction</a>
 <ul class="sectlevel2">
-<li><a href="#_background">1.1. Background</a>
-<ul class="sectlevel3">
-<li><a href="#_channel_incision_and_geometry">1.1.1. Channel incision and geometry</a></li>
-</ul>
-</li>
+<li><a href="#_background">1.1. Background</a></li>
+<li><a href="#_channel_incision_and_geometry">1.2. Channel incision and geometry</a></li>
 </ul>
 </li>
 <li><a href="#_getting_the_software">2. Getting the software</a>
@@ -452,10 +449,10 @@ MathJax.Hub.Config({
 <li><a href="#_installing_the_code_and_setting_up_directories">2.4. Installing the code and setting up directories</a></li>
 </ul>
 </li>
-<li><a href="#_preparing_your_data">3. Preparing your data.</a>
+<li><a href="#_preparing_your_data">3. Preparing your data</a>
 <ul class="sectlevel2">
 <li><a href="#_get_some_data">3.1. Get some data</a></li>
-<li><a href="#_use_gdal">3.2. Use gdal</a></li>
+<li><a href="#_use_gdal">3.2. Use GDAL</a></li>
 <li><a href="#_stupid_nodata">3.3. Stupid nodata</a></li>
 </ul>
 </li>
@@ -464,10 +461,20 @@ MathJax.Hub.Config({
 <li><a href="#_the_parameter_file">4.1. The parameter file</a></li>
 <li><a href="#_parameter_file_options">4.2. Parameter file options</a>
 <ul class="sectlevel3">
-<li><a href="#_example_parameter_file">4.2.1. Example parameter file</a></li>
-<li><a href="#_output_data_formats">4.2.2. Output data formats</a></li>
+<li><a href="#_basic_file_input_and_output">4.2.1. Basic file input and output</a></li>
+<li><a href="#_dem_preprocessing">4.2.2. DEM preprocessing</a></li>
+<li><a href="#_selecting_channels_and_basins">4.2.3. Selecting channels and basins</a></li>
+<li><a href="#_basic_data_output_before_calculating_chi">4.2.4. Basic data output (before calculating chi)</a></li>
+<li><a href="#_basic_parameters_for_the_chi_coordinate">4.2.5. Basic parameters for the chi coordinate</a></li>
+<li><a href="#_parameters_for_exploring_the_em_m_n_em_ratio">4.2.6. Parameters for exploring the <em>m/n</em> ratio</a></li>
+<li><a href="#_parameters_for_segmentation_of_channels">4.2.7. Parameters for segmentation of channels</a></li>
+<li><a href="#_printing_of_simple_chi_maps">4.2.8. Printing of simple chi maps</a></li>
+<li><a href="#_chi_maps_with_segmentation_and_basina_dn_channel_selection">4.2.9. Chi maps with segmentation and basina dn channel selection</a></li>
+<li><a href="#_parameters_for_dealing_with_discharge_rather_than_drainage_area">4.2.10. Parameters for dealing with discharge rather than drainage area</a></li>
 </ul>
 </li>
+<li><a href="#_example_parameter_file">4.3. Example parameter file</a></li>
+<li><a href="#_output_data_formats">4.4. Output data formats</a></li>
 </ul>
 </li>
 <li><a href="#_visualisation">5. Visualisation</a></li>
@@ -518,10 +525,11 @@ For background to the method, and a description of the algorithms, we refer the 
 For background into the strengths of the integral method of channel profile analysis,
 the user should read <a href="http://mit.edu/perron/www/files/PerronRoyden13.pdf">Perron and Royden (2013, ESPL)</a>.</p>
 </div>
-<div class="sect3">
-<h4 id="_channel_incision_and_geometry">1.1.1. Channel incision and geometry</h4>
+</div>
+<div class="sect2">
+<h3 id="_channel_incision_and_geometry">1.2. Channel incision and geometry</h3>
 <div class="paragraph">
-<p>Following observations made by early workers such as Gilbert, later workers proposed models to explain erosion rates in channels. Many of these models state that erosion rate is proportional to both topographic slope and to discharge. The relasionship to discharge is related to a number of factors, including how likeley the river is to pluck material from the bed, and how much sediment it can carry. Bedload can damage the bed and thus bedload particles can act as "tools" to erode the bed. A number of formulations to capture this behaviour have been proposed (e.g. <a href="http://gsabulletin.gsapubs.org/content/94/6/739">Howard and Kerby, 1983</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/94WR00757/abstract">Howard, 1994</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/1999JB900120/abstract">Whipple and Tucker 1999</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/2009JF001655/abstract">Gasparini and Brandon, 2011</a>) and these formulations can be generalised into the stream power incision model (SPIM):</p>
+<p>Following observations made by early workers such as Gilbert, later workers proposed models to explain erosion rates in channels. Many of these models state that erosion rate is proportional to both topographic slope and to discharge. The relationship to discharge is related to a number of factors, including how likeley the river is to pluck material from the bed, and how much sediment it can carry. Bedload can damage the bed and thus bedload particles can act as "tools" to erode the bed. A number of formulations to capture this behaviour have been proposed (e.g. <a href="http://gsabulletin.gsapubs.org/content/94/6/739">Howard and Kerby, 1983</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/94WR00757/abstract">Howard, 1994</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/1999JB900120/abstract">Whipple and Tucker 1999</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/2009JF001655/abstract">Gasparini and Brandon, 2011</a>) and these formulations can be generalised into the stream power incision model (SPIM):</p>
 </div>
 <div class="stemblock">
 <div class="content">
@@ -548,7 +556,7 @@ the user should read <a href="http://mit.edu/perron/www/files/PerronRoyden13.pdf
 </div>
 </div>
 <div class="paragraph">
-<p>where \(\theta\) = <em>m/n</em>, and represents the concavity of the channel profile, and \(k_{sn} = (E/K)^{\frac{1}{n}}\), and represents the steepness of the profile.  \(\theta\) and <em>k<sub>sn</sub></em> are referred to as the concavity and steepness indices respectively. This relasionship therefore predicts a power-law relationship between slope and drainage area, which is often represented on a logarithmic scale.  The concavity and steepness indices can be extracted from plots of slope against drainage area along a channel, where \(\theta\) is the gradient of a best-fit line through the data, and <em>k<sub>sn</sub></em> is the y-intercept. These slope-area plots have been used by many studies to examine fluvial response to climate, lithology and tectonics (e.g., <a href="http://onlinelibrary.wiley.com/doi/10.1029/WR010i005p00969/abstract">Flint, 1974</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/WR025i009p02037/abstract">Tarbonton et al., 1989</a>; <a href="http://geology.gsapubs.org/content/29/5/415.short">Kirby and Whipple 2001</a>; <a href="http://specialpapers.gsapubs.org/content/398/55.full.pdf">Wobus et al., 2006</a>).</p>
+<p>where \(\theta\) = <em>m/n</em>, and represents the concavity of the channel profile, and \(k_{sn} = (E/K)^{\frac{1}{n}}\), and represents the steepness of the profile.  \(\theta\) and <em>k<sub>sn</sub></em> are referred to as the concavity and steepness indices respectively. This relationship therefore predicts a power-law relationship between slope and drainage area, which is often represented on a logarithmic scale.  The concavity and steepness indices can be extracted from plots of slope against drainage area along a channel, where \(\theta\) is the gradient of a best-fit line through the data, and <em>k<sub>sn</sub></em> is the y-intercept. These slope-area plots have been used by many studies to examine fluvial response to climate, lithology and tectonics (e.g., <a href="http://onlinelibrary.wiley.com/doi/10.1029/WR010i005p00969/abstract">Flint, 1974</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/WR025i009p02037/abstract">Tarbonton et al., 1989</a>; <a href="http://geology.gsapubs.org/content/29/5/415.short">Kirby and Whipple 2001</a>; <a href="http://specialpapers.gsapubs.org/content/398/55.full.pdf">Wobus et al., 2006</a>).</p>
 </div>
 <div class="paragraph">
 <p>However, there are limitations with using these plots of slope against drainage area in order to analyse channel profiles.  Topographic data is inherently noisy, either as a result of fine-scale sediment transport processes, or from processing of the data in the creation of DEMs.  Furthermore, this noise is amplified by the derivation of the topographic surface in order to extract values for channel gradient (<a href="http://onlinelibrary.wiley.com/doi/10.1002/esp.3302/abstract">Perron and Royden, 2013</a>).  This noise leads to significant scatter within the profile trends, potentially obscuring any deviations from the power law signal which may represent changes in process, lithology, climate or uplift.  In order to circumvent these problems, more recent studies have turned to the `integral method' of slope-area analysis, which normalises river profiles for their drainage area, allowing comparison of the steepness of channels across basins of different size. The integral method only requires the extraction of elevation and drainage area along the channel, and is therefore less subject to topographic noise than slope-area analysis.  The technique involves integrating equation the stream power equation along the channel, assuming spatially constant incision equal to uplift (steady-state) and erodibility:</p>
@@ -575,8 +583,7 @@ the user should read <a href="http://mit.edu/perron/www/files/PerronRoyden13.pdf
 </div>
 </div>
 <div class="paragraph">
-<p>The longitudinal coordinate \(\chi\) has dimensions of length, and is linearly related to the elevation <em>z(x)</em>.  Therefore, if a channel incises based on the stream power incision model, then its profile should be linear on a plot of elevation against $\chi$ according to equation (). As well as providing a method to test whether channel profiles obey common incision models, \(\chi\)-plots also provide means of testing the appropriate \(\theta\) for a channel (<a href="http://onlinelibrary.wiley.com/doi/10.1002/esp.3302/abstract">Perron and Royden, 2013</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/full">Mudd et al., 2014</a>).  If the integral analysis is performed for all channels within a basin, the correct value of \(\theta\) can be determined by identifying at which value all of the channels are both linear in \(\chi\)-elevation space, and collinear, where main channel and tributaries all collapse onto a single profile.</p>
-</div>
+<p>The longitudinal coordinate \(\chi\) has dimensions of length, and is linearly related to the elevation <em>z(x)</em>.  Therefore, if a channel incises based on the stream power incision model, then its profile should be linear on a plot of elevation against \(\chi\). As well as providing a method to test whether channel profiles obey common incision models, \(\chi\)-plots also provide means of testing the appropriate \(\theta\) for a channel (<a href="http://onlinelibrary.wiley.com/doi/10.1002/esp.3302/abstract">Perron and Royden, 2013</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/full">Mudd et al., 2014</a>).  If the integral analysis is performed for all channels within a basin, the correct value of \(\theta\) can be determined by identifying at which value all of the channels are both linear in \(\chi\)-elevation space, and collinear, where main channel and tributaries all collapse onto a single profile.</p>
 </div>
 </div>
 </div>
@@ -585,7 +592,7 @@ the user should read <a href="http://mit.edu/perron/www/files/PerronRoyden13.pdf
 <h2 id="_getting_the_software">2. Getting the software</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We have attempted, to the best of our ability, to streamline the process of installing our software on any platform (Windows, Linux, MacOS). You will need to install a bit of software. If you have a decent internect connections this should take under an hour. The main rate limiting step is downloading files: You will need to download ~2Gb of software. This requirement is substantially reduced if you want to install on a a native Linux machine.</p>
+<p>We have attempted, to the best of our ability, to streamline the process of installing our software on any platform (Windows, Linux, MacOS). You will need to install a bit of software. If you have a decent internet connections this should take under an hour. The main rate limiting step is downloading files: You will need to download ~2Gb of software. This requirement is substantially reduced if you want to install on a native Linux machine.</p>
 </div>
 <div class="sect2">
 <h3 id="_starting_up_on_your_own_linux_machine">2.1. Starting up on your own Linux machine</h3>
@@ -706,7 +713,7 @@ If you are running <code>vagrant up</code> for the first time it can take some t
 <p>Run the setup tool:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-console" data-lang="console">$ python LSDTopoToolsSetup.py -id 0 -MChi True</code></pre>
+<pre class="highlight"><code class="language-console" data-lang="console">$ python LSDTopoToolsSetup.py -id 0 -ChiM True</code></pre>
 </div>
 </div>
 </li>
@@ -764,7 +771,7 @@ Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetu
 <p>For the most basic setup, type:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-console" data-lang="console">$ python LSDTopoToolsSetup.py -id 0  -MChi True</code></pre>
+<pre class="highlight"><code class="language-console" data-lang="console">$ python LSDTopoToolsSetup.py -id 0 -ChiM True</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -775,7 +782,7 @@ Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetu
 <p>If you don&#8217;t want <strong>LSDTopoTools</strong> in your home directory, you can install it in your current directory with:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-console" data-lang="console">$ python LSDTopoToolsSetup.py -id 1 -MChi True</code></pre>
+<pre class="highlight"><code class="language-console" data-lang="console">$ python LSDTopoToolsSetup.py -id 1 -ChiM True</code></pre>
 </div>
 </div>
 </li>
@@ -796,7 +803,7 @@ Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetu
 </div>
 </div>
 <div class="sect1">
-<h2 id="_preparing_your_data">3. Preparing your data.</h2>
+<h2 id="_preparing_your_data">3. Preparing your data</h2>
 <div class="sectionbody">
 <div class="sidebarblock">
 <div class="content">
@@ -818,11 +825,11 @@ Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetu
 <div class="sect2">
 <h3 id="_get_some_data">3.1. Get some data</h3>
 <div class="paragraph">
-<p>There are many sources of topogaphic data, which we will not repeat here, but if you are looking for an easy interaface to get either lidar or SRTM data, we suggest <a href="http://www.opentopography.org/">opentopography</a>. This site is not ust for USA-based lidar but also has very nice interfaces for <a href="http://opentopo.sdsc.edu/lidar?format=sd">global data sets</a>.</p>
+<p>There are many sources of topogaphic data, which we will not repeat here, but if you are looking for an easy interface to get either lidar or SRTM data, we suggest <a href="http://www.opentopography.org/">opentopography</a>. This site is not jst for USA-based lidar but also has very nice interfaces for <a href="http://opentopo.sdsc.edu/lidar?format=sd">global data sets</a>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_use_gdal">3.2. Use gdal</h3>
+<h3 id="_use_gdal">3.2. Use GDAL</h3>
 <div class="paragraph">
 <p>When you download topographic data, it will come in all manner of formats, with all manner of coordinate systems. You need to convert the data into <strong>ENVI bil</strong> format and project it into UTM coordinates. You can do all this using <a href="http://www.gdal.org/">GDAL</a>.</p>
 </div>
@@ -834,6 +841,18 @@ Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetu
 </td>
 <td class="content">
 <strong>DO NOT</strong> use ESRI bil format! Use <strong>ENVI bil</strong> format. They have similar names but the data format is different!!!
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+You need to convert your rasters to UTM coordinates! If you fail to do this at best the latitude-longitude data in csv files will be in the wrong place, and at worst the program will crash.
 </td>
 </tr>
 </table>
@@ -917,7 +936,7 @@ Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetu
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Often you get messed up NoData. That is, you get some gigantic number for nodata or the nodata doesn&#8217;t register on the projected DEM. You can attempt to fix this with gdal using the flag <code>dstnodata -9999</code>. However this doesn&#8217;t always work. Luckily, we have programed some code to try and remove weird numbers, so when you run the code (see the section <a href="#_running_the_chi_analysis">Running the chi analysis</a>) you turn the <code>remove_seas</code> switch to true and that should sort you out.</p>
+<p>Often you get messed up NoData. That is, you get some gigantic number for nodata or the nodata doesn&#8217;t register on the projected DEM. You can attempt to fix this with gdal using the flag <code>dstnodata -9999</code>. However this doesn&#8217;t always work. Luckily, we have programmed some code to try to remove weird numbers, so when you run the code (see the section <a href="#_running_the_chi_analysis">Running the chi analysis</a>) you turn the <code>remove_seas</code> switch to true and that should sort you out.</p>
 </li>
 <li>
 <p>Sometimes you get holes in your data. This is annoying. We have code to deal with that, but for now I will just say that you should use the <a href="http://www.opentopography.org/">opentopography</a> data server to get SRTM data as it is seamless. Note that for chi analysis, 30 metre resolution data is probably sufficient: see <a href="http://www.earth-surf-dynam.net/4/627/2016/">Grieve et al, 2016</a> and <a href="http://www.earth-surf-dynam.net/5/211/2017/">Purinton and Bookhagen, 2017</a>.</p>
@@ -930,6 +949,35 @@ Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetu
 <div class="sect1">
 <h2 id="_running_the_chi_analysis">4. Running the chi analysis</h2>
 <div class="sectionbody">
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Important notes on how vagrant and LSDTopoTools work</div>
+<div class="paragraph">
+<p>Most users will be running <strong>LSDTopoTools</strong> using <a href="https://www.vagrantup.com/">vagrant</a>. See the section <a href="#_getting_the_software">Getting the software</a> for details.
+These are basic notes on running <strong>LSDTopoTools</strong> on a vagrant server.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The clever thing about vagrant is that you can run analyses on a Linux machine running inside you host computer (usually Windows or MacOS) but you host computer can see the files.</p>
+</li>
+<li>
+<p><strong>All of our programs are run within the linux server. All data files must be visible to the linux server!</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Even though your files are the same files on the host and guest operating system, they have a different address. In Linux the files are in <code>/LSDTopoTools/</code>. In you host operating system they are in the <code>LSDTopoTools</code> folder wherever you put the <code>VagrantBoxes</code> directory.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>So in these instructions whenever you see the <code>$</code> prompt it means you are using the guest linux machine, not your hose machine.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
 <div class="paragraph">
 <p>The chi analysis, and a host of other analyses, are run using the <strong>chi_mapping_tool.exe</strong> program. If you followed the instructions in the section <a href="#_getting_the_software">Getting the software</a> you will already have this program compiled.</p>
 </div>
@@ -939,7 +987,7 @@ Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetu
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>The path to the parameter file. This <strong>MUST</strong> inclde the trailing slash (i.e., <code>/LSDTopoTools/Topographic_projects/Test_data</code> is incorrect whereas <code>/LSDTopoTools/Topographic_projects/Test_data/</code> is correct).</p>
+<p>The path to the parameter file. This <strong>MUST</strong> include the trailing slash (i.e., <code>/LSDTopoTools/Topographic_projects/Test_data</code> is incorrect whereas <code>/LSDTopoTools/Topographic_projects/Test_data/</code> is correct).</p>
 </li>
 <li>
 <p>The name of the parameter file.</p>
@@ -955,7 +1003,7 @@ Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetu
 </div>
 </div>
 <div class="paragraph">
-<p>As we will see momentarily, the data an the parameter file can be in different locations, although in general it might be sensible to place the parameter file in the sample directory as the data.</p>
+<p>As we will see momentarily, the data and the parameter file can be in different locations, although in general it might be sensible to place the parameter file in the sample directory as the data.</p>
 </div>
 <div class="paragraph">
 <p>The code is run using a parameter file, within which users can set the data they want to print to file. Regardless of which data they choose to print to file, a file will be printed with the extension <code>_Input.param</code> which prints out all the parameters used in the analysis (including the default parameters). This file can be used to verify if the correct parameters have been used in the analysis.</p>
@@ -1008,9 +1056,11 @@ The parameter file has a specific format, but the filename can be anything you w
 <div class="sect2">
 <h3 id="_parameter_file_options">4.2. Parameter file options</h3>
 <div class="paragraph">
-<p>Below are options for the parameter files. Note that all DEMs must be in ENVI <code>bil</code> format (<strong>DO NOT</strong> use ArcMap&#8217;s bil format: these are two different things. See the section <a href="#What data does LSDTopoToolbox take?">[What data does LSDTopoToolbox take?]</a> if you want more details).
+<p>Below are options for the parameter files. Note that all DEMs must be in ENVI <code>bil</code> format (<strong>DO NOT</strong> use ArcMap&#8217;s bil format: these are two different things. See the section <a href="#_preparing_your_data">Preparing your data</a> if you want more details).
 The reason we use <code>bil</code> format is because it retains georeferencing which is essential to our file output since many of the files output to <code>csv</code> format with latitude and longitude as coordinates.</p>
 </div>
+<div class="sect3">
+<h4 id="_basic_file_input_and_output">4.2.1. Basic file input and output</h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 1. File input and output options. <strong>These do not have defaults and MUST be declared</strong>.</caption>
 <colgroup>
@@ -1054,6 +1104,9 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </tr>
 </tbody>
 </table>
+</div>
+<div class="sect3">
+<h4 id="_dem_preprocessing">4.2.2. DEM preprocessing</h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 2. DEM preprocessing. These just help you clean data and perform very basic operations.</caption>
 <colgroup>
@@ -1109,6 +1162,9 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </tr>
 </tbody>
 </table>
+</div>
+<div class="sect3">
+<h4 id="_selecting_channels_and_basins">4.2.3. Selecting channels and basins</h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 3. Options for determining which channels and basins to analyse, including settings for the fill function.</caption>
 <colgroup>
@@ -1130,7 +1186,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">threshold_contributing_pixels</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The number of pixes required to generate a channel (i.e., the source threshold).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The number of pixels required to generate a channel (i.e., the source threshold).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">minimum_basin_size_pixels</p></td>
@@ -1150,8 +1206,17 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">If this is true, a chi map is created based only upon the largest basin in the raster.</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_basin_raster</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a raster with the basins.</p></td>
+</tr>
 </tbody>
 </table>
+</div>
+<div class="sect3">
+<h4 id="_basic_data_output_before_calculating_chi">4.2.4. Basic data output (before calculating chi)</h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 4. Basic printing operations. For simple rasters and network data that doesn&#8217;t require chi analysis.</caption>
 <colgroup>
@@ -1215,10 +1280,13 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">write hillshade</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints the hillshade raster. The format of this is stupidly different from other printing calls for a stupid inheretance reason. Try to ignore. Most GIS routines have a hillshading options but for some reason they look crappier than our in-house hillshading. I&#8217;m not sure why but if you want a hillshade I recommend using this function.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints the hillshade raster. The format of this is stupidly different from other printing calls for a stupid inheritance reason. Try to ignore. Most GIS routines have a hillshading options but for some reason they look crappier than our in-house hillshading. I&#8217;m not sure why but if you want a hillshade I recommend using this function.</p></td>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="sect3">
+<h4 id="_basic_parameters_for_the_chi_coordinate">4.2.5. Basic parameters for the chi coordinate</h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 5. Parameters for calculating the chi coordinate.</caption>
 <colgroup>
@@ -1246,16 +1314,25 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">m_over_n</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.5</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The <strong>m/n</strong> paramater (sometimes known as the concavity index) for calculating chi. Note that if you do any <em>m/n</em> analysis (either <code>calculate_MLE_collinearity</code> or <code>print_profiles_fxn_movern_csv</code>) this <em>m/n</em> value will be replaced.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The <strong>m/n</strong> parameter (sometimes known as the concavity index) for calculating chi. Note that if you do any <em>m/n</em> analysis (either <code>calculate_MLE_collinearity</code> or <code>print_profiles_fxn_movern_csv</code>) this <em>m/n</em> value will be replaced.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">threshold_pixels_for_chi</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">For most calculations in the <strong>chi_mapping_tool</strong> chi is calcualted everywhere, but for some printing operations, such as printing of basic chi maps (<code>print_simple_chi_map_with_basins_to_csv</code>, <code>print_chi_coordinate_raster</code>, <code>print_simple_chi_map_to_csv</code>) you don&#8217;t want chi everywhere (this is especially true when writing a simple csv file) so we have this parameter that sets chi to NoData below these threshold contributing pixels. If this is greater than <code>threshold_contributing_pixels</code> it will default to <code>threshold_contributing_pixels</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">For most calculations in the <strong>chi_mapping_tool</strong> chi is calculated everywhere, but for some printing operations, such as printing of basic chi maps (<code>print_simple_chi_map_with_basins_to_csv</code>, <code>print_chi_coordinate_raster</code>, <code>print_simple_chi_map_to_csv</code>) you don&#8217;t want chi everywhere (this is especially true when writing a simple csv file) so we have this parameter that sets chi to NoData below these threshold contributing pixels. If this is greater than <code>threshold_contributing_pixels</code> it will default to <code>threshold_contributing_pixels</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">basic_Mchi_regression_nodes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">11</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This works with the basic chi map: segments are not calculated. Instead, a moving window, with a length set by this parameter, is moved over the channel nodes to calculate the chi slope. This method is very similar to methods used to calculate normalised channel steepness (<em>k<sub>sn</sub></em>).</p></td>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="sect3">
+<h4 id="_parameters_for_exploring_the_em_m_n_em_ratio">4.2.6. Parameters for exploring the <em>m/n</em> ratio</h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 6. Parameters for trying to constrain the <em>m/n</em> ratio, including slope-area analysis.</caption>
 <colgroup>
@@ -1273,6 +1350,18 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </tr>
 </thead>
 <tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">calculate_MLE_collinearity</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_profiles_fxn_movern_csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true this loops though every <em>m/n</em> value and prints (to a single csv file) all the chi-elevation profiles. Used to visualise the effect of changing the <em>m/n</em> ratio on the profiles.</p></td>
+</tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">start_movern</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
@@ -1292,16 +1381,22 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">In several of the <em>m/n</em> testing functions, the program increments <em>m/n</em> this number of times.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">only_use_mainstem_as_reference</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true this compares the goodness of fit between the mainstem and all tributaries in each basin for each <em>m/n</em> value. If false, it compares <strong>all</strong> trinbutaries and the main stem to every other tributary.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">SA_vertical_interval</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">20</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This parameter is used for slope-area analysis. Each channel is traced downslope. A slope (or gradient) is caluclated by dividing the fall in the channel elevation over the flow distance; the program aims to calcualte the slope at as near to a fixed vertical interval as possible following advice of Wobus et al 2006.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This parameter is used for slope-area analysis. Each channel is traced downslope. A slope (or gradient) is calculated by dividing the fall in the channel elevation over the flow distance; the program aims to calculate the slope at as near to a fixed vertical interval as possible following advice of Wobus et al 2006.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">log_A_bin_width</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.1</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This is for slope-area analysis. The raw slope-area data is always a horrendus mess. To get something that is remotely sensible you must bin the data. We bin the data in bins of the logarithm of the Area in metres^2. This is the log bin width.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This is for slope-area analysis. The raw slope-area data is always a horrendous mess. To get something that is remotely sensible you must bin the data. We bin the data in bins of the logarithm of the Area in metres^2. This is the log bin width.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_slope_area_data</p></td>
@@ -1311,6 +1406,9 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </tr>
 </tbody>
 </table>
+</div>
+<div class="sect3">
+<h4 id="_parameters_for_segmentation_of_channels">4.2.7. Parameters for segmentation of channels</h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 7. Parameters for calculating the segments of similar chi slope (\(M_{\chi}\)). More details on the use of these parameters can be found in <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al., JGR-ES 2014</a>.</caption>
 <colgroup>
@@ -1332,19 +1430,19 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">n_iterations</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">20</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The number of iterterations of random sampling of the data to construct segments. The sampling probability of individual nodes is determined by the skip parameter. Note that if you want to get a deterministic sampling of the segments you need to set this to 1 and set <code>skip</code> to 0. If you are using Monte Carlo sampling you should set this to at least 20 (but probably not more than 100).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The number of iterations of random sampling of the data to construct segments. The sampling probability of individual nodes is determined by the skip parameter. Note that if you want to get a deterministic sampling of the segments you need to set this to 1 and set <code>skip</code> to 0. If you are using Monte Carlo sampling you should set this to at least 20 (but probably not more than 100).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">target_nodes</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">80</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The number of nodes in a segment finding routine. Channels are broken into subdomains of aroung this length and then segmenting occurs on these subdomains. This limit is required because of the computational expense of segmentation, which goes as the factorial (!!!) of the number of nodes. Select between 80-120. A higher number here will take <strong>much</strong> longer to compute.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The number of nodes in a segment finding routine. Channels are broken into subdomains of around this length and then segmenting occurs on these subdomains. This limit is required because of the computational expense of segmentation, which goes as the factorial (!!!) of the number of nodes. Select between 80-120. A higher number here will take <strong>much</strong> longer to compute.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">minimum_segment_length</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">10</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The minimum length of a segment in sampled data nodes. The actual length is approxamately this parameter times (1+skip). Note that the computational time required goes nonlinearly up the smaller this number. Note that this sets the shortest knickzone you can detect, although the algorithm can detect waterfalls where there is a jump between segments.  It should be between 6-20.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The minimum length of a segment in sampled data nodes. The actual length is approximately this parameter times (1+skip). Note that the computational time required goes nonlinearly up the smaller this number. Note that this sets the shortest knickzone you can detect, although the algorithm can detect waterfalls where there is a jump between segments.  It should be between 6-20.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">skip</p></td>
@@ -1356,13 +1454,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">sigma</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">10.0</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This represents the variability in elevation data (if the DEM has elevation in metres, then this parameter will be in metres). It should include both uncertainty in the elevation data as well as the geomorphic variability: the size of roughness elements, steps, boulders etc in the channel that may lead to a channel profile diverging from a smooth long profile. That is, it is not simply a function of the uncertainty of the DEM, but also a funciton of topographic roughness so will be greater than the DEM uncertainty.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">basic_Mchi_regression_nodes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">11</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This works with the basic chi map: segments are not calculated. Instead, a moving window, with a length set by this parameter, is moved over the channel nodes to calculate the chi slope. This method is very similar to methods used to calculate normalised channel steepness (<em>k<sub>sn</sub></em>).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This represents the variability in elevation data (if the DEM has elevation in metres, then this parameter will be in metres). It should include both uncertainty in the elevation data as well as the geomorphic variability: the size of roughness elements, steps, boulders etc in the channel that may lead to a channel profile diverging from a smooth long profile. That is, it is not simply a function of the uncertainty of the DEM, but also a function of topographic roughness so will be greater than the DEM uncertainty.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">n_nodes_to_visit</p></td>
@@ -1372,64 +1464,108 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </tr>
 </tbody>
 </table>
+</div>
+<div class="sect3">
+<h4 id="_printing_of_simple_chi_maps">4.2.8. Printing of simple chi maps</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 8. Keywords for setting which analyses to be preformed and which files to print. <strong>These are all booleans!</strong> **Defaults are all false so these parameters must be set to true to perform analyses and print to file.</caption>
+<caption class="title">Table 8. Options for printing simple chi maps</caption>
 <colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 40%;">
 </colgroup>
 <thead>
 <tr>
+<th class="tableblock halign-left valign-top">Keyword</th>
 <th class="tableblock halign-left valign-top">Input type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
 <th class="tableblock halign-left valign-top">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">print_stream_order_raster</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a raster of the stream orders.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">print_junction_index_raster</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a raster with the junction indices.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">print_fill_raster</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a filled raster</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">print DrainageArea_raster</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a raster of the draiange area in m<sup>2</sup>.</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_chi_coordinate_raster</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a raster with the chi coordinate (in m). Note that if you want to control the size of the data symbols in a visualisation, you should select the <code>print_simple_chi_map_to_csv</code> option.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_simple_chi_map_to_csv</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file with latitude, longitude and the chi coordinate. Can be converted to a shapefile or GeoJSON with our python mapping scripts. This options gives more flexibility in visualisation than the raster, since in the raster data points will only render as one pixel.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">print_simple_chi_map_to_csv</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file with latitude, longitude and the chi coordinate. Can be converted to a shapefile or GeoJSON with our python mapping scripts. This options gives more flexibility in visualisation than the raster, since in the raster data points will only render as one pixel.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">print_segmented_M_chi_map_to_csv</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file with latitude, longitude and a host of chi information including the chi slope, chi intercept, drainage area, chi coordinate and other features of the drainage network. The \(M_{\chi}\) values are calculated with the segmentation algorithm of <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al. 2014</a>.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">print_basic_M_chi_map_to_csv</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file with latitude, longitude and a host of chi information including the chi slope, chi intercept, drainage area, chi coordinate and other features of the drainage network. The \(M_{\chi}\) values are calculated with a rudimentary smoothing window that has a size determined by the parameter <code>basic_Mchi_regression_nodes</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file with latitude, longitude and the chi coordinate. Can be converted to a GeoJSON with the flag <code>convert_csv_to_geojson</code>. This options gives more flexibility in visualisation than the raster, since in the raster data points will only render as one pixel.</p></td>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="sect3">
+<h4 id="_chi_maps_with_segmentation_and_basina_dn_channel_selection">4.2.9. Chi maps with segmentation and basina dn channel selection</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 9. Parameters for dealing with precipitation and discharge. These allow the user to drive chi with drischarge rather than drainage area. It is somewhat rudimentary at the moment in that it  assumes the rainfall rate in length per time is translated into some constant discharge.</caption>
+<caption class="title">Table 9. Options for chi maps and secondary data files that split channels and basins</caption>
 <colgroup>
-<col style="width: 16%;">
-<col style="width: 16%;">
-<col style="width: 16%;">
-<col style="width: 50%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Keyword</th>
+<th class="tableblock halign-left valign-top">Input type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_simple_chi_map_with_basins_to_csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file with latitude, longitude and the chi coordinate, as well as basin and source information. Can be converted to a GeoJSON with the flag <code>convert_csv_to_geojson</code>. This options gives more flexibility in visualisation than the raster, since in the raster data points will only render as one pixel.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_basic_M_chi_map_to_csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file with latitude, longitude and a host of chi information including the chi slope, chi intercept, drainage area, chi coordinate and other features of the drainage network. The \(M_{\chi}\) values are calculated with a rudimentary smoothing window that has a size determined by the parameter <code>basic_Mchi_regression_nodes</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_segmented_M_chi_map_to_csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file with latitude, longitude and a host of chi information including the chi slope, chi intercept, drainage area, chi coordinate and other features of the drainage network. The \(M_{\chi}\) values are calculated with the segmentation algorithm of <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al. 2014</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_source_keys</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file that prints the location of all the channel nodes with each of their source keys. The source keys are just the index into the source numbers: it lets you know which tributary each node belongs to.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_sources_to_csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This prints as csv that gives the source key and the source number (which is a node index). Used mainly for plotting. The reason we have two indices is that the node indices can be as great as the number of nodes in the DEM; whereas the source keys are numbered 0,1,2,3 etc up to the number of sources.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_baselelvel_keys</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file that prints the location of all the channel nodes with each of their baselelevel keys. The baselevel keys are just the index into the baselevel node (i.e., it tells you to which basin each node is connected).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_parameters_for_dealing_with_discharge_rather_than_drainage_area">4.2.10. Parameters for dealing with discharge rather than drainage area</h4>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 10. Parameters for dealing with precipitation and discharge. These allow the user to drive chi with discharge rather than drainage area. It is somewhat rudimentary at the moment in that it  assumes the rainfall rate in length per time is translated into some constant discharge.</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 40%;">
 </colgroup>
 <thead>
 <tr>
@@ -1454,10 +1590,12 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </tr>
 </tbody>
 </table>
-<div class="sect3">
-<h4 id="_example_parameter_file">4.2.1. Example parameter file</h4>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_example_parameter_file">4.3. Example parameter file</h3>
 <div class="paragraph">
-<p>Below is an exaple parameter file. This file is included in the repository along with the driver functions.</p>
+<p>Below is an example parameter file. This file is included in the repository along with the driver functions.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1501,79 +1639,58 @@ print_segmented_M_chi_map_to_csv: true</code></pre>
 </div>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_output_data_formats">4.2.2. Output data formats</h4>
+<div class="sect2">
+<h3 id="_output_data_formats">4.4. Output data formats</h3>
 <div class="paragraph">
-<p>Data is written to either rasters or csv files. The rasters are all in <code>bil</code> format, which you can read about in the section: <a href="#What data does LSDTopoToolbox take?">[What data does LSDTopoToolbox take?]</a></p>
+<p>Data is written to rasters, csv files, or geojson file.</p>
 </div>
-<div class="paragraph">
-<p>The <strong>csv</strong> files are comma seperated value files which can be read by spreadsheets and GIS software.
-These files all have labeled columns so their contents can be easily views.
-All of the files contain <strong>latitude</strong> and <strong>longitude</strong> columns. These columns are projected into the <strong>WGS84</strong> coordinate system for ease of plotting in GIS software.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>The rasters are all in ENVI <code>bil</code> format, which you can read about in the section: <a href="#_preparing_your_data">Preparing your data</a>.</p>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+ENVI bil should not be mistaken for ESRI bil. Make sure you are using ENVI bil format.
+</td>
+</tr>
+</table>
 </div>
-<div class="sect4">
-<h5 id="_viewing_data_and_converting_to_gis_ready_formats">Viewing data and converting to GIS ready formats</h5>
-<div class="paragraph">
-<p>If the user has opted to print data in <code>csv</code> format, they can use our visualisation tools to convert the data into GIS-ready formats.</p>
+</li>
+<li>
+<p>The <strong>csv</strong> files are comma separated value files which can be read by spreadsheets and GIS software.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>If you import csv files into a GIS you need to tell the GIS about the coordinate system.</p>
+</li>
+<li>
+<p>Our csv files all have labeled columns so their contents can be easily views.</p>
+</li>
+<li>
+<p>Almost all of our csv files contain <strong>latitude</strong> and <strong>longitude</strong> columns. These columns are projected into the <strong>WGS84</strong> coordinate system for ease of plotting in GIS software. Select this coordiante system when you loa the csv file into your GIS. For reference it has the <a href="http://spatialreference.org/ref/epsg/wgs-84/">EPSG code 4326</a>.</p>
+</li>
+</ul>
 </div>
-<div class="paragraph">
-<p>Users should first clone the <a href="https://github.com/LSDtopotools/LSDMappingTools">mapping tools respoitory</a>:</p>
+</li>
+<li>
+<p>It is very annoying to have to click buttons in a GIS to select a coordinate system each time you look at csv data, so we also allow you to convert to <a href="http://geojson.org/">geojson</a> format by using the flag <code>convert_csv_to_geojson</code> in the parameter file.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>The advantage of these files is that they have georeferencing, so you can load them directly into a GIS or web mapping software.</p>
+</li>
+<li>
+<p>The disadvantage is that they are <strong>HUGE</strong> compared to csv files (usually more than 10x the file size). If you are working within GIS software or using web mapping (e.g., <a href="https://d3js.org/">d3.js</a> or <a href="http://leafletjs.com/">leaflet</a>) you will probably want to generate these files but if you are using our python plotting tools you can probably forgo creating them.</p>
+</li>
+</ul>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-console" data-lang="console">$ git clone https://github.com/LSDtopotools/LSDMappingTools.git</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>In this repository the user needs to get a helping script called <code>LSDOSystemTools.py</code>. You can fetch this script using the <code>wget</code> tool:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-console" data-lang="console">$ wget https://github.com/LSDtopotools/LSDAutomation/raw/master/LSDOSystemTools.py</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The user can then run the script <code>TestMappingToolsPoint.py</code>, activating the <code>TestMappingToolsLassoCSV</code> function:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">if __name__ == "__main__":
-    TestMappingToolsLassoCSV()</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>and changing the target directory to the directory storing the csv files:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">def TestMappingToolsLassoCSV():
-    DataDirectory = "C://VagrantBoxes//LSDTopoTools//Topographic_projects//Test_data//"
-    LSDP.ConvertAllCSVToGeoJSON(DataDirectory)</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Note that this is if your run the python script within windows. If you run it within your agrant Linux machine the directory would be:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">def TestMappingToolsLassoCSV():
-    DataDirectory = "/LSDTopoTools/Topographic_projects/Test_data/"
-    LSDP.ConvertAllCSVToGeoJSON(DataDirectory)</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>You can convert all <code>csv</code> files into either shapefiles or GeoJSON files.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">    LSDP.ConvertAllCSVToGeoJSON(DataDirectory)
-    LSDP.ConvertAllCSVToShapefile(DataDirectory)</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>These files can then be read by your favourite GIS.</p>
-</div>
-</div>
+</li>
+</ul>
 </div>
 </div>
 </div>
