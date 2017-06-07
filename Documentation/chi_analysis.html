@@ -479,7 +479,6 @@ MathJax.Hub.Config({
 <ul class="sectlevel3">
 <li><a href="#_raster_output">4.5.1. Raster output</a></li>
 <li><a href="#_point_data_usually_output_as_csv">4.5.2. Point data (usually output as csv)</a></li>
-<li><a href="#_point_data_file_formats">4.5.3. Point data file formats</a></li>
 </ul>
 </li>
 </ul>
@@ -493,7 +492,13 @@ MathJax.Hub.Config({
 <h2 id="_preface_by_simon_mudd">Preface by Simon Mudd</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This is the documentation for the chi analysis tool. It is the second generation of the software reported in Mudd et al. 2014. Right now there is not very much documentation but that will change in the near future.</p>
+<p>Channels in upland landscapes and mountains are not just beautiful, they store information about tectonics, lithology, erosion and climate, and how those things have changed though time. Extracting this information is a challenging task that has occupied the efforts of geomorphologists for several hundred years. I will wait while you read <a href="https://en.wikipedia.org/wiki/John_Wesley_Powell">John Wesley Powell&#8217;s</a> <a href="https://archive.org/details/explorationcolo01goodgoog">book on the exploration of the Colorado river from 1875</a>. Finished? Excellent.</p>
+</div>
+<div class="paragraph">
+<p>Over the last few decades we have built up a theoretical basis for quantifying channel profiles and interpreting their steepness. We now have excellent global coverage of topography, so getting topographic data from any river in the world has never been easier. What we have developed over the last 5 years are tools for automating analysis of river profiles that is automated and reproducible. These tools sit without our software: <a href="http://lsdtopotools.github.io/">LSDTopoTools</a>. The motivation to develop these tools is that any analysis of topography in support of geomorphic work should be easily reproduced by readers of the original papers.</p>
+</div>
+<div class="paragraph">
+<p>This website deals with those components of <strong>LSDTopoTools</strong> dedicated to analysing channels, which builds upon some of the work we <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/full">published in 2014</a>. That software was rather difficult to run. After a few years of attempting to get undergraduates to use it, and having feedback from other users, we are pleased to present a much more automated and flexible version of the original code, which has substantially added flexibility. We hope to publish a description of the new features alongside some insights into landscape evolution based on this software in the near future. For now, I hope you find this easy enough to understand and install so that you can start exploring your own favourite rivers in the near future. I&#8217;m always pleaded to hear from users, so don&#8217;t hesitate to contact me about the software.</p>
 </div>
 </div>
 </div>
@@ -501,7 +506,7 @@ MathJax.Hub.Config({
 <h2 id="_introduction">1. Introduction</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This section explains the theory behind analysis of channels using both slope-area analysis and chi analysis. If you just want to run the software skip ahead to the section <a href="#_getting_the_software">Getting the software</a>.</p>
+<p>This section explains the theory behind analysis of channels using both slope-area analysis and chi (the greek letter \(\chi\), which I have been <a href="https://www.youtube.com/watch?v=vPEtRc05G7Q#t=1m46s">pronouncing incorrectly for some time</a>) analysis. If you just want to run the software skip ahead to the section <a href="#_getting_the_software">Getting the software</a>.</p>
 </div>
 <div class="sect2">
 <h3 id="_background">1.1. Background</h3>
@@ -1553,7 +1558,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_sources_to_csv</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This prints as csv that gives the source key and the source number (which is a node index). Used mainly for plotting. The reason we have two indices is that the node indices can be as great as the number of nodes in the DEM; whereas the source keys are numbered 0,1,2,3 etc up to the number of sources.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This prints as csv that gives information about each of the sources in the DEM. Unless a channel heads csv is provided, these sources will be determined thought a drainage area threshold set by the <code>threshold_contributing_pixels</code> flag (default of 1000 pixels).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_baselelvel_keys</p></td>
@@ -1802,63 +1807,87 @@ If the <code>convert_csv_to_geojson</code> flag is set to <code>true</code> then
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_CN.csv</strong></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Prints the channel network to csv.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>latitude,longitude,Junction Index,Stream Order,NI</em>
-</p><p class="tableblock"><em>NI</em> is the node index (an index into individual pixels in the DEM), and <em>Junction Index</em> is an index into the <code>LSDJunctionNetwork</code> object. Latitude and longitude are in WGS84.</p></td>
+</p><p class="tableblock"><em>NI</em> is the node index (an index into individual pixels in the DEM), and <em>Junction Index</em> is an index into the <code>LSDJunctionNetwork</code> object. Latitude and longitude are in <a href="http://spatialreference.org/ref/epsg/wgs-84/">WGS84</a>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_junctions_to_csv: true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_JN.csv</strong></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Prints junction numbers to csv.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>junction,node,x,y,latitude,longitude,stream_order</em>
-</p><p class="tableblock"><em>junction</em> is the junction index. Latitude and longitude are in WGS84, whereas <em>x</em> and <em>y</em> are in the local UTM coordinates.</p></td>
+</p><p class="tableblock"><em>junction</em> is the junction index. Latitude and longitude are in <a href="http://spatialreference.org/ref/epsg/wgs-84/">WGS84</a>, whereas <em>x</em> and <em>y</em> are in the local UTM coordinates.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_sources_to_csv: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_ATsources.csv</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prints the sources to csv.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>node,x,y,latitude,longitude</em>
+</p><p class="tableblock"><em>node</em> is the node index from <code>LSDFlowInfo</code>. Latitude and longitude are in WGS84, whereas <em>x</em> and <em>y</em> are in the local UTM coordinates.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_simple_chi_map_to_csv: true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_chi_coord.csv</strong></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Prints a very basic chi map.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>latitude,longitude,chi</em>
-</p><p class="tableblock">Latitude and longitude are in WGS84, chi is in metres.</p></td>
+</p><p class="tableblock">Latitude and longitude are in <a href="http://spatialreference.org/ref/epsg/wgs-84/">WGS84</a>, chi is in metres.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_simple_chi_map_with_basins_to_csv: true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_chi_coord_basins.csv</strong></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Prints a very basic chi map, but includes the basin.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>latitude,longitude,chi,basin_junction</em>
-</p><p class="tableblock">Latitude and longitude are in WGS84, chi is in metres. The <em>basin_junction</em> refers to the junction number of the baselevel junction for each node. Allows one to plot these profiles by basin.</p></td>
+</p><p class="tableblock">Latitude and longitude are in <a href="http://spatialreference.org/ref/epsg/wgs-84/">WGS84</a>, chi is in metres. The <em>basin_junction</em> refers to the junction number of the baselevel junction for each node. Allows one to plot these profiles by basin.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_simple_chi_map_with_basins_to_csv: true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_chi_coord_basins.csv</strong></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Prints a very basic chi map, but includes the basin.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>latitude,longitude,chi,basin_junction</em>
-</p><p class="tableblock">Latitude and longitude are in WGS84, chi is in metres. The <em>basin_junction</em> refers to the junction number of the baselevel junction for each node. Allows one to plot these profiles by basin.</p></td>
+</p><p class="tableblock">Latitude and longitude are in <a href="http://spatialreference.org/ref/epsg/wgs-84/">WGS84</a>, chi is in metres. The <em>basin_junction</em> refers to the junction number of the baselevel junction for each node. Allows one to plot these profiles by basin.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_basic_M_chi_map_to_csv: true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_MChiBasic.csv</strong></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">This is a very rudimentary version of a map of chi slope (if <em>A<sub>0</sub></em> = 1, then this is the same as the channel steepness index). No segmentation is performed, it simply calculates chi slope from smoothed profiles.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>latitude,longitude,chi,elevation,flow distance,drainage area,m_chi,b_chi,source_key,basin_key</em>
-</p><p class="tableblock">Latitude and longitude are in WGS84, chi and flow distance are in metres. Drainage area is in m<sup>2</sup>. <em>M_chi</em> is the slope in chi space, equivalent to <em>k<sub>sn</sub></em> if <em>A<sub>0</sub></em> is set to 1. <em>b_chi</em> is the intercept of the chi segment. The <em>source_key</em> and <em>basin_key</em> are indices into the basins and sources.</p></td>
+</p><p class="tableblock">Latitude and longitude are in <a href="http://spatialreference.org/ref/epsg/wgs-84/">WGS84</a>, chi and flow distance are in metres. Drainage area is in m<sup>2</sup>. <em>M_chi</em> is the slope in chi space, equivalent to <em>k<sub>sn</sub></em> if <em>A<sub>0</sub></em> is set to 1. <em>b_chi</em> is the intercept of the chi segment. The <em>source_key</em> and <em>basin_key</em> are indices into the basins and sources.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">print_basic_M_chi_map_to_csv: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_segmented_M_chi_map_to_csv: true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_MChiSegmented.csv</strong></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">This uses segmentation to calculate chi slopes (if <em>A<sub>0</sub></em> = 1, then this is the same as the channel steepness index) following the <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/full">Mudd et al, 2014</a> algorithms.</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>latitude,longitude,chi,elevation,flow distance,drainage area,m_chi,b_chi,source_key,basin_key</em>
-</p><p class="tableblock">Latitude and longitude are in WGS84, chi and flow distance are in metres. Drainage area is in m<sup>2</sup>. <em>M_chi</em> is the slope in chi space, equivalent to <em>k<sub>sn</sub></em> if <em>A<sub>0</sub></em> is set to 1. <em>b_chi</em> is the intercept of the chi segment. The <em>source_key</em> and <em>basin_key</em> are indices into the basins and sources.</p></td>
+</p><p class="tableblock">Latitude and longitude are in <a href="http://spatialreference.org/ref/epsg/wgs-84/">WGS84</a>, chi and flow distance are in metres. Drainage area is in m<sup>2</sup>. <em>M_chi</em> is the slope in chi space, equivalent to <em>k<sub>sn</sub></em> if <em>A<sub>0</sub></em> is set to 1. <em>b_chi</em> is the intercept of the chi segment. The <em>source_key</em> and <em>basin_key</em> are indices into the basins and sources.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_segments: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_MChiSegmented.csv</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This uses segmentation to calculate chi slopes (if <em>A<sub>0</sub></em> = 1, then this is the same as the channel steepness index) following the <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/full">Mudd et al, 2014</a> algorithms. It includes the segment data including a segment number and the fitted segment elevation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>latitude,longitude,chi,elevation,flow distance,drainage area,m_chi,b_chi,source_key,basin_key,segmented_elevation,segment_number</em>
+</p><p class="tableblock">Latitude and longitude are in <a href="http://spatialreference.org/ref/epsg/wgs-84/">WGS84</a>, chi and flow distance are in metres. Drainage area is in m<sup>2</sup>. <em>M_chi</em> is the slope in chi space, equivalent to <em>k<sub>sn</sub></em> if <em>A<sub>0</sub></em> is set to 1. <em>b_chi</em> is the intercept of the chi segment. The <em>source_key</em> and <em>basin_key</em> are indices into the basins and sources. The <em>segmented_elevation</em> is the elevation of the segment, and the <em>segment_number</em> is an increasing integer for each segment. The segment number is used to search for knickpoints if <code>skip</code> is set to 0 and <code>n_iterations</code> is set to 1.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">check_chi_maps: true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_checkchi.csv</strong> and <strong>_checkchiQ.csv</strong></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">This is used with the discharge-based chi calculation to compare chi values using discharge (<code>_checkchiQ.csv</code>) vs drainage area (<code>_checkchi.csv</code>).</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>latitude,longitude,chi,elevation,flow distance,drainage area,source_key,basin_key</em>
-</p><p class="tableblock">Latitude and longitude are in WGS84, chi and flow distance are in metres. Drainage area is in m<sup>2</sup>. The <em>source_key</em> and <em>basin_key</em> are indices into the basins and sources.</p></td>
+</p><p class="tableblock">Latitude and longitude are in <a href="http://spatialreference.org/ref/epsg/wgs-84/">WGS84</a>, chi and flow distance are in metres. Drainage area is in m<sup>2</sup>. The <em>source_key</em> and <em>basin_key</em> are indices into the basins and sources.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_source_keys: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_SourceKeys.csv</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This prints information about source keys for each node in the channel network. Allows visualisation tools to link nodes to their sources, and thus used to plot tributaries.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>latitude,longitude,source_node,source_key</em>
+</p><p class="tableblock">Latitude and longitude are in <a href="http://spatialreference.org/ref/epsg/wgs-84/">WGS84</a>. The <em>source_node</em> is the node id of the source from the <code>LSDFlowInfo</code> object and the <em>source_key</em> is a key of the source (used so that sources are numbered 0,1,2,3, etc. instead of some random large integer).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_baselevel_keys: true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_BaselevelKeys.csv</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This prints information about baselevel keys for each node in the channel network. Allows visualisation tools to link nodes to their baselelvel, and thus used to plot basins.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>latitude,longitude,baselevel_node,baselevel_junction,baselevel_key</em>
+</p><p class="tableblock">Latitude and longitude are in <a href="http://spatialreference.org/ref/epsg/wgs-84/">WGS84</a>. The <em>baselevel_node</em> is the node id of the source from the <code>LSDFlowInfo</code> object. The <em>baselevel_junction</em> is the junction index from the <code>LSDJunctionIndex</code> object, and the <em>baselelvel_key</em> is a key of the baselevel (used so that basins are numbered 0,1,2,3, etc. instead of some random large integer).</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="sect3">
-<h4 id="_point_data_file_formats">4.5.3. Point data file formats</h4>
-
 </div>
 </div>
 </div>
