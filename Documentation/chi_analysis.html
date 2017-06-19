@@ -456,7 +456,7 @@ MathJax.Hub.Config({
 <li><a href="#_stupid_nodata">3.3. Stupid nodata</a></li>
 </ul>
 </li>
-<li><a href="#_running_the_chi_analysis">4. Running the chi analysis</a>
+<li><a href="#_running_the_chi_analysis_options_and_outputs">4. Running the chi analysis: options and outputs</a>
 <ul class="sectlevel2">
 <li><a href="#_the_parameter_file">4.1. The parameter file</a></li>
 <li><a href="#_parameter_file_options">4.2. Parameter file options</a>
@@ -483,7 +483,11 @@ MathJax.Hub.Config({
 </li>
 </ul>
 </li>
-<li><a href="#_visualisation">5. Visualisation</a></li>
+<li><a href="#_examples_of_chi_analysis">5. Examples of chi analysis</a>
+<ul class="sectlevel2">
+<li><a href="#_get_the_example_data">5.1. Get the example data</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -948,7 +952,7 @@ You need to convert your rasters to UTM coordinates! If you fail to do this at b
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Often you get messed up NoData. That is, you get some gigantic number for nodata or the nodata doesn&#8217;t register on the projected DEM. You can attempt to fix this with gdal using the flag <code>dstnodata -9999</code>. However this doesn&#8217;t always work. Luckily, we have programmed some code to try to remove weird numbers, so when you run the code (see the section <a href="#_running_the_chi_analysis">Running the chi analysis</a>) you turn the <code>remove_seas</code> switch to true and that should sort you out.</p>
+<p>Often you get messed up NoData. That is, you get some gigantic number for nodata or the nodata doesn&#8217;t register on the projected DEM. You can attempt to fix this with gdal using the flag <code>dstnodata -9999</code>. However this doesn&#8217;t always work. Luckily, we have programmed some code to try to remove weird numbers, so when you run the code (see the section <a href="#Running the chi analysis">[Running the chi analysis]</a>) you turn the <code>remove_seas</code> switch to true and that should sort you out.</p>
 </li>
 <li>
 <p>Sometimes you get holes in your data. This is annoying. We have code to deal with that, but for now I will just say that you should use the <a href="http://www.opentopography.org/">opentopography</a> data server to get SRTM data as it is seamless. Note that for chi analysis, 30 metre resolution data is probably sufficient: see <a href="http://www.earth-surf-dynam.net/4/627/2016/">Grieve et al, 2016</a> and <a href="http://www.earth-surf-dynam.net/5/211/2017/">Purinton and Bookhagen, 2017</a>.</p>
@@ -959,7 +963,7 @@ You need to convert your rasters to UTM coordinates! If you fail to do this at b
 </div>
 </div>
 <div class="sect1">
-<h2 id="_running_the_chi_analysis">4. Running the chi analysis</h2>
+<h2 id="_running_the_chi_analysis_options_and_outputs">4. Running the chi analysis: options and outputs</h2>
 <div class="sectionbody">
 <div class="sidebarblock">
 <div class="content">
@@ -1905,17 +1909,29 @@ If the <code>convert_csv_to_geojson</code> flag is set to <code>true</code> then
 </div>
 </div>
 <div class="sect1">
-<h2 id="_visualisation">5. Visualisation</h2>
+<h2 id="_examples_of_chi_analysis">5. Examples of chi analysis</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We use python, since it is much better than the alternatives. Don&#8217;t ever use Matlab.</p>
+<p>We will now run some examples of chi analysis using the the <strong>chi mapping tool</strong>.</p>
+</div>
+<div class="sect2">
+<h3 id="_get_the_example_data">5.1. Get the example data</h3>
+<div class="paragraph">
+<p>We have placed several example datasets in the github repository <a href="https://github.com/LSDtopotools/LSDTT_chi_examples">LSDTT_chi_examples</a>. You can clone these in your vagrant box into the <code>Topographic_projects</code> folder:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">$ cd /LSDTopoTools/Topographic_projects
+$ git clone https://github.com/LSDtopotools/LSDTT_chi_examples.git</code></pre>
+</div>
+</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-06-07 16:50:28 GMT Daylight Time
+Last updated 2017-06-19 21:28:19 GMT Daylight Time
 </div>
 </div>
 </body>
