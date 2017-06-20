@@ -439,6 +439,7 @@ MathJax.Hub.Config({
 <ul class="sectlevel2">
 <li><a href="#_background">1.1. Background</a></li>
 <li><a href="#_channel_incision_and_geometry">1.2. Channel incision and geometry</a></li>
+<li><a href="#_what_is_in_these_documents">1.3. What is in these documents</a></li>
 </ul>
 </li>
 <li><a href="#_getting_the_software">2. Getting the software</a>
@@ -483,9 +484,20 @@ MathJax.Hub.Config({
 </li>
 </ul>
 </li>
-<li><a href="#_examples_of_chi_analysis">5. Examples of chi analysis</a>
+<li><a href="#_visualisation">5. Visualisation</a>
 <ul class="sectlevel2">
-<li><a href="#_get_the_example_data">5.1. Get the example data</a></li>
+<li><a href="#_using_a_gis">5.1. Using a GIS</a></li>
+<li><a href="#_using_python">5.2. Using python</a>
+<ul class="sectlevel3">
+<li><a href="#_setting_up_python">5.2.1. Setting up Python</a></li>
+<li><a href="#_getting_our_plotting_tools">5.2.2. Getting our plotting tools</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#_examples_of_chi_analysis">6. Examples of chi analysis</a>
+<ul class="sectlevel2">
+<li><a href="#_get_the_example_data">6.1. Get the example data</a></li>
 </ul>
 </li>
 </ul>
@@ -600,6 +612,28 @@ the user should read <a href="http://mit.edu/perron/www/files/PerronRoyden13.pdf
 </div>
 <div class="paragraph">
 <p>The longitudinal coordinate \(\chi\) has dimensions of length, and is linearly related to the elevation <em>z(x)</em>.  Therefore, if a channel incises based on the stream power incision model, then its profile should be linear on a plot of elevation against \(\chi\). As well as providing a method to test whether channel profiles obey common incision models, \(\chi\)-plots also provide means of testing the appropriate \(\theta\) for a channel (<a href="http://onlinelibrary.wiley.com/doi/10.1002/esp.3302/abstract">Perron and Royden, 2013</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/full">Mudd et al., 2014</a>).  If the integral analysis is performed for all channels within a basin, the correct value of \(\theta\) can be determined by identifying at which value all of the channels are both linear in \(\chi\)-elevation space, and collinear, where main channel and tributaries all collapse onto a single profile.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_what_is_in_these_documents">1.3. What is in these documents</h3>
+<div class="paragraph">
+<p>This documention contains:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A chapter on getting and installing the software: <a href="#_getting_the_software">Getting the software</a></p>
+</li>
+<li>
+<p>A chapter on preparing your data, mostly with <a href="http://www.gdal.org/">GDAL</a>: <a href="#_preparing_your_data">Preparing your data</a></p>
+</li>
+<li>
+<p>A chapter on the details of running the software, including the options available and the data output formats: <a href="#_running_the_chi_analysis_options_and_outputs">Running the chi analysis: options and outputs</a>. This section rather detailed; if you want specific examples that walk you through analysis go to the following chapter.</p>
+</li>
+<li>
+<p>A series of example walkthoughs: <a href="#_examples_of_chi_analysis">Examples of chi analysis</a></p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -843,6 +877,13 @@ Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetu
 <div class="paragraph">
 <p>There are many sources of topogaphic data, which we will not repeat here, but if you are looking for an easy interface to get either lidar or SRTM data, we suggest <a href="http://www.opentopography.org/">opentopography</a>. This site is not jst for USA-based lidar but also has very nice interfaces for <a href="http://opentopo.sdsc.edu/lidar?format=sd">global data sets</a>.</p>
 </div>
+<div class="paragraph">
+<p>You can also find a list of freely avaialble lidar datasets at this site:
+<a href="https://arheologijaslovenija.blogspot.co.uk/p/blog-page_81.html?spref=tw" class="bare">https://arheologijaslovenija.blogspot.co.uk/p/blog-page_81.html?spref=tw</a></p>
+</div>
+<div class="paragraph">
+<p>Once you download data you will need to convert it into a format and projection suitable for <strong>LSDTopoTools</strong>. If you have <a href="https://en.wikipedia.org/wiki/Raster_data">raster data</a>, the best way to preprocess your data is via <a href="http://www.gdal.org/">GDAL</a>, which is explained inthe section below.</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_use_gdal">3.2. Use GDAL</h3>
@@ -965,6 +1006,9 @@ You need to convert your rasters to UTM coordinates! If you fail to do this at b
 <div class="sect1">
 <h2 id="_running_the_chi_analysis_options_and_outputs">4. Running the chi analysis: options and outputs</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>This section explains the various options and data outputs of teh <strong>chi mapping tool</strong>. If you want specific examples of usage you may wish to skip to the section: <a href="#_examples_of_chi_analysis">Examples of chi analysis</a>.</p>
+</div>
 <div class="sidebarblock">
 <div class="content">
 <div class="title">Important notes on how vagrant and LSDTopoTools work</div>
@@ -1909,13 +1953,177 @@ If the <code>convert_csv_to_geojson</code> flag is set to <code>true</code> then
 </div>
 </div>
 <div class="sect1">
-<h2 id="_examples_of_chi_analysis">5. Examples of chi analysis</h2>
+<h2 id="_visualisation">5. Visualisation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>LSDTopoTools</strong> produces two main data types: raster data and point data.
+This chapter is a brief overview of ways to visualise these datasets. We go through some examples in the next chapter.</p>
+</div>
+<div class="sect2">
+<h3 id="_using_a_gis">5.1. Using a GIS</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Raster data is output in ENVI bil format, which can be read by standard GIS software such as <a href="http://www.qgis.org/en/site/">QGIS</a> or <a href="https://www.arcgis.com/features/index.html">ArcMap</a>.</p>
+</li>
+<li>
+<p>Point data is output as <a href="https://en.wikipedia.org/wiki/Comma-separated_values">csv</a> files. You can also choose to output these data as <a href="http://geojson.org/">geojson</a> files.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>To load csv files into a GIS, you will need to import them. Here are instructions <a href="http://www.qgistutorials.com/en/docs/importing_spreadsheets_csv.html">for QGIS</a> and for <a href="http://support.esri.com/technical-article/000012745">ArcMap</a>. In both cases you will need to tell your GIS what coordinate system the data is in. <strong>LSDTopoTools</strong> writes latitude and longitude to our csv files in the <a href="http://spatialreference.org/ref/epsg/wgs-84/">WGS84</a> geographic coordinate system.</p>
+</li>
+<li>
+<p>Geojson files are <strong>huge</strong> compared to csv files but they can be used for web mapping (e.g., <a href="https://d3js.org/">D3.js</a> or <a href="http://leafletjs.com/">leaflet</a>), and they are georeferences socan be loaded directly into a GIS using the "add vector data" functionality.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_using_python">5.2. Using python</h3>
+<div class="paragraph">
+<p>We have a number of visualisation scripts built using <a href="https://www.python.org/">python</a> and its packages <a href="http://www.numpy.org/">numpy</a>, <a href="http://pandas.pydata.org/">pandas</a>, and <a href="https://matplotlib.org/">matplotlib</a>.</p>
+</div>
+<div class="sect3">
+<h4 id="_setting_up_python">5.2.1. Setting up Python</h4>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Do not set up python in a vagrant server. Instead do it in your host operating system. The vagrant server is a stripped down version of Linux that cannot generate windows so you can have only limited functionality of these tools in a vagrant server.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This is a quick guide. There are many options for setting up python but this is our preferred setup.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The best way to install python is <a href="http://conda.pydata.org/miniconda.html">miniconda</a>. Currently everything we use is tested on <strong>Python 2.7</strong>, so use the Python 2.7 installer. However, we have attempted to maintain compatibility to python 3.x. If you use that, it should be okay, but please report any bugs on the github page.</p>
+</li>
+<li>
+<p>Once you have installed  <a href="http://conda.pydata.org/miniconda.html">miniconda</a>, you can go into a powershell (windows) or terminal (MacOS and Linux) and get the other stuff you need:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-consol" data-lang="consol">  PS&gt; conda install scipy
+  PS&gt; conda install matplotlib
+  PS&gt; conda install pandas
+  PS&gt; conda install gdal
+  PS&gt; conda install pyproj
+  PS&gt; conda install spyder</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>To run spyder you just type <code>spyder</code> at the command line.</p>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Spyder needs an older version of a package called <strong>PyQt</strong>. If spyder doesn&#8217;t start correctly, run <code>conda install pyqt=4.10 -f</code>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+It is entirely possible that we have forgotten some package, but if you run one of our scripts and it tells you the package is not found, just use <code>conda</code> to install.
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_getting_our_plotting_tools">5.2.2. Getting our plotting tools</h4>
+<div class="paragraph">
+<p><strong>DO THIS IN YOUR HOST OPERATING SYSTEM</strong></p>
+</div>
+<div class="paragraph">
+<p>Our vagrant setup has no graphic interface (you inly interact with it through a terminal) so we suggest using your host operating system for python.</p>
+</div>
+<div class="paragraph">
+<p>You need to clone our repository <a href="https://github.com/LSDtopotools/LSDMappingTools">LSDMappingTools</a>.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+At the moment <a href="https://github.com/LSDtopotools/LSDMappingTools">LSDMappingTools</a> is a complete mess. It currently serves as a bit of a sandbox for visualisation development. One day we will clean it all up and make a nice, pretty release. But for now I&#8217;m afraid you&#8217;ll need to rely on this repository.
+</td>
+</tr>
+</table>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>If you don&#8217;t want to install <a href="https://git-scm.com/">git</a> on your host operatring system, you can clone the repository from your vagrant machine. Becase of the clever way vagrant works you will be able to use these files in you host operating system.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">$ cd /LSDTopoTools/Git_projects
+$ git clone https://github.com/LSDtopotools/LSDMappingTools.git</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+In your host operating system these files will not be in <code>/LSDTopoTools/Git_projects</code>. They will be within the <code>VagrantBoxes\LSDTopoTools\Git_projects</code> directory (wherever you put it. On windows I put mine in the <code>C</code> directory).
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_examples_of_chi_analysis">6. Examples of chi analysis</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>We will now run some examples of chi analysis using the the <strong>chi mapping tool</strong>.</p>
 </div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+We are going to assume you are using our vagrant setup. That means that code will live in the directory <code>/LSDTopoTools/Git_projects/LSDTopoTool_ChiMudd2014</code> and topographic data will live in the directory <code>/LSDTopoTools/Topographic_projects</code>.
+</td>
+</tr>
+</table>
+</div>
 <div class="sect2">
-<h3 id="_get_the_example_data">5.1. Get the example data</h3>
+<h3 id="_get_the_example_data">6.1. Get the example data</h3>
 <div class="paragraph">
 <p>We have placed several example datasets in the github repository <a href="https://github.com/LSDtopotools/LSDTT_chi_examples">LSDTT_chi_examples</a>. You can clone these in your vagrant box into the <code>Topographic_projects</code> folder:</p>
 </div>
@@ -1931,7 +2139,7 @@ $ git clone https://github.com/LSDtopotools/LSDTT_chi_examples.git</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-06-19 21:28:19 GMT Daylight Time
+Last updated 2017-06-20 10:02:06 GMT Daylight Time
 </div>
 </div>
 </body>
