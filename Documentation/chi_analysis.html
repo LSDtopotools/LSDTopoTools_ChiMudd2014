@@ -459,27 +459,28 @@ MathJax.Hub.Config({
 </li>
 <li><a href="#_running_the_chi_analysis_options_and_outputs">4. Running the chi analysis: options and outputs</a>
 <ul class="sectlevel2">
-<li><a href="#_the_parameter_file">4.1. The parameter file</a></li>
-<li><a href="#_parameter_file_options">4.2. Parameter file options</a>
+<li><a href="#_text_editors_for_modifying_files">4.1. Text editors for modifying files</a></li>
+<li><a href="#_the_parameter_file">4.2. The parameter file</a></li>
+<li><a href="#_parameter_file_options">4.3. Parameter file options</a>
 <ul class="sectlevel3">
-<li><a href="#_basic_file_input_and_output">4.2.1. Basic file input and output</a></li>
-<li><a href="#_dem_preprocessing">4.2.2. DEM preprocessing</a></li>
-<li><a href="#_selecting_channels_and_basins">4.2.3. Selecting channels and basins</a></li>
-<li><a href="#_basic_data_output_before_calculating_chi">4.2.4. Basic data output (before calculating chi)</a></li>
-<li><a href="#_basic_parameters_for_the_chi_coordinate">4.2.5. Basic parameters for the chi coordinate</a></li>
-<li><a href="#_parameters_for_exploring_the_em_m_n_em_ratio">4.2.6. Parameters for exploring the <em>m/n</em> ratio</a></li>
-<li><a href="#_parameters_for_segmentation_of_channels">4.2.7. Parameters for segmentation of channels</a></li>
-<li><a href="#_printing_of_simple_chi_maps">4.2.8. Printing of simple chi maps</a></li>
-<li><a href="#_chi_maps_with_segmentation_and_basin_and_channel_selection">4.2.9. Chi maps with segmentation and basin and channel selection</a></li>
-<li><a href="#_parameters_for_dealing_with_discharge_rather_than_drainage_area">4.2.10. Parameters for dealing with discharge rather than drainage area</a></li>
+<li><a href="#_basic_file_input_and_output">4.3.1. Basic file input and output</a></li>
+<li><a href="#_dem_preprocessing">4.3.2. DEM preprocessing</a></li>
+<li><a href="#_selecting_channels_and_basins">4.3.3. Selecting channels and basins</a></li>
+<li><a href="#_basic_data_output_before_calculating_chi">4.3.4. Basic data output (before calculating chi)</a></li>
+<li><a href="#_basic_parameters_for_the_chi_coordinate">4.3.5. Basic parameters for the chi coordinate</a></li>
+<li><a href="#_parameters_for_exploring_the_em_m_n_em_ratio">4.3.6. Parameters for exploring the <em>m/n</em> ratio</a></li>
+<li><a href="#_parameters_for_segmentation_of_channels">4.3.7. Parameters for segmentation of channels</a></li>
+<li><a href="#_printing_of_simple_chi_maps">4.3.8. Printing of simple chi maps</a></li>
+<li><a href="#_chi_maps_with_segmentation_and_basin_and_channel_selection">4.3.9. Chi maps with segmentation and basin and channel selection</a></li>
+<li><a href="#_parameters_for_dealing_with_discharge_rather_than_drainage_area">4.3.10. Parameters for dealing with discharge rather than drainage area</a></li>
 </ul>
 </li>
-<li><a href="#_example_parameter_file">4.3. Example parameter file</a></li>
-<li><a href="#_output_data_formats">4.4. Output data formats</a></li>
-<li><a href="#_the_different_outputs_and_how_to_get_them">4.5. The different outputs and how to get them</a>
+<li><a href="#_example_parameter_file">4.4. Example parameter file</a></li>
+<li><a href="#_output_data_formats">4.5. Output data formats</a></li>
+<li><a href="#_the_different_outputs_and_how_to_get_them">4.6. The different outputs and how to get them</a>
 <ul class="sectlevel3">
-<li><a href="#_raster_output">4.5.1. Raster output</a></li>
-<li><a href="#_point_data_usually_output_as_csv">4.5.2. Point data (usually output as csv)</a></li>
+<li><a href="#_raster_output">4.6.1. Raster output</a></li>
+<li><a href="#_point_data_usually_output_as_csv">4.6.2. Point data (usually output as csv)</a></li>
 </ul>
 </li>
 </ul>
@@ -490,7 +491,8 @@ MathJax.Hub.Config({
 <li><a href="#_using_python">5.2. Using python</a>
 <ul class="sectlevel3">
 <li><a href="#_setting_up_python">5.2.1. Setting up Python</a></li>
-<li><a href="#_getting_our_plotting_tools">5.2.2. Getting our plotting tools</a></li>
+<li><a href="#_using_spyder">5.2.2. Using Spyder</a></li>
+<li><a href="#_getting_our_plotting_tools">5.2.3. Getting our plotting tools</a></li>
 </ul>
 </li>
 </ul>
@@ -498,6 +500,7 @@ MathJax.Hub.Config({
 <li><a href="#_examples_of_chi_analysis">6. Examples of chi analysis</a>
 <ul class="sectlevel2">
 <li><a href="#_get_the_example_data">6.1. Get the example data</a></li>
+<li><a href="#_first_example_basic_dem_steps">6.2. First example: Basic DEM steps</a></li>
 </ul>
 </li>
 </ul>
@@ -1007,7 +1010,7 @@ You need to convert your rasters to UTM coordinates! If you fail to do this at b
 <h2 id="_running_the_chi_analysis_options_and_outputs">4. Running the chi analysis: options and outputs</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This section explains the various options and data outputs of teh <strong>chi mapping tool</strong>. If you want specific examples of usage you may wish to skip to the section: <a href="#_examples_of_chi_analysis">Examples of chi analysis</a>.</p>
+<p>This section explains the various options and data outputs of the <strong>chi mapping tool</strong>. If you want specific examples of usage you may wish to skip to the section: <a href="#_examples_of_chi_analysis">Examples of chi analysis</a>.</p>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1069,7 +1072,13 @@ These are basic notes on running <strong>LSDTopoTools</strong> on a vagrant serv
 <p>The code is run using a parameter file, within which users can set the data they want to print to file. Regardless of which data they choose to print to file, a file will be printed with the extension <code>_Input.param</code> which prints out all the parameters used in the analysis (including the default parameters). This file can be used to verify if the correct parameters have been used in the analysis.</p>
 </div>
 <div class="sect2">
-<h3 id="_the_parameter_file">4.1. The parameter file</h3>
+<h3 id="_text_editors_for_modifying_files">4.1. Text editors for modifying files</h3>
+<div class="paragraph">
+<p>You will need to modify the parameter file in a text editor. You might also modify python scripts in a text editor. So you need to get a text editor. We use [Brackets] and [Atom] (these are platform independent). Sometimes we also use [PSPad].</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_parameter_file">4.2. The parameter file</h3>
 <div class="paragraph">
 <p>The parameter file has keywords followed by a value. The format of this file is similar to the files used in the <code>LSDTT_analysis_from_paramfile</code> program, which you can read about in the section <a href="#Running your first analysis">[Running your first analysis]</a>.</p>
 </div>
@@ -1114,13 +1123,13 @@ The parameter file has a specific format, but the filename can be anything you w
 </div>
 </div>
 <div class="sect2">
-<h3 id="_parameter_file_options">4.2. Parameter file options</h3>
+<h3 id="_parameter_file_options">4.3. Parameter file options</h3>
 <div class="paragraph">
 <p>Below are options for the parameter files. Note that all DEMs must be in ENVI <code>bil</code> format (<strong>DO NOT</strong> use ArcMap&#8217;s bil format: these are two different things. See the section <a href="#_preparing_your_data">Preparing your data</a> if you want more details).
 The reason we use <code>bil</code> format is because it retains georeferencing which is essential to our file output since many of the files output to <code>csv</code> format with latitude and longitude as coordinates.</p>
 </div>
 <div class="sect3">
-<h4 id="_basic_file_input_and_output">4.2.1. Basic file input and output</h4>
+<h4 id="_basic_file_input_and_output">4.3.1. Basic file input and output</h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 1. File input and output options. <strong>These do not have defaults and MUST be declared</strong>.</caption>
 <colgroup>
@@ -1166,7 +1175,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </table>
 </div>
 <div class="sect3">
-<h4 id="_dem_preprocessing">4.2.2. DEM preprocessing</h4>
+<h4 id="_dem_preprocessing">4.3.2. DEM preprocessing</h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 2. DEM preprocessing. These just help you clean data and perform very basic operations.</caption>
 <colgroup>
@@ -1224,7 +1233,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </table>
 </div>
 <div class="sect3">
-<h4 id="_selecting_channels_and_basins">4.2.3. Selecting channels and basins</h4>
+<h4 id="_selecting_channels_and_basins">4.3.3. Selecting channels and basins</h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 3. Options for determining which channels and basins to analyse, including settings for the fill function.</caption>
 <colgroup>
@@ -1276,7 +1285,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </table>
 </div>
 <div class="sect3">
-<h4 id="_basic_data_output_before_calculating_chi">4.2.4. Basic data output (before calculating chi)</h4>
+<h4 id="_basic_data_output_before_calculating_chi">4.3.4. Basic data output (before calculating chi)</h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 4. Basic printing operations. For simple rasters and network data that doesn&#8217;t require chi analysis.</caption>
 <colgroup>
@@ -1346,7 +1355,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </table>
 </div>
 <div class="sect3">
-<h4 id="_basic_parameters_for_the_chi_coordinate">4.2.5. Basic parameters for the chi coordinate</h4>
+<h4 id="_basic_parameters_for_the_chi_coordinate">4.3.5. Basic parameters for the chi coordinate</h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 5. Parameters for calculating the chi coordinate.</caption>
 <colgroup>
@@ -1392,7 +1401,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </table>
 </div>
 <div class="sect3">
-<h4 id="_parameters_for_exploring_the_em_m_n_em_ratio">4.2.6. Parameters for exploring the <em>m/n</em> ratio</h4>
+<h4 id="_parameters_for_exploring_the_em_m_n_em_ratio">4.3.6. Parameters for exploring the <em>m/n</em> ratio</h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 6. Parameters for trying to constrain the <em>m/n</em> ratio, including slope-area analysis.</caption>
 <colgroup>
@@ -1468,7 +1477,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </table>
 </div>
 <div class="sect3">
-<h4 id="_parameters_for_segmentation_of_channels">4.2.7. Parameters for segmentation of channels</h4>
+<h4 id="_parameters_for_segmentation_of_channels">4.3.7. Parameters for segmentation of channels</h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 7. Parameters for calculating the segments of similar chi slope (\(M_{\chi}\)). Details can be found in <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al., JGR-ES 2014</a>.</caption>
 <colgroup>
@@ -1526,7 +1535,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </table>
 </div>
 <div class="sect3">
-<h4 id="_printing_of_simple_chi_maps">4.2.8. Printing of simple chi maps</h4>
+<h4 id="_printing_of_simple_chi_maps">4.3.8. Printing of simple chi maps</h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 8. Options for printing simple chi maps</caption>
 <colgroup>
@@ -1560,7 +1569,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </table>
 </div>
 <div class="sect3">
-<h4 id="_chi_maps_with_segmentation_and_basin_and_channel_selection">4.2.9. Chi maps with segmentation and basin and channel selection</h4>
+<h4 id="_chi_maps_with_segmentation_and_basin_and_channel_selection">4.3.9. Chi maps with segmentation and basin and channel selection</h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 9. Options for chi maps and secondary data files that split channels and basins</caption>
 <colgroup>
@@ -1618,7 +1627,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </table>
 </div>
 <div class="sect3">
-<h4 id="_parameters_for_dealing_with_discharge_rather_than_drainage_area">4.2.10. Parameters for dealing with discharge rather than drainage area</h4>
+<h4 id="_parameters_for_dealing_with_discharge_rather_than_drainage_area">4.3.10. Parameters for dealing with discharge rather than drainage area</h4>
 <div class="paragraph">
 <p>These allow the user to drive chi with discharge rather than drainage area. It is somewhat rudimentary at the moment in that it  assumes the rainfall rate in length per time is translated into some constant discharge. This is not a hydrological model! It simply accumulates precipitation through a channel network with no regard to hydrological processes, infiltration and evaporation, or the timing of storms.</p>
 </div>
@@ -1656,7 +1665,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_example_parameter_file">4.3. Example parameter file</h3>
+<h3 id="_example_parameter_file">4.4. Example parameter file</h3>
 <div class="paragraph">
 <p>Below is an example parameter file. This file is included in the repository along with the driver functions.</p>
 </div>
@@ -1703,7 +1712,7 @@ print_segmented_M_chi_map_to_csv: true</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_output_data_formats">4.4. Output data formats</h3>
+<h3 id="_output_data_formats">4.5. Output data formats</h3>
 <div class="paragraph">
 <p>Data is written to rasters, csv files, or geojson file.</p>
 </div>
@@ -1757,12 +1766,12 @@ ENVI bil should not be mistaken for ESRI bil. Make sure you are using ENVI bil f
 </div>
 </div>
 <div class="sect2">
-<h3 id="_the_different_outputs_and_how_to_get_them">4.5. The different outputs and how to get them</h3>
+<h3 id="_the_different_outputs_and_how_to_get_them">4.6. The different outputs and how to get them</h3>
 <div class="paragraph">
 <p>To get the various outputs, you need to tell the <strong>chi mapping tool</strong> using the parameter file. These tables tell you what flags to use and what data you will get.</p>
 </div>
 <div class="sect3">
-<h4 id="_raster_output">4.5.1. Raster output</h4>
+<h4 id="_raster_output">4.6.1. Raster output</h4>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 11. These are basic rasters that don&#8217;t require chi analysis.</caption>
 <colgroup>
@@ -1817,7 +1826,7 @@ ENVI bil should not be mistaken for ESRI bil. Make sure you are using ENVI bil f
 </table>
 </div>
 <div class="sect3">
-<h4 id="_point_data_usually_output_as_csv">4.5.2. Point data (usually output as csv)</h4>
+<h4 id="_point_data_usually_output_as_csv">4.6.2. Point data (usually output as csv)</h4>
 <div class="paragraph">
 <p>The table below gives a brief description of the output files. After the table we show the format for each of these files.</p>
 </div>
@@ -2008,14 +2017,29 @@ Do not set up python in a vagrant server. Instead do it in your host operating s
 <ol class="arabic">
 <li>
 <p>The best way to install python is <a href="http://conda.pydata.org/miniconda.html">miniconda</a>. Currently everything we use is tested on <strong>Python 2.7</strong>, so use the Python 2.7 installer. However, we have attempted to maintain compatibility to python 3.x. If you use that, it should be okay, but please report any bugs on the github page.</p>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Our visualisation routines involve some computation, and dealing with geospatial data. This means that there are a numer of packages to install. This might take some time. If you are alreay using python for something critical you may consider setting up a <a href="https://realpython.com/blog/python/python-virtual-environments-a-primer/">virtual</a> <a href="http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/">environment</a> to ensure all of these new packages don&#8217;t break what you&#8217;ve already got.
+</td>
+</tr>
+</table>
+</div>
 </li>
 <li>
 <p>Once you have installed  <a href="http://conda.pydata.org/miniconda.html">miniconda</a>, you can go into a powershell (windows) or terminal (MacOS and Linux) and get the other stuff you need:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-consol" data-lang="consol">  PS&gt; conda install scipy
+<pre class="highlight"><code class="language-consol" data-lang="consol">  PS&gt; conda config --add channels conda-forge
+  PS&gt; conda install scipy
   PS&gt; conda install matplotlib
   PS&gt; conda install pandas
+  PS&gt; conda install shapely
+  PS&gt; conda install fiona
   PS&gt; conda install gdal
   PS&gt; conda install pyproj
   PS&gt; conda install spyder</code></pre>
@@ -2053,16 +2077,37 @@ It is entirely possible that we have forgotten some package, but if you run one 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_getting_our_plotting_tools">5.2.2. Getting our plotting tools</h4>
+<h4 id="_using_spyder">5.2.2. Using Spyder</h4>
 <div class="paragraph">
-<p><strong>DO THIS IN YOUR HOST OPERATING SYSTEM</strong></p>
+<p>Once you have installed python, you can use it from the command line (i.e. from a powershell or terminal window). However, you might prefer using a nice development environment that checks your code and has pretty colours and reassuring windows. When we are not using text editors (see our section <a href="#_text_editors_for_modifying_files">Text editors for modifying files</a>) we tend to use Spyder, which has an editor that can give you help with python packages and highlight your mistakes. You should have already installed it with <code>conda install spyder</code>, so to get it running go into a powershell or terminal window and just type:</p>
 </div>
-<div class="paragraph">
-<p>Our vagrant setup has no graphic interface (you inly interact with it through a terminal) so we suggest using your host operating system for python.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">PS&gt; spyder</code></pre>
 </div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+You cannot run spyder on the vagrant machine since it has no windowing system. If you want to run <strong>Spyder</strong> you need to use your host operating system. This is the one of the reasons we encourage you to do your python installation on your host operating system and not the vagrant machine.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_getting_our_plotting_tools">5.2.3. Getting our plotting tools</h4>
 <div class="paragraph">
+<p>Our vagrant setup has no graphic interface (you only interact with it through a terminal) so we suggest using your host operating system for python.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
 <p>You need to clone our repository <a href="https://github.com/LSDtopotools/LSDMappingTools">LSDMappingTools</a>.</p>
-</div>
 <div class="admonitionblock warning">
 <table>
 <tr>
@@ -2075,10 +2120,9 @@ At the moment <a href="https://github.com/LSDtopotools/LSDMappingTools">LSDMappi
 </tr>
 </table>
 </div>
-<div class="olist arabic">
-<ol class="arabic">
+</li>
 <li>
-<p>If you don&#8217;t want to install <a href="https://git-scm.com/">git</a> on your host operatring system, you can clone the repository from your vagrant machine. Becase of the clever way vagrant works you will be able to use these files in you host operating system.</p>
+<p>If you don&#8217;t want to install <a href="https://git-scm.com/">git</a> on your host operating system, you can clone the repository from your vagrant machine. Becase of the clever way vagrant works you will be able to use these files in you host operating system.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-console" data-lang="console">$ cd /LSDTopoTools/Git_projects
@@ -2097,6 +2141,9 @@ In your host operating system these files will not be in <code>/LSDTopoTools/Git
 </tr>
 </table>
 </div>
+</li>
+<li>
+<p>Once you have this repository you can move on to our examples in the next chapter.</p>
 </li>
 </ol>
 </div>
@@ -2134,12 +2181,53 @@ $ git clone https://github.com/LSDtopotools/LSDTT_chi_examples.git</code></pre>
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_first_example_basic_dem_steps">6.2. First example: Basic DEM steps</h3>
+<div class="paragraph">
+<p>First we will do some very basic extraction of basins and visualisation of a region near Xi&#8217;an China, in the mountains containing <a href="https://en.wikipedia.org/wiki/Mount_Hua">Hua Shan</a>.</p>
+</div>
+<div class="paragraph">
+<p>If you have followed the steps in the section: <a href="#_getting_the_software">Getting the software</a>, the <strong>chi mapping tool</strong> will already be installed, and the example driver file will be in the <code>LSDTT_chi_examples</code> folder.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Navigate to the directory with the <strong>chi mapping tool</strong>:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">$ cd /LSDTopoTools/Git_projects/LSDTopoTool_ChiMudd2014/driver_functions_MuddChi2014/</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Now run the example driver file.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">$ ./chi_mapping_tool.exe /LSDTopoTools/Topographic_projects/LSDTT_chi_examples Xian_example1.driver</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>The important elements of the driver file are: <code>test_drainage_boundaries: false</code> and <code>write hillshade: true</code>. These two lines mean that you will print a hillshade raster and you will not test the edges of the DEM. In fact <code>test_drainage_boundaries: false</code> is the default. Why is this important? The chi coordinate is caclualted integrating drainage area along the channel so if your basin is truncated by the edge of the DEM it means that <strong>your chi coordinate will be incorrect</strong>.</p>
+</li>
+<li>
+<p>We are going to visualise the output using python.</p>
+</li>
+<li>
+<p>In your host operating system, find the directory that contains the <a href="https://github.com/LSDtopotools/LSDMappingTools">LSDMappingTools</a> directory.</p>
+</li>
+<li>
+<p>You might want to open spyder (see the section: <a href="#_getting_our_plotting_tools">Getting our plotting tools</a> on how to get this) to look at the python script. To open spyder simply type <code>spyder</code> into a powershell window (Windows)  or terminal (Linux/MaxOS).</p>
+</li>
+</ol>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-06-20 10:02:06 GMT Daylight Time
+Last updated 2017-06-20 08:26:34 GMT Daylight Time
 </div>
 </div>
 </body>
