@@ -230,12 +230,31 @@ class LSDChiTools
     /// @date 4/02/2017
     void segment_counter(LSDFlowInfo& FlowInfo);
 
+    /// @brief This function is used to tag channels with a segment number
+    ///  It decides on segments if the M_Chi value has changed so should only be used
+    ///  with chi networks that have used a skip of 0 and a monte carlo itertions of 1
+    ///  This data is used by other routines to look at the spatial distribution of
+    ///  hillslope-channel coupling.
+    /// @detail WARNING: ONLY use if you have segmented with skip 0 and iterations 1. Otherwise
+    ///  you will get a new segment for every channel pixel
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @return LSDIndexRaster showing stream network indexed by segment ID
+    /// @author MDH
+    /// @date 15/06/2017
+    LSDIndexRaster segment_mapping(LSDFlowInfo& FlowInfo);
+
     /// @brief This function calculates the fitted elevations: It uses m_chi and b_chi
     ///  data to get the fitted elevation of the channel points.
     /// @param FlowInfo an LSDFlowInfo object
     /// @author SMM
     /// @date 4/02/2017
     void segment_counter_knickpoint(LSDFlowInfo& FlowInfo, float threshold_knickpoint, float threshold_knickpoint_length);
+
+    /// @brief This function extract the difference,ratio,sign between each segments of the M_segmented_chi analysis
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @author BG
+    /// @date 4/02/2017
+    void ksn_knickpoint_detection(LSDFlowInfo& FlowInfo);
 
     /// @brief Development function based on segment_counter to help
     ///  knickpoint detection. More description will be added when it will be
@@ -245,19 +264,19 @@ class LSDChiTools
     /// @author BG
     /// @date 10/02/2017
     void calculate_segmented_elevation(LSDFlowInfo& FlowInfo);
-    
-    
+
+
     /// @brief This splits all the sources from the baselevels so that
     ///  individual baselevel catchemnts can be compared in sequence.
-    ///  It produces a map where the sources for each baselelvel are 
-    ///   split into incremetally numberered (0,1,2) channels. 
+    ///  It produces a map where the sources for each baselelvel are
+    ///   split into incremetally numberered (0,1,2) channels.
     /// @param n_sources_for_baselevel The number of sources for each baselelvel node
     ///   Replaced in function.
     /// @param index_into_sources_vec The index into the ordered sources vector
     ///   that is the starting index for each baselevel. Replaced in function.
     /// @author SMM
-    /// @date 26/05/2017 
-    void baselevel_and_source_splitter(vector<int>& n_sources_for_baselevel, 
+    /// @date 26/05/2017
+    void baselevel_and_source_splitter(vector<int>& n_sources_for_baselevel,
                                                 vector<int>& index_into_sources_vec);
 
     /// @brief This prints all the indexing and keys to screen for bug checking
@@ -275,26 +294,26 @@ class LSDChiTools
     /// @date 04/05/2017
     float test_segment_collinearity(LSDFlowInfo& FlowInfo, int reference_channel, int test_channel);
 
-    /// @brief This computes a collinearity metric for all combinations of 
+    /// @brief This computes a collinearity metric for all combinations of
     ///  channels for a given basin
     /// @detail It takes all the combinations of sources and gets the goodness of fit between each pair
-    ///  of sources. 
+    ///  of sources.
     /// @param FlowInfo an LSDFlowInfo object
     /// @param only_use_mainstem_as_reference True if you only want to use the mainstem
     /// @param basin_key The key into the basin you want to test all collinearity of.
-    /// @param reference_source integer vector replaced in function that has the reference vector for each comparison 
-    /// @param test_source integer vector replaced in function that has the test vector for each comparison 
+    /// @param reference_source integer vector replaced in function that has the reference vector for each comparison
+    /// @param test_source integer vector replaced in function that has the test vector for each comparison
     /// @param MLE_values the MLE for each comparison. Replaced in function.
-    /// @param RMSE_values the RMSE for each comparison (i.e. between source 0 1, 0 2, 0 3, etc.). Replaced in function. 
+    /// @param RMSE_values the RMSE for each comparison (i.e. between source 0 1, 0 2, 0 3, etc.). Replaced in function.
     /// @author SMM
     /// @date 08/05/2017
-    float test_all_segment_collinearity_by_basin(LSDFlowInfo& FlowInfo, bool only_use_mainstem_as_reference, 
+    float test_all_segment_collinearity_by_basin(LSDFlowInfo& FlowInfo, bool only_use_mainstem_as_reference,
                                         int basin_key,
-                                        vector<int>& reference_source, vector<int>& test_source, 
+                                        vector<int>& reference_source, vector<int>& test_source,
                                         vector<float>& MLE_values, vector<float>& RMSE_values);
 
     /// @brief This wraps the collinearity tester, looping through different m over n
-    ///  values and calculating goodness of fit statistics. 
+    ///  values and calculating goodness of fit statistics.
     /// @param FlowInfo an LSDFlowInfo object
     /// @param source_nodes a vector containing the sorted sorce nodes (by flow distance)
     /// @param outlet_nodes a vector continaing the outlet nodes
@@ -302,20 +321,22 @@ class LSDChiTools
     /// @param DistanceFromOutlet an LSDRaster with the flow distance
     /// @param DrainageArea an LSDRaster with the drainage area
     /// @param start_movern the starting m/n ratio
-    /// @param delta_movern the change in m/n 
+    /// @param delta_movern the change in m/n
     /// @param n_novern the number of m/n values to use
     /// @param only_use_mainstem_as_reference a boolean, if true only compare channels to mainstem .
     /// @param The file prefix for the data files
     /// @author SMM
     /// @date 16/05/2017
-    void calculate_goodness_of_fit_collinearity_fxn_movern(LSDFlowInfo& FlowInfo, 
-                        float start_movern, float delta_movern, int n_movern, 
-                        bool only_use_mainstem_as_reference, 
+    /// MODIFIED FJC 17/06/17 to take a junction network as an argument - need to print out the outlet
+    /// junction of each basin to match to the basin key for visualisation
+    void calculate_goodness_of_fit_collinearity_fxn_movern(LSDFlowInfo& FlowInfo, LSDJunctionNetwork& JN,
+                        float start_movern, float delta_movern, int n_movern,
+                        bool only_use_mainstem_as_reference,
                         string file_prefix);
-                        
+
     /// @brief This wraps the collinearity tester, looping through different m over n
     ///  values and calculating goodness of fit statistics.
-    ///  Same as above but can use a discharge raster to calculate chi 
+    ///  Same as above but can use a discharge raster to calculate chi
     /// @param FlowInfo an LSDFlowInfo object
     /// @param source_nodes a vector containing the sorted sorce nodes (by flow distance)
     /// @param outlet_nodes a vector continaing the outlet nodes
@@ -323,17 +344,17 @@ class LSDChiTools
     /// @param DistanceFromOutlet an LSDRaster with the flow distance
     /// @param DrainageArea an LSDRaster with the drainage area
     /// @param start_movern the starting m/n ratio
-    /// @param delta_movern the change in m/n 
+    /// @param delta_movern the change in m/n
     /// @param n_novern the number of m/n values to use
     /// @param only_use_mainstem_as_reference a boolean, if true only compare channels to mainstem .
     /// @param The file prefix for the data files
     /// @param Discharge and LSDRaster of discharge
     /// @author SMM
     /// @date 16/05/2017
-    void calculate_goodness_of_fit_collinearity_fxn_movern_with_discharge(LSDFlowInfo& FlowInfo, 
-                        float start_movern, float delta_movern, int n_movern, 
-                        bool only_use_mainstem_as_reference, 
-                        string file_prefix, 
+    void calculate_goodness_of_fit_collinearity_fxn_movern_with_discharge(LSDFlowInfo& FlowInfo,
+                        LSDJunctionNetwork& JN, float start_movern, float delta_movern, int n_movern,
+                        bool only_use_mainstem_as_reference,
+                        string file_prefix,
                         LSDRaster& Discharge);
 
     /// @brief This prints a series of chi profiles as a function of mover
@@ -341,7 +362,7 @@ class LSDChiTools
     /// @param FlowInfo an LSDFlowInfo object
     /// @param file_prefix THe path and name of file without extension
     /// @param start_movern the starting m/n ratio
-    /// @param delta_movern the change in m/n 
+    /// @param delta_movern the change in m/n
     /// @param n_novern the number of m/n values to use
     /// @author SMM
     /// @date 17/05/2017
@@ -352,13 +373,13 @@ class LSDChiTools
     /// @param FlowInfo an LSDFlowInfo object
     /// @param file_prefix THe path and name of file without extension
     /// @param start_movern the starting m/n ratio
-    /// @param delta_movern the change in m/n 
+    /// @param delta_movern the change in m/n
     /// @param n_novern the number of m/n values to use
     /// @param Discharge an LSDRaster of discharge
     /// @author SMM
     /// @date 17/05/2017
     void print_profiles_as_fxn_movern_with_discharge(LSDFlowInfo& FlowInfo,string file_prefix,
-                                   float start_movern, float delta_movern, 
+                                   float start_movern, float delta_movern,
                                    int n_movern, LSDRaster& Discharge);
 
 
@@ -377,7 +398,7 @@ class LSDChiTools
     /// @author SMM
     /// @date 04/05/2017
     int get_starting_node_of_source(int source_key);
-    
+
     /// @brief Gets the number of channels in the DEM
     /// @return number of channels
     /// @author SMM
@@ -394,7 +415,7 @@ class LSDChiTools
     /// @param elevation_data A vector holding elevation data of the channel. Will be overwritten
     /// @author SMM
     /// @date 06/05/2017
-    void get_chi_elevation_data_of_channel(LSDFlowInfo& FlowInfo, int source_key, 
+    void get_chi_elevation_data_of_channel(LSDFlowInfo& FlowInfo, int source_key,
                                 vector<float>& chi_data, vector<float>& elevation_data);
 
     /// @brief This takes the chi locations of a tributarry vector and then uses
@@ -412,33 +433,33 @@ class LSDChiTools
                                  vector<float>& trib_elevation);
 
 
-    /// @brief This performs slope area analysis. It goes down through each 
-    ///  source node and collects S-A data along these channels. 
+    /// @brief This performs slope area analysis. It goes down through each
+    ///  source node and collects S-A data along these channels.
     ///  It uses the suggested appraoch of Wobus et al. 2006 in that it uses
     ///  a drop interval to measure slope.
     /// @param FlowInfo an LSDFlowInfo object
     /// @param vertical_interval the mean intervale over which slope is measured
     /// @param midpoint_nodes The node indices of the places where slope is calculated.
-    ///  This is replaced in the function. 
+    ///  This is replaced in the function.
     /// @param Slopes the slopes. This is replaced in the function.
     /// @author SMM
-    /// @date 31/05/2017 
-    void get_slope_area_data(LSDFlowInfo& FlowInfo, float vertical_interval, 
+    /// @date 31/05/2017
+    void get_slope_area_data(LSDFlowInfo& FlowInfo, float vertical_interval,
                              vector<int>& midpoint_nodes, vector<float>& slopes);
 
-    /// @detail This takes slope area data and bins the data so that we can 
-    ///  pretend horrible, noisy S-A data is adequate for understanding 
+    /// @detail This takes slope area data and bins the data so that we can
+    ///  pretend horrible, noisy S-A data is adequate for understanding
     ///  channel behaviour.
     /// @param FlowInfo an LSDFlowInfo object
     /// @param vertical_interval the mean intervale over which slope is measured
     /// @param midpoint_nodes The node indices of the places where slope is calculated.
-    ///  This is replaced in the function. 
+    ///  This is replaced in the function.
     /// @param Slopes the slopes. This is replaced in the function.
     /// @param log_bin_width The width of the bins (in log A)
     /// @param filename The name of the output file (with path and extension)
     /// @author SMM
-    /// @date 31/05/2017 
-    void bin_slope_area_data(LSDFlowInfo& FlowInfo, vector<int>& SA_midpoint_node, 
+    /// @date 31/05/2017
+    void bin_slope_area_data(LSDFlowInfo& FlowInfo, vector<int>& SA_midpoint_node,
                              vector<float>& SA_slope, float log_bin_width, string filename);
 
     /// @brief This takes the midpoint node and slope vectors produced by the slope_area_analysis
@@ -448,9 +469,9 @@ class LSDChiTools
     /// @param filename The name (including path and extension) of the file for printing
     /// @author SMM
     /// @date 31/05/2017
-    void print_slope_area_data_to_csv(LSDFlowInfo& FlowInfo, 
-                                              vector<int>& SA_midpoint_node, 
-                                              vector<float>& SA_slope, 
+    void print_slope_area_data_to_csv(LSDFlowInfo& FlowInfo,
+                                              vector<int>& SA_midpoint_node,
+                                              vector<float>& SA_slope,
                                               string filename);
 
     /// @brief This function burns the chi coordinate (and area, flow distance and elevation)
@@ -461,6 +482,7 @@ class LSDChiTools
     /// @param FlowInfo an LSDFlowInfo object
     /// @param source_nodes a vector containing the sorted sorce nodes (by flow distance)
     /// @param outlet_nodes a vector continaing the outlet nodes
+    /// @param baselevel_node_of_each_basin a vector continaing the baselelve node of the basin for each channel
     /// @param Elevation an LSDRaster containing elevation info
     /// @param DistanceFromOutlet an LSDRaster with the flow distance
     /// @param DrainageArea an LSDRaster with the drainage area
@@ -469,6 +491,7 @@ class LSDChiTools
     void chi_map_automator_chi_only(LSDFlowInfo& FlowInfo,
                                     vector<int> source_nodes,
                                     vector<int> outlet_nodes,
+                                    vector<int> baselevel_node_of_each_basin,
                                     LSDRaster& Elevation, LSDRaster& FlowDistance,
                                     LSDRaster& DrainageArea, LSDRaster& chi_coordinate);
 
@@ -481,6 +504,7 @@ class LSDChiTools
     /// @param FlowInfo an LSDFlowInfo object
     /// @param source_nodes a vector containing the sorted sorce nodes (by flow distance)
     /// @param outlet_nodes a vector continaing the outlet nodes
+    /// @param baselevel_node_of_each_basin a vector continaing the baselelve node of the basin for each channel
     /// @param Elevation an LSDRaster containing elevation info
     /// @param DistanceFromOutlet an LSDRaster with the flow distance
     /// @param DrainageArea an LSDRaster with the drainage area
@@ -492,7 +516,8 @@ class LSDChiTools
     /// @author SMM
     /// @date 23/05/2016
     void chi_map_automator(LSDFlowInfo& FlowInfo, vector<int> source_nodes,
-                           vector<int> outlet_nodes, LSDRaster& Elevation, LSDRaster& FlowDistance,
+                           vector<int> outlet_nodes, vector<int> baselevel_node_of_each_basin,
+                           LSDRaster& Elevation, LSDRaster& FlowDistance,
                            LSDRaster& DrainageArea, LSDRaster& chi_coordinate,
                            int target_nodes, int n_iterations, int skip,
                            int minimum_segment_length, float sigma);
@@ -507,6 +532,7 @@ class LSDChiTools
     /// @param FlowInfo an LSDFlowInfo object
     /// @param source_nodes a vector continaing the sorted sorce nodes (by flow distance)
     /// @param outlet_nodes a vector continaing the outlet nodes
+    /// @param baselevel_node_of_each_basin a vector continaing the baselelve node of the basin for each channel
     /// @param Elevation an LSDRaster containing elevation info
     /// @param DistanceFromOutlet an LSDRaster with the flow distance
     /// @param DrainageArea an LSDRaster with the drainage area
@@ -516,6 +542,7 @@ class LSDChiTools
     /// @author SMM
     /// @date 02/06/2016
     void chi_map_automator_rudimentary(LSDFlowInfo& FlowInfo, vector<int> source_nodes, vector<int> outlet_nodes,
+                                    vector<int> baselevel_node_of_each_basin,
                                     LSDRaster& Elevation, LSDRaster& FlowDistance,
                                     LSDRaster& DrainageArea, LSDRaster& chi_coordinate,
                                     int regression_nodes);
@@ -582,6 +609,16 @@ class LSDChiTools
     /// @date 02/06/2016
     void print_data_maps_to_file_full(LSDFlowInfo& FlowInfo, string filename);
 
+    /// @brief This prints a csv file with all the knickpoint data
+    ///  the columns are:
+    ///  latitude,longitude,elevation,flow distance,drainage area,ratio,diff,sign
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param filename The name of the filename to print to (should have full
+    ///   path and the extension .csv
+    /// @author BG
+    /// @date 06/06/2017
+    void print_knickpoint_to_csv(LSDFlowInfo& FlowInfo, string filename);
+
     /// @brief This prints a csv file with a subset of the data from the data maps
     ///  the columns are:
     ///  latitude,longitude,m_chi,b_chi
@@ -645,6 +682,12 @@ class LSDChiTools
     map<int,int> segment_knickpoint_sign_map;
     /// A map that holds knickpoints signs
     map<int,int> segment_length_map;
+    /// A map that holds knickpoints ratio
+    map<int,float> kns_ratio_knickpoint_map;
+    /// A map that holds knickpoints difference_between_segments
+    map<int,float> kns_diff_knickpoint_map;
+    /// A map that holds knickpoints signs
+    map<int,int> ksn_sign_knickpoint_map;
 
     /// A vector to hold the order of the nodes. Starts from longest channel
     /// and then works through sources in descending order of channel lenght
@@ -654,25 +697,25 @@ class LSDChiTools
     /// The source keys are indicies into the source_to_key_map.
     /// In big DEMs the node numbers become huge so for printing efficiency we
     /// run a key that starts at 0
-    
+
     /// This map contains all the nodes. The key is the node index and the value
-    ///  is the source key (sorry I know this is confusing). It means if you 
+    ///  is the source key (sorry I know this is confusing). It means if you
     ///  have the node index you can look up the source key. Used for
     ///  visualisation.
     map<int,int> source_keys_map;
-    
-    /// This has all the nodes. The key (in the map) is the node index, and the 
-    ///  value is the baselelvel key. Again used for visualisation
+
+    /// This has all the nodes. The key (in the map) is the node index, and the
+    ///  value is the baselevel key. Again used for visualisation
     map<int,int> baselevel_keys_map;
-    
-    /// THis has as many elements as there are sources. The key in the map is the 
+
+    /// THis has as many elements as there are sources. The key in the map is the
     ///  node index of the source, and the value is the source key.
     map<int,int> key_to_source_map;
-    
-    /// This has as many elements as there are baselelvels. The key is the 
-    /// node index and the value is the baselevel key. 
+
+    /// This has as many elements as there are baselelvels. The key is the
+    /// node index and the value is the baselevel key.
     map<int,int> key_to_baselevel_map;
-    
+
     /// this is an ordered list of the source nodes (from first source to last)
     vector<int> ordered_source_nodes;
 
@@ -680,8 +723,8 @@ class LSDChiTools
     vector<int> ordered_baselevel_nodes;
 
     /// This vector contains the rank of each source node in each basin, so the
-    /// main stem in each basin is 0, the second is 1, the 3rd is 2, etc. Counting starts 
-    /// again when a new baselevel node starts. 
+    /// main stem in each basin is 0, the second is 1, the 3rd is 2, etc. Counting starts
+    /// again when a new baselevel node starts.
     vector<int> source_nodes_ranked_by_basin;
 
   private:

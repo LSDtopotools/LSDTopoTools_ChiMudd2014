@@ -196,6 +196,8 @@ class LSDParameterParser
     string get_read_fname() const      { return read_fname; }
     /// @return CHeads_file
     string get_CHeads_file() const      { return CHeads_file; }
+    /// @return BaseLevelJunctions_file
+    string get_BaselevelJunctions_file() const      { return BaselevelJunctions_file; }
     /// @return the boundary conditions
     vector<string> get_boundary_conditions() const     { return boundary_conditions; }
     /// @return the float parameters
@@ -285,6 +287,9 @@ class LSDParameterParser
 
     /// The prefix of the channelheads filename
     string CHeads_file;
+    
+    /// The prefix of the baselevel junctions filename
+    string BaselevelJunctions_file;
 
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     /// the four boundary conditions on the raster for the flow info object

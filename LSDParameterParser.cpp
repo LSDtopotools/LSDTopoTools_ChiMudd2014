@@ -285,9 +285,9 @@ void LSDParameterParser::parse_file_IO()
     read_fname = RemoveControlCharactersFromEndOfString(read_fname);
     //cout << "Got the write name, it is: "  << write_fname << endl;
   }
-  if(parameter_map.find("CHeads_file") != parameter_map.end())
+  if(parameter_map.find("channel heads fname") != parameter_map.end())
   {
-    CHeads_file = parameter_map["CHeads_file"];
+    CHeads_file = parameter_map["channel heads fname"];
     // get rid of any control characters from the end (if param file was made in DOS)
     CHeads_file = RemoveControlCharactersFromEndOfString(CHeads_file);
     //cout << "Got the channel heads name, it is: " << CHeads_file << endl;
@@ -300,6 +300,12 @@ void LSDParameterParser::parse_file_IO()
   else
   {
     CHeads_file = "NULL";
+  }
+  if(parameter_map.find("baselevel junctions fname") != parameter_map.end())
+  {
+    BaselevelJunctions_file = parameter_map["baselevel junctions fname"];
+    // get rid of any control characters from the end (if param file was made in DOS)
+    BaselevelJunctions_file = RemoveControlCharactersFromEndOfString(BaselevelJunctions_file);
   }
 }
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
