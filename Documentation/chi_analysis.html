@@ -500,7 +500,13 @@ MathJax.Hub.Config({
 <li><a href="#_examples_of_chi_analysis">6. Examples of chi analysis</a>
 <ul class="sectlevel2">
 <li><a href="#_get_the_example_data">6.1. Get the example data</a></li>
-<li><a href="#_first_example_basic_dem_steps">6.2. First example: Basic DEM steps</a></li>
+<li><a href="#_first_example_basic_dem_steps_and_basin_selection">6.2. First example: Basic DEM steps and Basin selection</a>
+<ul class="sectlevel3">
+<li><a href="#_some_comments_on_basin_selection">6.2.1. Some comments on basin selection</a></li>
+</ul>
+</li>
+<li><a href="#_using_our_example_scripts">6.3. Using our example scripts</a></li>
+<li><a href="#_example_one_part_one_the_hillshade">6.4. Example one, part one: the hillshade.</a></li>
 </ul>
 </li>
 </ul>
@@ -1260,25 +1266,43 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">minimum_basin_size_pixels</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5000</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">The minimum number of pixels in a basin for it to be retained. This operation works on the baselevel basins: subbasins within a large basin are retained.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">maximum_basin_size_pixels</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">500000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The maximum number of pixels in a basin for it to be retained. This is only used by <code>find_complete_basins_in_window</code> but that algorithm for selecting basins is the default.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">BaselevelJunctions_file</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"NULL"</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The filename of a baselevel junctions file. If this points to an existing file all the algorithmic basin extraction routines (<code>find_complete_basins_in_window</code>,<code>find_largest_complete_basins</code>) are ignored but you can test for edge effects (<code>test_drainage_boundaries: true</code>-- this is the default). The file is a list of integers that each refer to a junction index. You can look at the junction indices by setting <code>print_junctions_to_csv: true</code> and looking at the junctions in a GIS.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">find_complete_basins_in_window</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool (true or 1 will work)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>THIS IS THE DEFAULT METHOD! If you don&#8217;t want this method you need to set it to false.</strong> If this is true, it i) Gets all the basins in a DEM and takes thos between the <code>minimum_basin_size_pixels</code> and <code>maximum_basin_size_pixels</code>. It then removes basins that are influenced by the edge of the DEM, and then removes nested basins. The reason for removing basins draining the edge is that all chi and S-A analysis requires that the basin is complete. If not, your area, and therefore chi coordinate, will be incorrect.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">find_largest_complete_basins</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool (true or 1 will work)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">A boolean that, if set to true, will got through each baselev node on the edge of the DEM and work upstream to keep the largest basin that is not influenced on its edge by nodata. <strong>The default is TRUE!</strong> There is a good reason for this: all chi and S-A analysis requires that the basin is complete. If not, your area, and therefore chi coordinate, will be incorrect.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A boolean that, if set to true, will got through each baselevel node on the edge of the DEM and work upstream to keep the largest basin that is not influenced on its edge by nodata. <strong>This only operates if <code>find_complete_basins_in_window</code> is set to false!</strong></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">test_drainage_boundaries</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool (true or 1 will work)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">A boolean that, if set to true, will eliminate basins with pixels drainage from the edge. This is to get rid of basins that may be truncated by the edge of the DEM (and thus will have incorrect chi values). *Note that this isn&#8217;t used unless you turn off <code>find_largest_complete_basins</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A boolean that, if set to true, will eliminate basins with pixels drainage from the edge. This is to get rid of basins that may be truncated by the edge of the DEM (and thus will have incorrect chi values). <strong>This only operates if BOTH <code>find_complete_basins_in_window</code> and <code>find_largest_complete_basins</code> are set to false!, OR if you are using a baselelvel junctions file.</strong></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">only_take_largest_basin</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool (true or 1 will work)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">If this is true, a chi map is created based only upon the largest basin in the raster.</p></td>
 </tr>
 <tr>
@@ -2000,11 +2024,12 @@ Our visualisation routines involve some computation, and dealing with geospatial
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-consol" data-lang="consol">  PS&gt; conda config --add channels conda-forge
+  PS&gt; conda install shapely
+  PS&gt; conda install fiona
+  PS&gt; conda install rasterio
   PS&gt; conda install scipy
   PS&gt; conda install matplotlib
   PS&gt; conda install pandas
-  PS&gt; conda install shapely
-  PS&gt; conda install fiona
   PS&gt; conda install gdal
   PS&gt; conda install pyproj
   PS&gt; conda install spyder</code></pre>
@@ -2147,7 +2172,7 @@ $ git clone https://github.com/LSDtopotools/LSDTT_chi_examples.git</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_first_example_basic_dem_steps">6.2. First example: Basic DEM steps</h3>
+<h3 id="_first_example_basic_dem_steps_and_basin_selection">6.2. First example: Basic DEM steps and Basin selection</h3>
 <div class="paragraph">
 <p>First we will do some very basic extraction of basins and visualisation of a region near Xi&#8217;an China, in the mountains containing <a href="https://en.wikipedia.org/wiki/Mount_Hua">Hua Shan</a>.</p>
 </div>
@@ -2171,9 +2196,22 @@ $ git clone https://github.com/LSDtopotools/LSDTT_chi_examples.git</code></pre>
 <pre class="highlight"><code class="language-console" data-lang="console">$ ./chi_mapping_tool.exe /LSDTopoTools/Topographic_projects/LSDTT_chi_examples Xian_example1.driver</code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p>In every <strong>LSDTopoTools</strong> analysis in these examples, there are three inputs: i) the name of the program (<code>./chi_mapping_tool.exe</code>) ii) the directory of the data (<code>/LSDTopoTools/Topographic_projects/LSDTT_chi_examples</code>) and iii) the name of the driver file (<code>Xian_example1.driver</code>). The extension of the driver file doesn&#8217;t matter, you could call it <code>Xian_example1.rhinocerous</code> if you wanted.</p>
+</div>
 </li>
 <li>
-<p>The important elements of the driver file are: <code>test_drainage_boundaries: false</code> and <code>write hillshade: true</code>. These two lines mean that you will print a hillshade raster and you will not test the edges of the DEM. In fact <code>test_drainage_boundaries: false</code> is the default. Why is this important? The chi coordinate is caclualted integrating drainage area along the channel so if your basin is truncated by the edge of the DEM it means that <strong>your chi coordinate will be incorrect</strong>.</p>
+<p>The important elements of the driver file are:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p><code>test_drainage_boundaries: true</code> This is actually the default. We put it in the parameter file here to highlight its importance. The chi coordinate is calculated integrating drainage area along the channel so if your basin is truncated by the edge of the DEM it means that <strong>your chi coordinate will be incorrect</strong>.</p>
+</li>
+<li>
+<p><code>write hillshade: true</code>. Does what is says on the tin. It means that you will print a hillshade raster. You really need to do this the first time you analyse a DEM (but you only need to do it once). The reason is that all your figures will look much nicer with a hillshade!</p>
+</li>
+</ol>
+</div>
 </li>
 <li>
 <p>We are going to visualise the output using python.</p>
@@ -2186,13 +2224,141 @@ $ git clone https://github.com/LSDtopotools/LSDTT_chi_examples.git</code></pre>
 </li>
 </ol>
 </div>
+<div class="sect3">
+<h4 id="_some_comments_on_basin_selection">6.2.1. Some comments on basin selection</h4>
+<div class="paragraph">
+<p>In the <strong>chi mapping tool</strong>, we have several ways to select basins. We feel the default method is best (<code>find_complete_basins_in_window</code>). The options are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>find_complete_basins_in_window</code>: This goes through several refining steps. If first checks every basin in the raster and selects basins within a size window between <code>minimum_basin_size_pixels</code> and <code>maximum_basin_size_pixels</code>. It then takes the resulting list of basins and removes any that are influenced by the edge of the DEM (to ensure drainage area of the basin is correct). Finally, it removes nested basins, so that in the end you have basins of approxamaitely the same size, not influenced by the edge of the DEM, and with no nested basins.</p>
+</li>
+<li>
+<p><code>find_largest_complete_basins</code>: This is a somewhat old version that takes all basins draining to edge and works upstream from their outlets to find the largest subbasin that is not influenced by the edge. To get this to work you <strong>MUST ALSO</strong> set <code>find_complete_basins_in_window: false</code>.</p>
+</li>
+<li>
+<p><code>test_drainage_boundaries</code>: If either <code>find_complete_basins_in_window</code> or <code>find_largest_complete_basins</code> are <code>true</code> then this is ignored. If not, then it eliminates any basin that is influenced by the edge of the DEM.</p>
+</li>
+<li>
+<p><code>BaselevelJunctions_file</code>: If this points to a file that includes a series of integers that refer to junction indices, it will load these indices. If the file doesn&#8217;t contain a series of integers the most likely result is that it will crash!</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_using_our_example_scripts">6.3. Using our example scripts</h3>
+<div class="paragraph">
+<p>Okay, lets look at some of the results. I would suggest opening <strong>Spyder</strong> in your host operating system for this.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>In spyder, use <strong>file&#8594;open</strong> to open the plotting script for our examples called, innovatively, <code>ChiMappingExamples.py</code>.</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>In your vagrant box this file is in <code>/LSDTopoTools/Git_projects/LSDMappingTools</code>.</p>
+</li>
+<li>
+<p>In windows, if you have put your vagrant stuff in <code>C:\VagrantBoxes</code> then this file is in <code>C:\VagrantBoxes\LSDTopoTools\Git_projects\LSDMappingTools</code>.</p>
+</li>
+<li>
+<p>In MacOS it will be wherever you put the VagrantBoxes folder and then in <code>/LSDTopoTools/Git_projects/LSDMappingTools</code>.</p>
+</li>
+<li>
+<p>You can run these scripts in your vagrant machine, but you will have to do the full python install there, and in addtion you won&#8217;t be able to use any graphical interface (like <strong>spyder</strong>) so our recomendation is for you to run visualisation scripts in your host operating system.</p>
+<div class="paragraph">
+<p>+ In python, any lines between two blocks of <code>"""</code> symbols is a comment. In our program we put notes between these symbols. Don&#8217;t change them. For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">    """
+    These lines tell the example functions where your files are. If you are using
+    the recommended file setup you won't need to modify these lines.
+
+    If you have set up your own directory structure you will need to modify
+    the directory names.
+    """</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The above lines just give you instructions.</p>
+</div>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>In python, you can also make a line a comment with the <code><mark></code> symbol. In these excercises you can uncomment lines by deleteing the <code></mark></code> symbol, and adding it back in again. Initially all but the first part of the first example is turned off:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">    CME.ExampleOne_PartOne_SimpleHillshade(DataDirectory,Base_file)
+    #CME.ExampleOne_PartTwo_PrintBasins(DataDirectory,Base_file)
+    #CME.ExampleOne_PartThree_PrintBasinsWithLabels(DataDirectory,Base_file)</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>To turn off example part one and turn on part two do this:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">    #CME.ExampleOne_PartOne_SimpleHillshade(DataDirectory,Base_file)
+    CME.ExampleOne_PartTwo_PrintBasins(DataDirectory,Base_file)
+    #CME.ExampleOne_PartThree_PrintBasinsWithLabels(DataDirectory,Base_file)</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_example_one_part_one_the_hillshade">6.4. Example one, part one: the hillshade.</h3>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Make sure you&#8217;ve run the <strong>chi mapping tool</strong> first: <a href="#_first_example_basic_dem_steps_and_basin_selection">First example: Basic DEM steps and Basin selection</a>.</p>
+</li>
+<li>
+<p>Alright, lets get to the visualisations. In <strong>spyder</strong> run the <code>ChiMappingExamples.py</code> with the first example turned on (i.e., no <code>#</code> in front of <code>CME.ExampleOne_PartOne_SimpleHillshade(DataDirectory,Base_file)</code>).</p>
+</li>
+<li>
+<p>This will create a png of this example DEM in your data folder called <strong>Xian_example1.png</strong></p>
+<div class="imageblock">
+<div class="content">
+<img src="images/Xian_example1.png" alt="Area around Mount_Hua">
+</div>
+<div class="title">Figure 1. A hillshade of the example landscape</div>
+</div>
+</li>
+<li>
+<p>Next turn on the second part of the example (<code>CME.ExampleOne_PartTwo_PrintBasins(DataDirectory,Base_file)</code>). This will show you the basins that have been algorithmically extracted:</p>
+<div class="imageblock">
+<div class="content">
+<img src="images/Xian_basin_keys.png" alt="Basins around Mount_Hua">
+</div>
+<div class="title">Figure 2. The extracted basins</div>
+</div>
+</li>
+<li>
+<p>Figuring out the basin numbers using a colourbar is inconvineint. If you turn on the third part of the example you will see text labels for each basin:</p>
+<div class="imageblock">
+<div class="content">
+<img src="images/Xian_basin_keys.png" alt="Basins around Mount_Hua">
+</div>
+<div class="title">Figure 3. The extracted basins</div>
+</div>
+</li>
+</ol>
+</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-06-20 08:26:34 GMT Daylight Time
+Last updated 2017-06-20 10:02:06 GMT Daylight Time
 </div>
 </div>
 </body>
