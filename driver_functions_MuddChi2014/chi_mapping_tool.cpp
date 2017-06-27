@@ -4,7 +4,10 @@
 //
 // This program takes two arguments, the path name and the driver name
 // The driver file has a number of options that allow the user to calculate
-// different kinds of chi analysis
+// different kinds of chi analysis.
+//
+// The documentation is here:
+// https://lsdtopotools.github.io/LSDTopoTools_ChiMudd2014/
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 //
 // Copyright (C) 2016 Simon M. Mudd 2016
@@ -71,19 +74,15 @@ int main (int nNumberofArgs,char *argv[])
     cout << "=========================================================" << endl;
     cout << "This program requires two inputs: " << endl;
     cout << "* First the path to the parameter file." << endl;
-    cout << "   The path must have a slash at the end." << endl;
-    cout << "  (Either \\ or / depending on your operating system.)" << endl;
     cout << "* Second the name of the param file (see below)." << endl;
     cout << "---------------------------------------------------------" << endl;
     cout << "Then the command line argument will be: " << endl;
     cout << "In linux:" << endl;
-    cout << "./chi_mapping_tool.exe home/fieldwork/Chile/CRN/ My_analysis.param" << endl;
-    cout << "In windows (the slash directions will change and there is no leading ./)" << endl;
-    cout << "chi_mapping_tool.exe c:\\fieldwork\\Chile\\CRN\\ My_analysis.param" << endl;
+    cout << "./chi_mapping_tool.exe /LSDTopoTools/Topographic_projects/LSDTT_chi_examples/ Xian_example1.driver" << endl;
     cout << "=========================================================" << endl;
     cout << "For more documentation on the parameter file, " << endl;
     cout << " see readme and online documentation." << endl;
-    cout << " http://lsdtopotools.github.io/LSDTT_book/#_chi_analysis_part_3_getting_chi_gradients_for_the_entire_landscape" << endl;
+    cout << " https://lsdtopotools.github.io/LSDTopoTools_ChiMudd2014/" << endl;
     cout << "=========================================================" << endl;
     exit(EXIT_SUCCESS);
   }
