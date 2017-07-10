@@ -288,11 +288,13 @@ class LSDChiTools
     ///  a channel (with a particular source number) against a reference channel
     /// @param FlowInfo an LSDFlowInfo object
     /// @param reference_channel the source key of the reference channel
-    /// @param test_channel the source key of the test channel
+    /// @param test_channel the source key of the test channel    
+    /// @param sigma The uncertainty for the MLE calculation. In practice this simply scales MLE
+    ///     If you have many nodes this number needs to be large
     /// @return The maximum likelihood estimator
     /// @author SMM
     /// @date 04/05/2017
-    float test_segment_collinearity(LSDFlowInfo& FlowInfo, int reference_channel, int test_channel);
+    float test_segment_collinearity(LSDFlowInfo& FlowInfo, int reference_channel, int test_channel, float sigma);
 
     /// @brief This computes a collinearity metric for all combinations of
     ///  channels for a given basin
@@ -305,12 +307,15 @@ class LSDChiTools
     /// @param test_source integer vector replaced in function that has the test vector for each comparison
     /// @param MLE_values the MLE for each comparison. Replaced in function.
     /// @param RMSE_values the RMSE for each comparison (i.e. between source 0 1, 0 2, 0 3, etc.). Replaced in function.
+    /// @param sigma The uncertainty for the MLE calculation. In practice this simply scales MLE
+    ///     If you have many nodes this number needs to be large
     /// @author SMM
     /// @date 08/05/2017
     float test_all_segment_collinearity_by_basin(LSDFlowInfo& FlowInfo, bool only_use_mainstem_as_reference,
                                         int basin_key,
                                         vector<int>& reference_source, vector<int>& test_source,
-                                        vector<float>& MLE_values, vector<float>& RMSE_values);
+                                        vector<float>& MLE_values, vector<float>& RMSE_values, 
+                                        float sigma);
 
     /// @brief This wraps the collinearity tester, looping through different m over n
     ///  values and calculating goodness of fit statistics.
@@ -325,6 +330,8 @@ class LSDChiTools
     /// @param n_novern the number of m/n values to use
     /// @param only_use_mainstem_as_reference a boolean, if true only compare channels to mainstem .
     /// @param The file prefix for the data files
+    /// @param sigma The uncertainty for the MLE calculation. In practice this simply scales MLE
+    ///     If you have many nodes this number needs to be large
     /// @author SMM
     /// @date 16/05/2017
     /// MODIFIED FJC 17/06/17 to take a junction network as an argument - need to print out the outlet
@@ -332,7 +339,7 @@ class LSDChiTools
     void calculate_goodness_of_fit_collinearity_fxn_movern(LSDFlowInfo& FlowInfo, LSDJunctionNetwork& JN,
                         float start_movern, float delta_movern, int n_movern,
                         bool only_use_mainstem_as_reference,
-                        string file_prefix);
+                        string file_prefix, float sigma);
 
     /// @brief This wraps the collinearity tester, looping through different m over n
     ///  values and calculating goodness of fit statistics.
@@ -349,13 +356,15 @@ class LSDChiTools
     /// @param only_use_mainstem_as_reference a boolean, if true only compare channels to mainstem .
     /// @param The file prefix for the data files
     /// @param Discharge and LSDRaster of discharge
+    /// @param sigma The uncertainty for the MLE calculation. In practice this simply scales MLE
+    ///     If you have many nodes this number needs to be large
     /// @author SMM
     /// @date 16/05/2017
     void calculate_goodness_of_fit_collinearity_fxn_movern_with_discharge(LSDFlowInfo& FlowInfo,
                         LSDJunctionNetwork& JN, float start_movern, float delta_movern, int n_movern,
                         bool only_use_mainstem_as_reference,
                         string file_prefix,
-                        LSDRaster& Discharge);
+                        LSDRaster& Discharge, float sigma);
 
     /// @brief This prints a series of chi profiles as a function of mover
     ///  for visualisation
@@ -461,6 +470,29 @@ class LSDChiTools
     /// @date 31/05/2017
     void bin_slope_area_data(LSDFlowInfo& FlowInfo, vector<int>& SA_midpoint_node,
                              vector<float>& SA_slope, float log_bin_width, string filename);
+
+
+    /// @detail This takes slope area data and bins the data so that we can
+    ///  pretend horrible, noisy S-A data is adequate for understanding
+    ///  channel behaviour. It then segments these horrible data using the 
+    /// segmentation algorithm.
+    /// @detail Happy 4th of July everyone!
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param vertical_interval the mean intervale over which slope is measured
+    /// @param midpoint_nodes The node indices of the places where slope is calculated.
+    ///  This is replaced in the function.
+    /// @param Slopes the slopes. This is replaced in the function.
+    /// @param log_bin_width The width of the bins (in log A)
+    /// @param minimum_segment_length Minimum segment length for segmentation algorithm
+    /// @param filename The name of the output file (with path and extension)
+    /// @author SMM
+    /// @date 04/07/2017
+    void segment_binned_slope_area_data(LSDFlowInfo& FlowInfo,
+                                          vector<int>& SA_midpoint_node,
+                                          vector<float>& SA_slope,
+                                          float log_bin_width,
+                                          int minimum_segment_length,
+                                          string filename);
 
     /// @brief This takes the midpoint node and slope vectors produced by the slope_area_analysis
     ///  and prints them to a csv

@@ -87,6 +87,7 @@
 #include "LSDChiTools.hpp"
 #include "LSDBasin.hpp"
 #include "LSDChiNetwork.hpp"
+#include "LSDMostLikelyPartitionsFinder.hpp"
 using namespace std;
 using namespace TNT;
 
@@ -1970,7 +1971,8 @@ void LSDChiTools::print_basin_and_source_indexing_to_screen()
 // This function test the collinearity of all segments compared to a reference
 // segment
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-float LSDChiTools::test_segment_collinearity(LSDFlowInfo& FlowInfo, int reference_channel, int test_channel)
+float LSDChiTools::test_segment_collinearity(LSDFlowInfo& FlowInfo, int reference_channel, int test_channel, 
+                                             float sigma)
 {
   // The way this works is that one of the segments (delineated by its source number)
   // is taken as a reference, and then all other segments are compared to how
@@ -1979,7 +1981,6 @@ float LSDChiTools::test_segment_collinearity(LSDFlowInfo& FlowInfo, int referenc
   // minimum chi of the reference segment the data point is ignored.
 
   float MLE = 1;
-  float sigma = 1000;
   // first get the source node of the reference channel
   if ( reference_channel >= int(key_to_source_map.size()) || test_channel >= int(key_to_source_map.size()) )
   {
@@ -2012,7 +2013,8 @@ float LSDChiTools::test_segment_collinearity(LSDFlowInfo& FlowInfo, int referenc
 float LSDChiTools::test_all_segment_collinearity_by_basin(LSDFlowInfo& FlowInfo, bool only_use_mainstem_as_reference,
                                                  int baselevel_key,
                                                  vector<int>& reference_source, vector<int>& test_source,
-                                                 vector<float>& MLE_values, vector<float>& RMSE_values)
+                                                 vector<float>& MLE_values, vector<float>& RMSE_values, 
+                                                 float sigma)
 {
   cout << "Testing the segment collinearity for basin key " << baselevel_key << endl;
   // get some information about the number of basins
@@ -2079,7 +2081,6 @@ float LSDChiTools::test_all_segment_collinearity_by_basin(LSDFlowInfo& FlowInfo,
   vector<int> MLE_index;   // the index into the combo_vecvec that is used to
                            // tell which combinations have MLE values
 
-  float sigma = 1000;
   int last_ref_channel = -1;
 
   int n_combinations = int(combo_vecvev.size());
@@ -2210,7 +2211,7 @@ float LSDChiTools::test_all_segment_collinearity_by_basin(LSDFlowInfo& FlowInfo,
 void LSDChiTools::calculate_goodness_of_fit_collinearity_fxn_movern(LSDFlowInfo& FlowInfo, LSDJunctionNetwork& JN,
                         float start_movern, float delta_movern, int n_movern,
                         bool only_use_mainstem_as_reference,
-                        string file_prefix)
+                        string file_prefix, float sigma)
 {
   // these vectors store all the values which are then used for printing
   vector< vector<float> > RMSE_vecvec;
@@ -2278,7 +2279,7 @@ void LSDChiTools::calculate_goodness_of_fit_collinearity_fxn_movern(LSDFlowInfo&
     {
       tot_MLE = test_all_segment_collinearity_by_basin(FlowInfo, only_use_mainstem_as_reference,
                                   basin_key,
-                                  reference_source, test_source, MLE_values, RMSE_values);
+                                  reference_source, test_source, MLE_values, RMSE_values, sigma);
       // concatenate the vectors to the "all" vectors
       all_reference_source.insert(all_reference_source.end(), reference_source.begin(), reference_source.end() );
       all_test_source.insert(all_test_source.end(), test_source.begin(), test_source.end() );
@@ -2343,7 +2344,7 @@ void LSDChiTools::calculate_goodness_of_fit_collinearity_fxn_movern_with_dischar
                         LSDJunctionNetwork& JN, float start_movern, float delta_movern, int n_movern,
                         bool only_use_mainstem_as_reference,
                         string file_prefix,
-                        LSDRaster& Discharge)
+                        LSDRaster& Discharge, float sigma)
 {
   // these vectors store all the values which are then used for printing
   vector< vector<float> > RMSE_vecvec;
@@ -2414,7 +2415,7 @@ void LSDChiTools::calculate_goodness_of_fit_collinearity_fxn_movern_with_dischar
     {
       tot_MLE = test_all_segment_collinearity_by_basin(FlowInfo, only_use_mainstem_as_reference,
                                   basin_key,
-                                  reference_source, test_source, MLE_values, RMSE_values);
+                                  reference_source, test_source, MLE_values, RMSE_values, sigma);
       // concatenate the vectors to the "all" vectors
       all_reference_source.insert(all_reference_source.end(), reference_source.begin(), reference_source.end() );
       all_test_source.insert(all_test_source.end(), test_source.begin(), test_source.end() );
@@ -3156,28 +3157,40 @@ void LSDChiTools::bin_slope_area_data(LSDFlowInfo& FlowInfo,
   }
 
   // now we bin the data
-  //float bin_width = 0.1;
-  vector<float>  MeanX_output;
-  vector<float> MeanY_output;
   vector<float> midpoints_output;
-  vector<float> MedianY_output;
+  vector<float> MeanX_output;
+  vector<float> MedianX_output;
   vector<float> StandardDeviationX_output;
-  vector<float> StandardDeviationY_output;
   vector<float> StandardErrorX_output;
+  vector<float> MADX_output; 
+              
+  vector<float> MeanY_output;
+  vector<float> MinimumY_output;
+  vector<float> FirstQuartileY_output;
+  vector<float> MedianY_output;
+  vector<float> ThirdQuartileY_output;
+  vector<float> MaximumY_output;
+  vector<float> StandardDeviationY_output;
   vector<float> StandardErrorY_output;
-  vector<int> number_observations_output;
-  float bin_lower_limit;
-  float NoDataValue = -9999;
+  vector<float> MADY_output;
+  vector<int> number_observations_output; 
+  float NoDataValue = -9999; 
+
 
   // these are the vectors holding all the compiled information
   vector<int> binned_basin_keys;
   vector<int> binned_source_keys;
   vector<float> binned_logA_means;
   vector<float> binned_logA_midpoints;
+  vector<float> binned_logA_medians;
+  vector<float> binned_logA_stdErr;
+  vector<float> binned_logA_MAD;
+  
   vector<float> binned_logS_means;
   vector<float> binned_logS_medians;
-  vector<float> binned_logA_stdErr;
-  vector<float> binned_logS_stdErr;
+  vector<float> binned_logS_FirstQuartile;
+  vector<float> binned_logS_ThirdQuartile;
+  vector<float> binned_logS_StandardDeviation;
   vector<int> binnned_NObvs;
 
   // loop through all the source nodes
@@ -3193,10 +3206,12 @@ void LSDChiTools::bin_slope_area_data(LSDFlowInfo& FlowInfo,
     vector<float> log_slope = log_slope_map[this_source_key];
 
     // this gets the binned data for this particular tributary
-    bin_data(log_area, log_slope, log_bin_width,  MeanX_output, MeanY_output,
-            midpoints_output, MedianY_output,StandardDeviationX_output,
-            StandardDeviationY_output, StandardErrorX_output, StandardErrorY_output,
-            number_observations_output, bin_lower_limit, NoDataValue);
+    bin_data(log_area, log_slope, log_bin_width, midpoints_output, MeanX_output, 
+             MedianX_output, StandardDeviationX_output, StandardErrorX_output,
+             MADX_output, MeanY_output, MinimumY_output,FirstQuartileY_output, 
+             MedianY_output, ThirdQuartileY_output, MaximumY_output,
+             StandardDeviationY_output, StandardErrorY_output, MADY_output, 
+             number_observations_output, NoDataValue); 
 
     // now we need to add this information to the master vectors
     int n_bins = int(midpoints_output.size());
@@ -3212,10 +3227,15 @@ void LSDChiTools::bin_slope_area_data(LSDFlowInfo& FlowInfo,
         binned_source_keys.push_back(this_source_key);
         binned_logA_means.push_back(MeanX_output[i]);
         binned_logA_midpoints.push_back(midpoints_output[i]);
+        binned_logA_medians.push_back(MedianX_output[i]);
+        binned_logA_stdErr.push_back(StandardErrorX_output[i]);
+        binned_logA_MAD.push_back(MADX_output[i]);
+        
         binned_logS_means.push_back(MeanY_output[i]);
         binned_logS_medians.push_back(MedianY_output[i]);
-        binned_logA_stdErr.push_back(StandardErrorX_output[i]);
-        binned_logS_stdErr.push_back(StandardErrorY_output[i]);
+        binned_logS_FirstQuartile.push_back(FirstQuartileY_output[i]);
+        binned_logS_ThirdQuartile.push_back(ThirdQuartileY_output[i]);
+        binned_logS_StandardDeviation.push_back(StandardDeviationY_output[i]);
         binnned_NObvs.push_back(n_Obvs);
       }
     }
@@ -3226,20 +3246,321 @@ void LSDChiTools::bin_slope_area_data(LSDFlowInfo& FlowInfo,
   int n_data_points = int(binnned_NObvs.size());
   ofstream  binned_out;
   binned_out.open(filename.c_str());
-  binned_out << "basin_key,source_key,midpoints_log_A,mean_log_A,mean_log_S,median_log_S,logA_stdErr,logS_stdErr,n_observations" << endl;
+  binned_out << "basin_key,source_key,midpoints_log_A,mean_log_A,median_log_A,logA_stdErr,logA_MAD,mean_log_S,median_log_S,logS_FirstQuartile,logS_ThirdQuartile,logS_stdDev,n_observations" << endl;
   for(int i = 0; i<n_data_points; i++)
   {
     binned_out << binned_basin_keys[i] << ","
                << binned_source_keys[i] << ","
                << binned_logA_midpoints[i] << ","
                << binned_logA_means[i] << ","
+               << binned_logA_medians[i] << ","
+               << binned_logA_stdErr[i] << ","
+               << binned_logA_MAD[i] << ","
                << binned_logS_means[i] << ","
                << binned_logS_medians[i] << ","
-               << binned_logA_stdErr[i] << ","
-               << binned_logS_stdErr[i] << ","
+               << binned_logS_FirstQuartile[i] << ","
+               << binned_logS_ThirdQuartile[i] << ","
+               << binned_logS_StandardDeviation[i] << ","
                << binnned_NObvs[i] << endl;
   }
   binned_out.close();
+}
+
+
+
+
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// This segments the binned slope data
+//
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+void LSDChiTools::segment_binned_slope_area_data(LSDFlowInfo& FlowInfo,
+                                          vector<int>& SA_midpoint_node,
+                                          vector<float>& SA_slope,
+                                          float log_bin_width,
+                                          int minimum_segment_length,
+                                          string filename)
+{
+
+
+  vector<float> empty_vec;
+
+  // we will store the data in maps where the key is the source node
+  // This is because we will bin the data by source.
+  //map< int, vector<float> > slope;
+  //map< int, vector<float> > area;
+  map< int, vector<float> > log_slope_map;
+  map< int, vector<float> > log_area_map;
+  map< int, int > basin_key_of_this_source_map;
+
+  int this_node;
+  int this_source_key;
+
+  int n_nodes = int(SA_midpoint_node.size());
+  if (n_nodes <= 0)
+  {
+    cout << "Trying to print SA data but there doesn't seem to be any." << endl;
+    cout << "Have you run the automator and gathered the sources yet?" << endl;
+  }
+  else
+  {
+    // get the data vectors out
+    for (int n = 0; n< n_nodes; n++)
+    {
+      // get the source node
+      this_node = SA_midpoint_node[n];
+      this_source_key = source_keys_map[this_node];
+      //cout << "This source key is: " << this_source_key << endl;
+
+      // see if we have a vector for that source node
+      if( log_area_map.find(this_source_key) == log_area_map.end())
+      {
+        log_area_map[this_source_key] = empty_vec;
+        log_slope_map[this_source_key] = empty_vec;
+      }
+      // check if we have the basin of this source
+      if (basin_key_of_this_source_map.find(this_source_key) == basin_key_of_this_source_map.end() )
+      {
+        basin_key_of_this_source_map[this_source_key] = baselevel_keys_map[this_node];
+      }
+
+      // add to this source's log S, log A data. We will later use these to bin
+      log_area_map[this_source_key].push_back( log10(drainage_area_data_map[this_node]) );
+      log_slope_map[this_source_key].push_back( log10(SA_slope[n]) );
+    }
+  }
+
+  // now we bin the data
+  vector<float> midpoints_output;
+  vector<float> MeanX_output;
+  vector<float> MedianX_output;
+  vector<float> StandardDeviationX_output;
+  vector<float> StandardErrorX_output;
+  vector<float> MADX_output; 
+              
+  vector<float> MeanY_output;
+  vector<float> MinimumY_output;
+  vector<float> FirstQuartileY_output;
+  vector<float> MedianY_output;
+  vector<float> ThirdQuartileY_output;
+  vector<float> MaximumY_output;
+  vector<float> StandardDeviationY_output;
+  vector<float> StandardErrorY_output;
+  vector<float> MADY_output;
+  vector<int> number_observations_output; 
+  float NoDataValue = -9999; 
+
+
+  // these are the vectors holding all the compiled information
+  vector<int> binned_basin_keys;
+  vector<int> binned_source_keys;
+  vector<float> binned_logA_means;
+  vector<float> binned_logA_midpoints;
+  vector<float> binned_logA_medians;
+  vector<float> binned_logA_stdErr;
+  vector<float> binned_logA_MAD;
+  
+  vector<float> binned_logS_means;
+  vector<float> binned_logS_medians;
+  vector<float> binned_logS_FirstQuartile;
+  vector<float> binned_logS_ThirdQuartile;
+  vector<float> binned_logS_StandardDeviation;
+  vector<int> binnned_NObvs;
+  
+  // this holds the source numbers for each basin
+  vector<int> basins_with_data;
+  int last_basin;
+  map<int, vector<int> > basin_and_sources_map;
+
+  // loop through all the source nodes
+  map<int, vector<float> >::iterator it;
+  for(it = log_area_map.begin(); it != log_area_map.end(); ++it)
+  {
+    this_source_key =  it->first;
+
+    //cout << "The source key is: " << this_source_key << endl;
+
+    // extract the log S-log A data for this source
+    vector<float> log_area = log_area_map[this_source_key];
+    vector<float> log_slope = log_slope_map[this_source_key];
+
+    // this gets the binned data for this particular tributary
+    bin_data(log_area, log_slope, log_bin_width, midpoints_output, MeanX_output, 
+             MedianX_output, StandardDeviationX_output, StandardErrorX_output,
+             MADX_output, MeanY_output, MinimumY_output,FirstQuartileY_output, 
+             MedianY_output, ThirdQuartileY_output, MaximumY_output,
+             StandardDeviationY_output, StandardErrorY_output, MADY_output, 
+             number_observations_output, NoDataValue); 
+
+    // now we need to add this information to the master vectors
+    int n_bins = int(midpoints_output.size());
+    int n_Obvs;
+    for(int i = 0; i<n_bins; i++)
+    {
+      n_Obvs = number_observations_output[i];
+
+      // only record data if there are enough observations
+      if(n_Obvs > 0)
+      {
+        binned_basin_keys.push_back(basin_key_of_this_source_map[this_source_key]);
+        binned_source_keys.push_back(this_source_key);
+        binned_logA_means.push_back(MeanX_output[i]);
+        binned_logA_midpoints.push_back(midpoints_output[i]);
+        binned_logA_medians.push_back(MedianX_output[i]);
+        binned_logA_stdErr.push_back(StandardErrorX_output[i]);
+        binned_logA_MAD.push_back(MADX_output[i]);
+        
+        binned_logS_means.push_back(MeanY_output[i]);
+        binned_logS_medians.push_back(MedianY_output[i]);
+        binned_logS_FirstQuartile.push_back(FirstQuartileY_output[i]);
+        binned_logS_ThirdQuartile.push_back(ThirdQuartileY_output[i]);
+        binned_logS_StandardDeviation.push_back(StandardDeviationY_output[i]);
+        binnned_NObvs.push_back(n_Obvs);
+
+        // we need to collect a list of basins. This is rather inefficient but 
+        // in grand scheme of things this is far from the rate limiting step
+        if (basins_with_data.size() == 0)
+        {
+          // This is for the first basin. 
+          basins_with_data.push_back(basin_key_of_this_source_map[this_source_key]);
+          last_basin = basin_key_of_this_source_map[this_source_key];
+        }
+        else
+        {
+          // After the first basin, we just check to see if the basin has changed
+          if (basin_key_of_this_source_map[this_source_key] !=  last_basin)
+          {
+            basins_with_data.push_back(basin_key_of_this_source_map[this_source_key]);
+            last_basin = basin_key_of_this_source_map[this_source_key];
+          }
+        }
+      }
+    }
+  }
+  
+  
+  
+  // open the file
+  ofstream outfile;
+  outfile.open(filename.c_str());
+  outfile << "basin_key,median_log_A,median_log_S,logS_FirstQuartile,logS_ThirdQuartile,segment_number,segmented_log_S,segment_slope,segment_intercept,segement_R2,segment_Durbin_Watson" << endl;
+  
+  
+  
+  // we neeed to get the data for individual basins
+  // please forgive me but this will be an extremely rudimentary and slow algoritms since
+  // I want to finish soon to get beer.
+  int n_tot_SA_nodes =  int(binned_basin_keys.size());
+  int n_basins_in_set = int(basins_with_data.size()); 
+  int this_basin;
+  for(int i = 0; i< n_basins_in_set; i++)
+  {
+    this_basin = basins_with_data[i];
+    
+    // now get the data. For now we'll use the mean area and median slope since this
+    // is a prototype. 
+    vector<float> area_data;
+    vector<float> slope_data;
+    vector<float> std_dev_data;
+    vector<float> FirstQuartile_data;
+    vector<float> ThirdQuartile_data;
+    
+    int mainstem_source = -9999;
+    
+    // loop through all the nodes collecting only nodes that are in the correct
+    // basin and with the main stem (later versions will include tribs)
+    for (int n = 0; n< n_tot_SA_nodes; n++)
+    {
+      if (binned_basin_keys[n] == this_basin)
+      {
+        
+        // This looks for the first trib in basin, which is the mainstem
+        if (mainstem_source == -9999)
+        {
+          mainstem_source = binned_source_keys[n];
+        }
+        
+        if (binned_source_keys[n] == mainstem_source)
+        {
+          area_data.push_back(binned_logA_medians[n]);
+          slope_data.push_back(binned_logS_medians[n]);
+          std_dev_data.push_back(binned_logS_StandardDeviation[n]);
+          FirstQuartile_data.push_back(binned_logS_FirstQuartile[n]);
+          ThirdQuartile_data.push_back(binned_logS_ThirdQuartile[n]);
+        }
+      }
+    }
+    
+    // Okay, now we partition the data
+    // For now 
+    LSDMostLikelyPartitionsFinder Partitioner(minimum_segment_length,area_data, slope_data);
+    
+    // Partition the data
+    //float sigma = 0.0005;  // this is a placeholder. Later we can use slope uncertainties. NOW USING MEASURED ERROR 
+    // We use the standard error of the S values as the sigma in partitioner. 
+    //cout << "This basin is: " << this_basin << endl;
+    Partitioner.best_fit_driver_AIC_for_linear_segments(std_dev_data);
+    
+    // Now we extract all the data from the partitions
+    vector<float> sigma_values;
+    sigma_values.push_back(1);
+    int node = 0;
+    vector<float> b_values; 
+    vector<float> m_values;
+    vector<float> r2_values; 
+    vector<float> DW_values;
+    vector<float> fitted_y;
+    vector<int> seg_lengths;
+    float this_MLE;
+    int this_n_segments;
+    int this_n_nodes;
+    float this_AIC;
+    float this_AICc;
+    
+    // These are some functions that I am using to figure out what the most likeley partitioner is doing
+    //Partitioner.print_to_screen_most_likeley_segment_lengths();
+    
+    Partitioner.get_data_from_best_fit_lines(node, sigma_values,
+                      b_values, m_values,r2_values, DW_values, fitted_y,seg_lengths,
+                      this_MLE,  this_n_segments,  this_n_nodes,
+                      this_AIC,  this_AICc);
+                      
+
+    
+    // We need to make some new vectors for storing the relevant segment number
+    vector<int> seg_number;
+    vector<float> seg_m;
+    vector<float> seg_b;
+    vector<float> seg_r2;
+    vector<float> seg_DW;
+    for (int seg = 0; seg< this_n_segments; seg++)
+    {
+      for(int seg_node =0; seg_node< seg_lengths[seg]; seg_node++)
+      {
+        seg_number.push_back(seg);
+        seg_m.push_back( m_values[seg]);
+        seg_b.push_back( b_values[seg]);
+        seg_r2.push_back( r2_values[seg]);
+        seg_DW.push_back( DW_values[seg]);
+      }
+    }
+    
+    
+    // Now we print the data
+    for (int sn = 0; sn < int(area_data.size()); sn++)
+    {
+      outfile << this_basin << "," << area_data[sn] << "," << slope_data[sn] <<  ","
+              << FirstQuartile_data[sn] << "," << ThirdQuartile_data[sn] << "," 
+              << seg_number[sn] << "," << fitted_y[sn] << "," 
+              << seg_m[sn] << "," << seg_b[sn] << "," << seg_r2[sn] << "," 
+              << seg_DW[sn] << endl;
+    }
+  }
+  
+  outfile.close();
+  
+  
+
 }
 
 

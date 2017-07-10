@@ -402,6 +402,118 @@ float get_mean(vector<float>& y_data)
   return mean;
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// gets the median
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+float get_median(vector<float> y_data)
+{
+  int n_data_points = y_data.size();
+
+  sort(y_data.begin(),y_data.end());
+
+  float dMedian = 0.0;
+  if ( (n_data_points % 2) == 0)
+  {
+    dMedian = ( (y_data[n_data_points/2] + (y_data[(n_data_points/2) - 1]))/2.0 );
+  } 
+  else 
+  {
+    dMedian = (y_data[n_data_points/2]);
+  }
+
+  return dMedian;
+}
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// gets the median: uses a pre-sorted vector
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+float get_median_sorted(vector<float> sorted_y_data)
+{
+  int n_data_points = sorted_y_data.size();
+
+  float dMedian = 0.0;
+  if ((n_data_points % 2) == 0)
+  {
+    dMedian = ((sorted_y_data[n_data_points/2] + (sorted_y_data[(n_data_points/2) - 1]))/2.0 );
+  } 
+  else 
+  {
+    dMedian = (sorted_y_data[n_data_points/2]);
+  }
+
+  return dMedian;
+}
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// gets the median absolute deviation (MAD)
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+float get_median_absolute_deviation(vector<float> y_data, float median)
+{
+  int n_data_points = y_data.size();
+  sort(y_data.begin(),y_data.end());
+  
+  vector<float> deviations;
+  
+  for (int i = 0; i<n_data_points; i++)
+  {
+    deviations.push_back( fabs(median-y_data[i]) );
+  }
+  float MAD = get_median(deviations);
+  return MAD;
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// gets interquartile    NOT FINISHED
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+vector<float> get_IQR_and_median(vector<float> y_data)
+{
+  vector<float> all_the_stats;
+  int n_data_points = y_data.size();
+
+  sort(y_data.begin(),y_data.end());
+  
+  float Min = y_data[0];
+  float Max = y_data[n_data_points-1];
+
+  float dMedian = 0.0;
+  float dLQ = 0.0;            // upper quartile
+  float dUQ = 0.0;            // lower quartile
+  if ((n_data_points % 2) == 0)
+  {
+    // the data is even so we get the average of the two middle values.
+    dMedian = ((y_data[n_data_points/2] + (y_data[(n_data_points/2) - 1]))/2.0);
+    
+    // each half space contains this many nodes. We need the median of this half space
+    int half_space = n_data_points/2;
+    
+    // slice the vector in two
+    vector<float>::iterator first = y_data.begin() + half_space;
+    //vector<float>::iterator last = y_data.begin() + half_space+1;
+    vector<float> First_Slice(y_data.begin(), first);
+    vector<float> Second_Slice(first, y_data.end());
+    
+    dLQ = get_median_sorted(First_Slice);
+    dUQ = get_median_sorted(Second_Slice);
+  } 
+  else 
+  {
+    dMedian = (y_data[n_data_points/2]);
+    int half_space = n_data_points/2;
+    vector<float>::iterator first = y_data.begin() + half_space;
+    vector<float> First_Slice(y_data.begin(), first+1);
+    vector<float> Second_Slice(first, y_data.end());
+    
+    dLQ = get_median_sorted(First_Slice);
+    dUQ = get_median_sorted(Second_Slice);
+  }
+
+  all_the_stats.push_back(Min);
+  all_the_stats.push_back(dLQ);
+  all_the_stats.push_back(dMedian);
+  all_the_stats.push_back(dUQ);
+  all_the_stats.push_back(Max);
+  
+  return all_the_stats;
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // gets the mean from a population of y_data and ignores no data values
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -895,7 +1007,60 @@ void quantile_quantile_analysis_defined_percentiles(vector<float>& data, vector<
   values = vals;
   mn_values = mn_vals;
 }
-//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// This function gets all the descriptive stats from a vector of data
+// The data is returned in a vector with elements
+// [0] minimum
+// [1] first quartile (median of first half of data)
+// [2] median
+// [3] third quartile (median of first half of data)
+// [4] maximum
+// [5] mean
+// [6] standard deviation
+// [7] standard error
+// [8] median absolute deviation (MAD)
+vector<float> calculate_descriptive_stats(vector<float>& data)
+{
+  // get the number of data points
+  int n_data = int(data.size());
+
+  // first sort the data
+  sort(data.begin(), data.end());
+  
+  float mean = get_mean(data);
+  float std_dev = get_standard_deviation(data, mean);
+  float std_err = get_standard_error(data, std_dev);
+  
+  // get the mean and standard deviation
+  float data_sum = 0;
+  for (int i = 0; i<n_data; i++)
+  {
+    data_sum+= data[i];
+  }
+  
+  vector<float> IQR = get_IQR_and_median(data);
+  float MAD = get_median_absolute_deviation(data, IQR[2]);
+  
+  vector<float> descriptive_stats;
+  descriptive_stats.push_back(IQR[0]);
+  descriptive_stats.push_back(IQR[1]);
+  descriptive_stats.push_back(IQR[2]);
+  descriptive_stats.push_back(IQR[3]);
+  descriptive_stats.push_back(IQR[4]);
+  descriptive_stats.push_back(mean);
+  descriptive_stats.push_back(std_dev);
+  descriptive_stats.push_back(std_err);
+  descriptive_stats.push_back(MAD);
+  
+  return descriptive_stats;
+  
+}
+
+
+
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // this function tests for autocorrelation between residuals
@@ -4329,6 +4494,240 @@ void bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, float bi
   StandardErrorY_output = StandardErrorY;
   number_observations_output = number_observations;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// BINNING OF 1D VECTOR
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Takes vectors for two corresponding variables (e.g. drainage area and slope)
+// and sorts into bins of a specified bin width.
+// The inputs are:
+//    - InputVectorX = the independent variable (usually plotted on the x axis)
+//    - InputVectorY = the dependent variable (usually plotted on the y axis)
+//    - bin_width = the width of the bins, with respect to
+//          InputArrayX
+//
+// This includes a number of extra statistics for the dependent variable
+// 
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+void bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, float bin_width,
+              vector<float>& midpoints_output, vector<float>&  MeanX_output, 
+              vector<float>&  MedianX_output, vector<float>&  StandardDeviationX_output,
+              vector<float>& StandardErrorX_output, vector<float>& MADX_output, 
+              vector<float>& MeanY_output, vector<float>& MinimumY_output,
+              vector<float>& FirstQuartileY_output, vector<float>& MedianY_output,
+              vector<float>& ThirdQuartileY_output, vector<float>& MaximumY_output,
+              vector<float>&  StandardDeviationY_output, vector<float>& StandardErrorY_output, 
+              vector<float>& MADY_output, vector<int>& number_observations_output, 
+              float NoDataValue) 
+
+{
+
+  // Finding max contributing area to use as upper limit for the bins
+  int n_data = InputVectorY.size();
+  float max_X = InputVectorX[n_data-1];
+  float min_X = InputVectorX[1];
+
+  //cout << "LSDStatsTools line 1757, n_data_X: " << InputVectorX.size() << " and Y: " << InputVectorY.size() << endl;
+
+  for (int i = 0; i < n_data; ++i)
+  {
+    if (InputVectorX[i] > max_X)
+    {
+      max_X = InputVectorX[i];
+    }
+    if (InputVectorX[i] < min_X || min_X == 0)    // Cannot have take a logarithm of zero.
+    {
+      min_X = InputVectorX[i];
+    }
+  }
+
+  // Defining the upper limit, lower limit and width of the bins
+  float upper_limit = ceil(max_X/bin_width)*bin_width;
+  float lower_limit = floor(min_X/bin_width)*bin_width;
+  if (lower_limit < 0 || isnan(lower_limit) == 1)
+  {
+    lower_limit = 0;
+  }
+  int NBins = int( (upper_limit - lower_limit)/bin_width )+1;
+  //cout << "Upper limit: " << upper_limit << " Lower limit: " << lower_limit << " NBins: " << NBins << endl;
+
+  // Looping through all the rows and columns and calculating which bin the
+  // contributing area is in, and putting the slope in this bin
+  vector<int> number_observations(NBins,0);
+  vector<float> Y_data(NBins,0.0);
+  vector<float> X_data(NBins,0.0);
+
+  // These will be copied into their respective function output vectors
+  vector<float> MeanX(NBins,0.0);
+  vector<float> MeanY(NBins,0.0);
+  vector<float> mid_points(NBins,0.0);
+
+  // vector<vector> objects house data in each bin.
+  vector< vector<float> > binned_data_X;
+  vector< vector<float> > binned_data_Y;
+
+  // create the vector of vectors.  Nested vectors will store data within that
+  // bin.
+  vector<float> empty_vector;
+  for(int i = 0; i<NBins; i++)
+  {
+    binned_data_X.push_back(empty_vector);
+    binned_data_Y.push_back(empty_vector);
+  }
+
+  // Bin Data
+  for (int i = 0; i < n_data; ++i)
+  {
+    float Y = InputVectorY[i];
+    if (Y != NoDataValue)
+    {
+      float X = InputVectorX[i];
+      if (X != 0)
+      {
+        // Get bin_id for this particular value of X
+        int bin_id = int((X-lower_limit)/bin_width);
+        //cout << "X: " << X << " Y: " << Y << " bin_id: " << bin_id << endl;
+        if (bin_id >= 0)
+        {
+          //cout << "LINE 1818, bin id: " << bin_id << " i: " << i << " XDsz: " << X_data.size() << " YDsz: " << Y_data.size() << endl;
+          //cout << "LINE 1819, bdxsz: " << binned_data_X.size() << " bdysz: " << binned_data_Y.size() << endl << endl;
+          // Store X and corresponding Y into this bin, for their respective
+          // vector<vector> object
+          binned_data_X[bin_id].push_back(X);
+          binned_data_Y[bin_id].push_back(Y);
+          Y_data[bin_id] += Y;
+          X_data[bin_id] += X;
+          ++number_observations[bin_id];
+        }
+      }
+    }
+  }
+
+
+  // Calculating the midpoint in x direction of each bin and the mean of x and y
+  // in each bin.  Probably want to plot MeanX vs MeanY, rather than midpoint of
+  // x vs Mean Y to be most robust.  At the moment the program returns both.
+  float midpoint_value = lower_limit + bin_width/2;
+  for (int bin_id = 0; bin_id < NBins; bin_id++)
+  {
+    mid_points[bin_id] = midpoint_value;
+    midpoint_value = midpoint_value + bin_width;
+    if (number_observations[bin_id] != 0)
+    {
+      MeanY[bin_id] = Y_data[bin_id]/number_observations[bin_id];
+      MeanX[bin_id] = X_data[bin_id]/number_observations[bin_id];
+      //cout << "No observations in bin: " << number_observations[bin_id] << endl;
+    }
+  }
+
+
+  // These will be copied into their respective function output vectors
+  vector<float> MinimumY(NBins,0.0);
+  vector<float> FirstQuartileY(NBins,0.0);
+  vector<float> MedianY(NBins,0.0);
+  vector<float> ThirdQuartileY(NBins,0.0);
+  vector<float> MaximumY(NBins,0.0);
+  vector<float> StandardDeviationY(NBins,0.0);
+  vector<float> StandardErrorY(NBins,0.0);
+  vector<float> MADY(NBins,0.0);
+  
+    
+  vector<float> MedianX(NBins,0.0);
+  vector<float> StandardDeviationX(NBins,0.0);
+  vector<float> StandardErrorX(NBins,0.0);
+  vector<float> MADX(NBins,0.0);
+
+  vector<float> this_binned_X;
+  vector<float> this_binned_Y;
+  // Getting the standard deviation of each bin.  First get sum of the squared
+  // deviations from the mean
+  for (int bin_id = 0; bin_id < NBins; bin_id++)
+  {
+    if (number_observations[bin_id] != 0)
+    {
+      this_binned_X = binned_data_X[bin_id];
+      this_binned_Y = binned_data_Y[bin_id];
+
+      vector<float> descriptive_stats_X = calculate_descriptive_stats(this_binned_X);
+      vector<float> descriptive_stats_Y = calculate_descriptive_stats(this_binned_Y);
+      
+      // get stats for Y data
+      MinimumY[bin_id] = descriptive_stats_Y[0];
+      FirstQuartileY[bin_id] = descriptive_stats_Y[1];
+      MedianY[bin_id] = descriptive_stats_Y[2];
+      ThirdQuartileY[bin_id] = descriptive_stats_Y[3];
+      MaximumY[bin_id] = descriptive_stats_Y[4];
+      StandardDeviationY[bin_id] = descriptive_stats_Y[6];
+      StandardErrorY[bin_id] = descriptive_stats_Y[7];
+      MADY[bin_id] = descriptive_stats_Y[8];
+  
+      // Get stats for X data
+      MedianX[bin_id] = descriptive_stats_X[2];
+      StandardDeviationX[bin_id] = descriptive_stats_X[6];
+      StandardErrorX[bin_id] = descriptive_stats_X[7];
+      MADX[bin_id] = descriptive_stats_X[8];
+      
+      
+      
+    }
+  }
+
+
+
+  // Copy output into output vectors
+  midpoints_output = mid_points;
+  MeanX_output = MeanX;
+  MedianX_output = MedianX;
+  StandardDeviationX_output = StandardDeviationX;
+  StandardErrorX_output = StandardErrorX;
+  MADX_output = MADX;
+  
+  MeanY_output = MeanY;
+  MinimumY_output = MinimumY;
+  FirstQuartileY_output = FirstQuartileY;
+  MedianY_output = MedianY;
+  ThirdQuartileY_output = ThirdQuartileY;
+  MaximumY_output = MaximumY;
+  StandardDeviationY_output = StandardDeviationY;
+  StandardErrorY_output = StandardErrorY;
+  MADY_output = MADY;
+  
+  number_observations_output = number_observations;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //look for bins with very few (or no) data points output from the log binning function and removes them to avoid

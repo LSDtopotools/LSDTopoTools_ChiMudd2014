@@ -81,6 +81,10 @@ vector<float> simple_linear_regression(vector<float>& x_data, vector<float>& y_d
 float get_mean(vector<float>& y_data);
 float get_mean_ignore_ndv(vector<float>& y_data, float ndv);
 float get_mean_ignore_ndv(Array2D<float>& data, float ndv);
+float get_median(vector<float> y_data);
+float get_median_sorted(vector<float> sorted_y_data);
+float get_median_absolute_deviation(vector<float> y_data, float median);
+vector<float> get_IQR_and_median(vector<float> y_data);
 float get_SST(vector<float>& y_data, float mean);
 float get_variance_ignore_ndv(Array2D<float>& data, float ndv, float mean);
 float get_range_ignore_ndv(Array2D<float>& data, float ndv);
@@ -91,6 +95,7 @@ float get_durbin_watson_statistic(vector<float> residuals);
 float get_standard_deviation(vector<float>& y_data, float mean);
 float get_standard_error(vector<float>& y_data, float standard_deviation);
 vector<float> get_common_statistics(vector<float>& y_data);
+vector<float> calculate_descriptive_stats(vector<float>& data);
 float get_percentile(vector<float>& data, float percentile);
 
 // orthogonal regression
@@ -384,6 +389,19 @@ void bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, float bi
                       vector<float>&  StandardDeviationX_output, vector<float>&  StandardDeviationY_output,
                       vector<float>& StandardErrorX_output, vector<float>& StandardErrorY_output,
                       vector<int>& number_observations_output, float& bin_lower_limit, float NoDataValue);
+
+// Regular binning algoritm for data stored in a 1D vector Similar to above but spits out more stats
+void bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, float bin_width,
+              vector<float>& midpoints_output, vector<float>&  MeanX_output, 
+              vector<float>&  MedianX_output, vector<float>&  StandardDeviationX_output,
+              vector<float>& StandardErrorX_output, vector<float>& MADX_output, 
+              vector<float>& MeanY_output, vector<float>& MinimumY_output,
+              vector<float>& FirstQuartileY_output, vector<float>& MedianY_output,
+              vector<float>& ThirdQuartileY_output, vector<float>& MaximumY_output,
+              vector<float>&  StandardDeviationY_output, vector<float>& StandardErrorY_output, 
+              vector<float>& MADY_output, vector<int>& number_observations_output,
+              float NoDataValue); 
+
 
 //look for empty bins output from the log binning function and removes them to avoid
 //plotting several empty bins at 0,0 in some cases. SWDG 6/11/13

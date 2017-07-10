@@ -992,7 +992,7 @@ void LSDMostLikelyPartitionsFinder::populate_segment_matrix(int start_node, int 
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // this function calculates the most likeley combination of segments given the liklihood
-// of individual segments calcualted by the calculate_segment_matrices function
+// of individual segments calculated by the calculate_segment_matrices function
 //
 // SMM 01/02/2013
 //
@@ -1310,7 +1310,7 @@ vector<float> LSDMostLikelyPartitionsFinder::transform_like_from_sigma1_to_sigma
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // this function takes the normalized MLE values (normalized with sigma = 1) and returns the
 // best fit number of segments from both the AIC and the AICc measures. It also returns
-// two vector of vectors which are the AIC values for the varius values of sigma
+// two vector of vectors which are the AIC values for the various values of sigma
 // passed to the function in the sigma values vector
 //
 // SMM 01/02/2013
@@ -1330,7 +1330,7 @@ void LSDMostLikelyPartitionsFinder::get_n_segments_for_various_sigma(vector<floa
   // loop through the sigma values collecting the AIC and AICc values
   for (int i = 0; i< n_sigma; i++)
   {
-    // calcualte the AIC values for this value of sigma
+    // calculate the AIC values for this value of sigma
     calculate_AIC_of_segments_with_variable_sigma(sigma_values[i],
                 AIC_of_segments,AICc_of_segments);
     AIC_for_each[i] = AIC_of_segments;
