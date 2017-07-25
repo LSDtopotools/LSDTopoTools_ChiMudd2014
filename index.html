@@ -506,7 +506,14 @@ MathJax.Hub.Config({
 </ul>
 </li>
 <li><a href="#_using_our_example_scripts">6.3. Using our example scripts</a></li>
-<li><a href="#_example_one_part_one_the_hillshade">6.4. Example one, part one: the hillshade.</a></li>
+<li><a href="#_visualising_example_one_data">6.4. Visualising example one data</a>
+<ul class="sectlevel3">
+<li><a href="#_example_one_part_one_the_hillshade">6.4.1. Example one, part one: the hillshade</a></li>
+<li><a href="#_example_one_part_two_coloured_basins">6.4.2. Example one, part two: coloured basins</a></li>
+<li><a href="#_example_one_part_three_numbered_basins">6.4.3. Example one, part three: numbered basins</a></li>
+<li><a href="#_example_one_part_four_renaming_basins">6.4.4. Example one, part four: renaming basins</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1349,7 +1356,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_channels_to_csv</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Prints the channel network to a csv file. Includes stream order and other useful information. Much more memory efficient than printing the whole raster.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prints the channel network to a csv file. Includes stream order and other useful information. Much more memory efficient than printing the whole raster. It prints all channel nodes across the DEM rather than printing nodes upstream of selected basins.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_junction_index_raster</p></td>
@@ -1453,7 +1460,19 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">calculate_MLE_collinearity</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. This uses <strong>ALL</strong> nodes in the channel network. The effect is that longer channels have greater influence of the result than small channels.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">calculate_MLE_collinearity_with_points</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">fasle</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. It uses specific points on tributaries to conpare the the mainstem. These are located at fixed chi distances upstream of the lower junction of the tributary. The effect is to ensure that all tributaries are weighted similarly in calculating <em>m/n</em>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">movern_residuals_test</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">fasle</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back the</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_profiles_fxn_movern_csv</p></td>
@@ -1484,6 +1503,18 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">If true this compares the goodness of fit between the mainstem and all tributaries in each basin for each <em>m/n</em> value. If false, it compares <strong>all</strong> tributaries and the main stem to every other tributary.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCMC_movern_analysis</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, runs a Monte Carlo Markov Chain analysis of the best fit <em>m/n</em>. First attempts to tune the sigma value for the profuiles to get an MCMC acceptance rate of 25%, then runs a chain to contrain uncertainties. At the moment the tuning doesn&#8217;t seem to be working properly!!</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCMC_chain_links</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of links in the MCMC chain</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">SA_vertical_interval</p></td>
@@ -1594,6 +1625,12 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file with latitude, longitude and the chi coordinate. Can be converted to a GeoJSON with the flag <code>convert_csv_to_geojson</code>. This options gives more flexibility in visualisation than the raster, since in the raster data points will only render as one pixel.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_simple_chi_map_to_csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints the data maps (with latitude, longitude, elevation, flow distance, area, source key, basin key, and chi) to a csv file. This is used with some of our visualisation scripts. It takes the A_0_ and m/n values from the main parameters (defaults are 1 m<sup>2</sup> and 0.5, respectively). Note that unlike the <code>print_channels_to_csv</code> this function takes nodes uplospe of the selected basins rather than the entire channel network.</p></td>
 </tr>
 </tbody>
 </table>
@@ -2314,17 +2351,25 @@ $ git clone https://github.com/LSDtopotools/LSDTT_chi_examples.git</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_example_one_part_one_the_hillshade">6.4. Example one, part one: the hillshade.</h3>
+<h3 id="_visualising_example_one_data">6.4. Visualising example one data</h3>
+<div class="paragraph">
+<p>We will now generate some figures to look at our data.</p>
+</div>
+<div class="sect3">
+<h4 id="_example_one_part_one_the_hillshade">6.4.1. Example one, part one: the hillshade</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
 <p>Make sure you&#8217;ve run the <strong>chi mapping tool</strong> first: <a href="#_first_example_basic_dem_steps_and_basin_selection">First example: Basic DEM steps and Basin selection</a>.</p>
 </li>
 <li>
-<p>Alright, lets get to the visualisations. In <strong>spyder</strong> run the <code>ChiMappingExamples.py</code> with the first example turned on (i.e., no <code>#</code> in front of <code>CME.ExampleOne_PartOne_SimpleHillshade(DataDirectory,Base_file)</code>).</p>
+<p>In <strong>spyder</strong> run the <code>ChiMappingExamples.py</code> with the first example turned on (i.e., no <code>#</code> in front of <code>CME.ExampleOne_PartOne_SimpleHillshade(DataDirectory,Base_file)</code>).</p>
 </li>
 <li>
 <p>This will create a png of this example DEM in your data folder called <strong>Xian_example1.png</strong></p>
+</li>
+<li>
+<p>If you look at the code for this example (in <code>ChiVisualisation_Example01.py</code>) you should see a few basic options. You can change the figure size, the location of the colourbar, various labels, as well as the resolution of the figure (using the <code>dpi</code> keyword). The default format is <strong>png</strong> buy you can change that in the <code>MF.save_fig</code> command with <code>figure_format = "pdf"</code> (for example). We encourage you to play with the options to see what they do.</p>
 <div class="imageblock">
 <div class="content">
 <img src="images/Xian_example1.png" alt="Area around Mount_Hua">
@@ -2332,25 +2377,53 @@ $ git clone https://github.com/LSDtopotools/LSDTT_chi_examples.git</code></pre>
 <div class="title">Figure 1. A hillshade of the example landscape</div>
 </div>
 </li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_example_one_part_two_coloured_basins">6.4.2. Example one, part two: coloured basins</h4>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
 <p>Next turn on the second part of the example (<code>CME.ExampleOne_PartTwo_PrintBasins(DataDirectory,Base_file)</code>). This will show you the basins that have been algorithmically extracted:</p>
 <div class="imageblock">
 <div class="content">
-<img src="images/Xian_basin_keys.png" alt="Basins around Mount_Hua">
+<img src="images/Xian_coloured_basins.png" alt="Basins around Mount_Hua">
 </div>
-<div class="title">Figure 2. The extracted basins</div>
+<div class="title">Figure 2. The extracted basins, coloured by basin number</div>
 </div>
 </li>
+<li>
+<p>We have added a few more lines in this example script to show more options. For example you can change the colourmap (<code>cmap = plt.cm.jet</code>, but you could change to <code>cmap = plt.cm.cubehelix</code> for example), and later there are some options for the basin outlines.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_example_one_part_three_numbered_basins">6.4.3. Example one, part three: numbered basins</h4>
+<div class="olist arabic">
+<ol class="arabic">
 <li>
 <p>Figuring out the basin numbers using a colourbar is inconvineint. If you turn on the third part of the example you will see text labels for each basin:</p>
 <div class="imageblock">
 <div class="content">
-<img src="images/Xian_basin_keys.png" alt="Basins around Mount_Hua">
+<img src="images/Xian_basin_keys.png" alt="Numbered basins around Mount_Hua">
 </div>
 <div class="title">Figure 3. The extracted basins</div>
 </div>
 </li>
+<li>
+<p>So now we have basin numbers.</p>
+</li>
+<li>
+<p>You might notice that the basin numbers are somewhat randomly distributed. This is because we use a <a href="http://www.sciencedirect.com/science/article/pii/S0169555X12004618">very efficient algorithm</a> to compute the flow network and this algorithm does the numbering for us based on the connectivity of basins in the raster. To make this numbering more sensible to a human we need to manually rename them.</p>
+</li>
 </ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_example_one_part_four_renaming_basins">6.4.4. Example one, part four: renaming basins</h4>
+
 </div>
 </div>
 </div>
@@ -2358,7 +2431,7 @@ $ git clone https://github.com/LSDtopotools/LSDTT_chi_examples.git</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-06-20 10:02:06 GMT Daylight Time
+Last updated 2017-07-25 11:38:50 BST
 </div>
 </div>
 </body>
