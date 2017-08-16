@@ -45,6 +45,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <ctime>
+#include <sys/time.h>
 #include <fstream>
 #include "../LSDStatsTools.hpp"
 #include "../LSDChiNetwork.hpp"
@@ -108,9 +110,10 @@ int main (int nNumberofArgs,char *argv[])
   float_default_map["maximum_elevation"] = 30000;
   float_default_map["min_slope_for_fill"] = 0.0001;
   bool_default_map["raster_is_filled"] = false; // assume base raster is already filled
-  bool_default_map["remove_seas"] = false; // elevations above minimum and maximum will be changed to nodata
+  bool_default_map["remove_seas"] = true; // elevations above minimum and maximum will be changed to nodata
   bool_default_map["only_check_parameters"] = false;
   string_default_map["CHeads_file"] = "NULL";
+  bool_default_map["print_raster_without_seas"] = false;
 
 
   // Selecting basins
@@ -118,12 +121,12 @@ int main (int nNumberofArgs,char *argv[])
   int_default_map["minimum_basin_size_pixels"] = 5000;
   int_default_map["maximum_basin_size_pixels"] = 500000;
   bool_default_map["test_drainage_boundaries"] = true;
-  bool_default_map["only_take_largest_basin"] = false;
+  bool_default_map["only_take_largest_basin"] = false; 
   string_default_map["BaselevelJunctions_file"] = "NULL";
 
   // IMPORTANT: S-A analysis and chi analysis wont work if you have a truncated
   // basin. For this reason the default is to test for edge effects
-  bool_default_map["find_complete_basins_in_window"] = false;
+  bool_default_map["find_complete_basins_in_window"] = true;
   bool_default_map["find_largest_complete_basins"] = false;
   bool_default_map["print_basin_raster"] = false;
 
@@ -144,7 +147,7 @@ int main (int nNumberofArgs,char *argv[])
   float_default_map["A_0"] = 1;
   float_default_map["m_over_n"] = 0.5;
   int_default_map["threshold_pixels_for_chi"] = 0;
-  int_default_map["basic_Mchi_regression_nodes"];
+  int_default_map["basic_Mchi_regression_nodes"] = 11;
 
   // parameters if you want to explore m/n ratios or slope-area analysis
   int_default_map["n_movern"] = 8;
@@ -162,9 +165,25 @@ int main (int nNumberofArgs,char *argv[])
   bool_default_map["calculate_MLE_collinearity"] = false;
   bool_default_map["print_profiles_fxn_movern_csv"] = false;
 
+  bool_default_map["calculate_MLE_collinearity_with_points"] = false;
+  bool_default_map["movern_residuals_test"] = false;
+
+
+
+  bool_default_map["MCMC_movern_analysis"] = false;
+  float_default_map["MCMC_movern_minimum"] = 0.05;
+  float_default_map["MCMC_movern_maximum"] = 1.5;
+  float_default_map["MCMC_chain_links"] = 5000;
+
+  bool_default_map["bootstrap_SA_data"] = false;
+  int_default_map["N_SA_bootstrap_iterations"] = 1000;
+  float_default_map["SA_bootstrap_retain_node_prbability"] = 0.5;
+
+
   // parameters for various chi calculations as well as slope-area
   int_default_map["n_iterations"] = 20;
   int_default_map["minimum_segment_length"] = 10;
+  int_default_map["maximum_segment_length"] = 100000; //make super large so as not to be a factor unless user defined
   int_default_map["n_nodes_to_visit"] = 10;
   int_default_map["target_nodes"] = 80;
   int_default_map["skip"] = 2;
@@ -185,7 +204,9 @@ int main (int nNumberofArgs,char *argv[])
   // these print various basin and source data for visualisation
   bool_default_map["print_source_keys"] = false;
   bool_default_map["print_sources_to_csv"] = false;
+  bool_default_map["print_sources_to_raster"] = false;
   bool_default_map["print_baselevel_keys"] = false;
+  bool_default_map["print_chi_data_maps"] = false;
 
   // These enable calculation of chi based on discharge
   bool_default_map["use_precipitation_raster_for_chi"] = false;
@@ -196,7 +217,7 @@ int main (int nNumberofArgs,char *argv[])
   string_default_map["precipitation_fname"] = "NULL";
 
   bool_default_map["print_segments"] = false;
-
+  bool_default_map["print_segments_raster"] = false;
 
   // Use the parameter parser to get the maps of the parameters required for the
   // analysis
@@ -221,7 +242,7 @@ int main (int nNumberofArgs,char *argv[])
   string BaselevelJunctions_file = LSDPP.get_BaselevelJunctions_file();
 
   cout << "Read filename is: " <<  DATA_DIR+DEM_ID << endl;
-  cout << "Write filename is: " << OUT_DIR+OUT_ID << endl;
+  cout << "Write filename is: " << OUT_DIR+OUT_ID << endl; 
 
     // check to see if the raster exists
   LSDRasterInfo RI((DATA_DIR+DEM_ID), raster_ext);
@@ -240,6 +261,7 @@ int main (int nNumberofArgs,char *argv[])
   float movern = this_float_map["m_over_n"];
   int n_iterations = this_int_map["n_iterations"];
   int minimum_segment_length = this_int_map["minimum_segment_length"];
+  int maximum_segment_length = this_int_map["maximum_segment_length"];
   int n_nodes_to_visit = this_int_map["n_nodes_to_visit"];             // when constructing channel network, this
   float sigma = this_float_map["sigma"];
   int target_nodes = this_int_map["target_nodes"];
@@ -261,6 +283,13 @@ int main (int nNumberofArgs,char *argv[])
     LSDRaster Flooded = start_raster.mask_to_nodata_using_threshold(lower_threshold,belowthresholdisnodata);
     belowthresholdisnodata = false;
     topography_raster = Flooded.mask_to_nodata_using_threshold(upper_threshold,belowthresholdisnodata);
+
+    if (this_bool_map["print_raster_without_seas"])
+    {
+      cout << "I'm replacing your raster with a raster without seas." << endl;
+      string this_raster_name = OUT_DIR+OUT_ID;
+      topography_raster.write_raster(this_raster_name,raster_ext);
+    }
   }
   else
   {
@@ -401,6 +430,8 @@ int main (int nNumberofArgs,char *argv[])
 
     //write channel_heads to a csv file
     FlowInfo.print_vector_of_nodeindices_to_csv_file_with_latlong(sources, sources_csv_name);
+    string sources_csv_name_2 = OUT_DIR+OUT_ID+"_ATsources_rowcol.csv";
+    FlowInfo.print_vector_of_nodeindices_to_csv_file(sources, sources_csv_name_2);
 
     if ( this_bool_map["convert_csv_to_geojson"])
     {
@@ -408,6 +439,13 @@ int main (int nNumberofArgs,char *argv[])
       LSDSpatialCSVReader thiscsv(sources_csv_name);
       thiscsv.print_data_to_geojson(gjson_name);
     }
+  }
+
+  if( this_bool_map["print_sources_to_raster"])
+  {
+    string CH_name = "_AT_CH_old";
+    LSDIndexRaster Channel_heads_raster = FlowInfo.write_NodeIndexVector_to_LSDIndexRaster(sources);
+    Channel_heads_raster.write_raster((OUT_DIR+OUT_ID+CH_name),"bil");
   }
 
   if (this_bool_map["print_stream_order_raster"])
@@ -469,8 +507,11 @@ int main (int nNumberofArgs,char *argv[])
   else
   {
     cout << "I am attempting to read junctions from a junction list." << endl;
+    
     //specify junctions to work on from a list file
-    string JunctionsFile = DATA_DIR+DEM_ID+"_junctions.list";
+    string JunctionsFile = DATA_DIR+BaselevelJunctions_file; 
+    cout << "The junctions file is: " << BaselevelJunctions_file << endl;
+
 
     vector<int> JunctionsList;
     ifstream infile(JunctionsFile.c_str());
@@ -485,11 +526,11 @@ int main (int nNumberofArgs,char *argv[])
       cout << "Fatal Error: Junctions File " << JunctionsFile << " does not exist" << endl;
       exit(EXIT_FAILURE);
     }
-    
+
     // Now make sure none of the basins drain to the edge
     cout << "I am pruning junctions that are influenced by the edge of the DEM!" << endl;
     BaseLevelJunctions = JunctionNetwork.Prune_Junctions_Edge_Ignore_Outlet_Reach(BaseLevelJunctions_Initial, FlowInfo, filled_topography);
-    
+
   }
 
   // Now check for larges basin, if that is what you want.
@@ -634,7 +675,9 @@ int main (int nNumberofArgs,char *argv[])
         || this_bool_map["print_slope_area_data"]
         || this_bool_map["print_source_keys"]
         || this_bool_map["print_baselevel_keys"]
-        || this_bool_map["print_basin_raster"])
+        || this_bool_map["print_basin_raster"]
+        || this_bool_map["MCMC_movern_analysis"]
+        || this_bool_map["print_chi_data_maps"])
   {
     cout << "I am getting the source and outlet nodes for the overlapping channels" << endl;
     cout << "The n_nodes to visit are: " << n_nodes_to_visit << endl;
@@ -673,7 +716,13 @@ int main (int nNumberofArgs,char *argv[])
                             filled_topography, DistanceFromOutlet,
                             DrainageArea, chi_coordinate, target_nodes,
                             n_iterations, skip, minimum_segment_length, sigma);
-      ChiTool.segment_counter(FlowInfo);
+      ChiTool.segment_counter(FlowInfo, maximum_segment_length);
+      if (this_bool_map["print_segments_raster"])
+      {
+        LSDIndexRaster SegmentsRaster = ChiTool.segment_mapping(FlowInfo, maximum_segment_length);
+        string Segments_raster_name = OUT_DIR+OUT_ID+"_Segments";
+        SegmentsRaster.write_raster(Segments_raster_name,raster_ext);
+      }
     }
     else
     {
@@ -752,6 +801,115 @@ int main (int nNumberofArgs,char *argv[])
   }
   //============================================================================
 
+
+
+  //============================================================================
+  // This is for visualisation of the basins
+  //============================================================================
+  if(this_bool_map["print_chi_data_maps"])
+  {
+    cout << "I am going to print some simple chi data maps for visualisation." << endl;
+    LSDChiTools ChiTool_chi_checker(FlowInfo);
+    ChiTool_chi_checker.chi_map_automator_chi_only(FlowInfo, source_nodes, outlet_nodes, baselevel_node_of_each_basin,
+                            filled_topography, DistanceFromOutlet,
+                            DrainageArea, chi_coordinate);
+
+    // first the logic if you are using a precipitation raster
+    if(this_bool_map["use_precipitation_raster_for_chi"])
+    {
+      string chiQ_data_maps_string = OUT_DIR+OUT_ID+"_chi_data_mapQ.csv";
+      ChiTool_chi_checker.print_chi_data_map_to_csv(FlowInfo, chiQ_data_maps_string);
+
+      if ( this_bool_map["convert_csv_to_geojson"])
+      {
+        string gjson_name = OUT_DIR+OUT_ID+"_chi_data_mapQ.geojson";
+        LSDSpatialCSVReader thiscsv(chiQ_data_maps_string);
+        thiscsv.print_data_to_geojson(gjson_name);
+      }
+
+    }
+    else
+    {
+      string chi_data_maps_string = OUT_DIR+OUT_ID+"_chi_data_map.csv";
+      ChiTool_chi_checker.print_chi_data_map_to_csv(FlowInfo, chi_data_maps_string);
+
+      if ( this_bool_map["convert_csv_to_geojson"])
+      {
+        string gjson_name = OUT_DIR+OUT_ID+"_chi_data_map.geojson";
+        LSDSpatialCSVReader thiscsv(chi_data_maps_string);
+        thiscsv.print_data_to_geojson(gjson_name);
+      }
+    }
+  }
+  //============================================================================
+
+
+
+
+  if (this_bool_map["MCMC_movern_analysis"])
+  {
+    cout << "I am going to explore m/n using the MCMC method" << endl;
+    cout << "WARNING!!! This could take a while." << endl;
+    // Lets make a new chi tool: this won't be segmented since we only
+    // need it for m/n
+    LSDChiTools ChiTool_MCMC(FlowInfo);
+    ChiTool_MCMC.chi_map_automator_chi_only(FlowInfo, source_nodes, outlet_nodes, baselevel_node_of_each_basin,
+                            filled_topography, DistanceFromOutlet,
+                            DrainageArea, chi_coordinate);
+
+
+    // Get the pixel threshold. Make it one less than the previous threshold to ensure
+    // you get all the nodes in the basin
+    int pixel_thresh_for_this_example = this_int_map["threshold_contributing_pixels"] -1;
+
+    bool use_points = true;
+    ChiTool_MCMC.MCMC_driver(FlowInfo, pixel_thresh_for_this_example,
+                             this_float_map["collinearity_MLE_sigma"],
+                             this_float_map["MCMC_movern_minimum"],
+                             this_float_map["MCMC_movern_maximum"],
+                             this_float_map["MCMC_chain_links"],
+                             OUT_DIR, OUT_ID, use_points);
+
+  }
+
+
+
+
+
+
+
+
+
+  if (this_bool_map["movern_residuals_test"])
+  {
+    cout << "I am going to explore m/n using the residuals method" << endl;
+    // Lets make a new chi tool: this won't be segmented since we only
+    // need it for m/n
+    LSDChiTools ChiTool_residuals(FlowInfo);
+    ChiTool_residuals.chi_map_automator_chi_only(FlowInfo, source_nodes, outlet_nodes, baselevel_node_of_each_basin,
+                            filled_topography, DistanceFromOutlet,
+                            DrainageArea, chi_coordinate);
+
+    // Calculate and print results
+    string residuals_name = OUT_DIR+OUT_ID+"_residual_movernstats";
+    ChiTool_residuals.calculate_goodness_of_fit_collinearity_fxn_movern_using_median_residuals(FlowInfo, JunctionNetwork,
+                      this_float_map["start_movern"], this_float_map["delta_movern"],
+                      this_int_map["n_movern"],
+                      this_bool_map["only_use_mainstem_as_reference"],
+                      residuals_name);
+
+
+  }
+
+
+
+
+
+
+
+
+
+
   if (this_bool_map["calculate_MLE_collinearity"])
   {
 
@@ -791,6 +949,72 @@ int main (int nNumberofArgs,char *argv[])
                       movern_name, this_float_map["collinearity_MLE_sigma"]);
     }
   }
+
+
+
+
+
+
+
+
+
+  if(this_bool_map["calculate_MLE_collinearity_with_points"])
+  {
+    cout << "I am going to test the experimental MLE collinearity functions" << endl;
+    cout << "I am testing the collinearity for you. " << endl;
+    // Lets make a new chi tool: this won't be segmented since we only
+    // need it for m/n
+    LSDChiTools ChiTool_movern(FlowInfo);
+    ChiTool_movern.chi_map_automator_chi_only(FlowInfo, source_nodes, outlet_nodes, baselevel_node_of_each_basin,
+                            filled_topography, DistanceFromOutlet,
+                            DrainageArea, chi_coordinate);
+
+    vector<float> chi_fracs_to_test;
+    chi_fracs_to_test.push_back(0.25);
+    chi_fracs_to_test.push_back(0.2);
+    chi_fracs_to_test.push_back(0.15);
+    chi_fracs_to_test.push_back(0.1);
+    chi_fracs_to_test.push_back(0.05);
+
+    // test the basin collinearity test
+    //int baselevel_key = 1;
+    vector<int> reference_source;
+    vector<int> test_source;
+    vector<float> MLE_values;
+    vector<float> RMSE_values;
+    //bool only_use_mainstem_as_reference = true;
+
+    float this_sigma = this_float_map["collinearity_MLE_sigma"];
+    this_sigma = 10;        // just for debugging
+
+
+    if(this_bool_map["use_precipitation_raster_for_chi"])
+    {
+      cout << "Using a discharge raster to check collinearity." << endl;
+      string movern_name = OUT_DIR+OUT_ID+"_point_movernstatsQ";
+      ChiTool_movern.calculate_goodness_of_fit_collinearity_fxn_movern_with_discharge_using_points(FlowInfo,
+                      JunctionNetwork, this_float_map["start_movern"], this_float_map["delta_movern"],
+                      this_int_map["n_movern"],
+                      this_bool_map["only_use_mainstem_as_reference"],
+                      movern_name, Discharge, this_sigma,
+                      chi_fracs_to_test);
+    }
+    else
+    {
+      string movern_name = OUT_DIR+OUT_ID+"_point_movernstats";
+      ChiTool_movern.calculate_goodness_of_fit_collinearity_fxn_movern_using_points(FlowInfo, JunctionNetwork,
+                      this_float_map["start_movern"], this_float_map["delta_movern"],
+                      this_int_map["n_movern"],
+                      this_bool_map["only_use_mainstem_as_reference"],
+                      movern_name, this_sigma,
+                      chi_fracs_to_test);
+    }
+
+  }
+
+
+
+
 
   if(this_bool_map["print_profiles_fxn_movern_csv"] )
   {
@@ -837,6 +1061,7 @@ int main (int nNumberofArgs,char *argv[])
     ChiTool_SA.chi_map_automator_chi_only(FlowInfo, source_nodes, outlet_nodes, baselevel_node_of_each_basin,
                             filled_topography, DistanceFromOutlet,
                             DrainageArea, chi_coordinate);
+    cout << "Got the data into the data maps." << endl;
 
     float vertical_interval = this_float_map["SA_vertical_interval"];
     string filename_SA = OUT_DIR+OUT_ID+"_SAvertical.csv";
@@ -852,12 +1077,23 @@ int main (int nNumberofArgs,char *argv[])
 
     cout << "Printing binned S-A data." << endl;
     ChiTool_SA.bin_slope_area_data(FlowInfo, SA_midpoint_nodes, SA_slopes, this_float_map["log_A_bin_width"],filename_binned);
-    
+
+    if (this_bool_map["bootstrap_SA_data"])
+    {
+      cout << "I am going to bootstrap the S-A data for you." << endl;
+      string filename_SAbootstrap = OUT_DIR+OUT_ID+"_SABootstrap.csv";
+      ChiTool_SA.bootstrap_slope_area_data(FlowInfo, SA_midpoint_nodes, SA_slopes,
+                                           this_int_map["N_SA_bootstrap_iterations"],
+                                           this_float_map["SA_bootstrap_retain_node_prbability"],
+                                           filename_SAbootstrap);
+    }
+
+
     if (this_bool_map["segment_slope_area_data"])
     {
       cout << "I am going to segment the S-A data from the main stem channel for you." << endl;
       string filename_SAseg = OUT_DIR+OUT_ID+"_SAsegmented.csv";
-      ChiTool_SA.segment_binned_slope_area_data(FlowInfo, SA_midpoint_nodes, SA_slopes, 
+      ChiTool_SA.segment_binned_slope_area_data(FlowInfo, SA_midpoint_nodes, SA_slopes,
                                   this_float_map["log_A_bin_width"],
                                   this_int_map["slope_area_minimum_segment_length"],
                                   filename_SAseg);
@@ -947,7 +1183,7 @@ int main (int nNumberofArgs,char *argv[])
                           filled_topography, DistanceFromOutlet,
                           DrainageArea, chi_coordinate, target_nodes,
                           n_iterations, skip, minimum_segment_length, sigma);
-    ChiTool.segment_counter(FlowInfo);
+    ChiTool.segment_counter(FlowInfo, maximum_segment_length);
     ChiTool.ksn_knickpoint_detection(FlowInfo);
     string csv_full_fname_knockpoint = OUT_DIR+OUT_ID+"_KsnKn.csv";
     ChiTool.print_knickpoint_to_csv(FlowInfo,csv_full_fname_knockpoint);

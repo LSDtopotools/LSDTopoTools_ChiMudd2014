@@ -177,7 +177,7 @@ class LSDParameterParser
     /// @date 09/17/2016
     vector<float> parse_float_vector(string key);
 
-    /// @brief This forces the read and wirte extensions to bil
+    /// @brief This forces the read and write extensions to bil
     /// @author SMM
     /// @date 02/11/16
     void force_bil_extension();
@@ -198,6 +198,10 @@ class LSDParameterParser
     string get_CHeads_file() const      { return CHeads_file; }
     /// @return BaseLevelJunctions_file
     string get_BaselevelJunctions_file() const      { return BaselevelJunctions_file; }
+    /// @return ChannelSegments_file
+    string get_ChannelSegments_file() const      { return ChannelSegments_file; }
+    /// @return Floodplain_file
+    string get_Floodplain_file() const        { return Floodplain_file; }
     /// @return the boundary conditions
     vector<string> get_boundary_conditions() const     { return boundary_conditions; }
     /// @return the float parameters
@@ -290,7 +294,13 @@ class LSDParameterParser
     
     /// The prefix of the baselevel junctions filename
     string BaselevelJunctions_file;
-
+    
+    /// The prefix of the channel segments filename
+    string ChannelSegments_file;
+    
+    /// The prefix of the floodplain mask filename
+    string Floodplain_file;
+    
     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     /// the four boundary conditions on the raster for the flow info object
     vector<string> boundary_conditions;

@@ -656,6 +656,50 @@ void LSDSpatialCSVReader::get_x_and_y_from_latlong(vector<float>& UTME,vector<fl
 }
 
 //==============================================================================
+// This gets the x and y locations from specified columns
+//==============================================================================
+void LSDSpatialCSVReader::get_x_and_y_from_latlong_specify_columns(string lat_column_name,
+  string long_column_name, vector<float>& UTME,vector<float>& UTMN)
+{
+  // initilise the converter
+  LSDCoordinateConverterLLandUTM Converter;
+
+  // get the data to vectors
+  vector<float> lat_data = data_column_to_float(lat_column_name);
+  vector<float> long_data = data_column_to_float(long_column_name);
+
+  int N_samples =  int(long_data.size());
+
+  // set up some temporary vectors
+  vector<float> this_UTMN(N_samples,0);
+  vector<float> this_UTME(N_samples,0);
+
+  double this_Northing;
+  double this_Easting;
+
+  int UTM_zone;
+  bool is_North;
+  get_UTM_information(UTM_zone, is_North);
+
+
+  // loop throught the samples collecting UTM information
+  int eId = 22;             // defines the ellipsiod. This is WGS
+  for(int i = 0; i<N_samples; i++)
+  {
+    //cout << "Converting point " << i << " to UTM." << endl;
+    Converter.LLtoUTM_ForceZone(eId, lat_data[i], long_data[i],
+                      this_Northing, this_Easting, UTM_zone);
+    this_UTMN[i] = this_Northing;
+    this_UTME[i] = this_Easting;
+    //cout << "Easting: " << this_Easting << " and northing: " << this_Northing << endl;
+  }
+
+  UTME = this_UTME;
+  UTMN = this_UTMN;
+}
+
+
+//==============================================================================
 // This gets the latitude and longitude from x and y columns
 //==============================================================================
 void LSDSpatialCSVReader::get_latlong_from_x_and_y(string X_column_name, string Y_column_name)

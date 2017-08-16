@@ -129,6 +129,14 @@ void quantile_quantile_analysis(vector<float>& data, vector<float>& values, vect
 // modified to pass in percentiles as arguments
 void quantile_quantile_analysis_defined_percentiles(vector<float>& data, vector<float>& values, vector<float>& standard_normal_variates, vector<float>& mn_values, int N_points, int lower_percentile, int upper_percentile);
 
+// Bootstrapping of linear regressions
+// N_iterations is the number of bootstrap iterations
+// acceptance probablility is the probability that you will accept any given data point
+// in an iteration. This runs without replacement
+// Returns summary statistics (see cpp code for details)
+vector<float> bootstrap_linear_regression(vector<float>& x_data, vector<float>& y_data, int N_iterations, float acceptance_prob);
+
+
 // calculates least squares linear regression for two datasets, returning
 // gradient and intercept of regression line, alongside the R-squared value.
 // DTM 07/10/2014

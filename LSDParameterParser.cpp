@@ -307,6 +307,18 @@ void LSDParameterParser::parse_file_IO()
     // get rid of any control characters from the end (if param file was made in DOS)
     BaselevelJunctions_file = RemoveControlCharactersFromEndOfString(BaselevelJunctions_file);
   }
+  if(parameter_map.find("channel segments fname") != parameter_map.end())
+  {
+    ChannelSegments_file = parameter_map["channel segments fname"];
+    // get rid of any control characters from the end (if param file was made in DOS)
+    ChannelSegments_file = RemoveControlCharactersFromEndOfString(ChannelSegments_file);
+  }
+  if(parameter_map.find("floodplain fname") != parameter_map.end())
+  {
+    Floodplain_file = parameter_map["floodplain fname"];
+    // get rid of any control characters from the end (if param file was made in DOS)
+    Floodplain_file = RemoveControlCharactersFromEndOfString(Floodplain_file);
+  }
 }
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

@@ -121,7 +121,7 @@ class LSDSpatialCSVReader
 
     /// @brief This tests to see if there are latitude and longitude vectors
     /// @return lat_and_long_exist This is true if the lat and long vectors exist
-    ///  are the same length. 
+    ///  are the same length.
     /// @author SMM
     /// @date 14/03/2017
     bool check_if_latitude_and_longitude_exist();
@@ -129,7 +129,7 @@ class LSDSpatialCSVReader
     /// @brief This tests to see if  all the data columns are the same length
     ///  as the latitude and longitude data columns
     /// @return all_data_columns_exist This is true if the data columns are the
-    ///  same length as the lat and long vectyors 
+    ///  same length as the lat and long vectyors
     /// @author SMM
     /// @date 14/03/2017
     bool check_if_all_data_columns_same_length();
@@ -160,6 +160,18 @@ class LSDSpatialCSVReader
     /// @author SMM
     /// @date 17/02/2017
     void get_x_and_y_from_latlong(vector<float>& UTME,vector<float>& UTMN);
+
+    /// @brief This takes latitude and longitude (in WGS 84) and converts to vectors
+    ///  of easting and northing in UTM. User must specify the column for lat and long (this can be
+    /// used for csv files where the column is not headed simply "latitude" or "longitude".
+    /// @param lat_column_name The header of the latitude column (string)
+    /// @param long_column_name The header of the longitude column (string)
+    /// @param UTME The easting coordinate (is overwritten)
+    /// @param UTMN The northing coordinate (is overwritten)
+    /// @author FJC
+    /// @date 01/08/17
+    void get_x_and_y_from_latlong_specify_columns(string lat_column_name,
+      string long_column_name, vector<float>& UTME,vector<float>& UTMN);
 
     /// @brief This takes the X and Y columns in a csv, assumes they are UTM, and converts to
     ///  latitude and loingitude in WGS84

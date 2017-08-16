@@ -294,7 +294,7 @@ void LSDIndexRaster::read_raster(string filename, string extension)
   string string_filename;
   string dot = ".";
   string_filename = filename+dot+extension;
-  cout << "The filename is " << string_filename << endl;
+  //cout << "The filename is " << string_filename << endl;
   int DataType = 2;
 
   if (extension == "asc")
@@ -311,10 +311,10 @@ void LSDIndexRaster::read_raster(string filename, string extension)
            >> str >> DataResolution
           >> str >> NoDataValue;
 
-    cout << "Loading asc file; NCols: " << NCols << " NRows: " << NRows << endl
-         << "X minimum: " << XMinimum << " YMinimum: " << YMinimum << endl
-         << "Data Resolution: " << DataResolution << " and No Data Value: "
-         << NoDataValue << endl;
+    //cout << "Loading asc file; NCols: " << NCols << " NRows: " << NRows << endl
+    //     << "X minimum: " << XMinimum << " YMinimum: " << YMinimum << endl
+    //     << "Data Resolution: " << DataResolution << " and No Data Value: "
+    //     << NoDataValue << endl;
 
     // this is the array into which data is fed
     Array2D<int> data(NRows,NCols,NoDataValue);
@@ -357,10 +357,10 @@ void LSDIndexRaster::read_raster(string filename, string extension)
     }
     ifs.close();
 
-    cout << "Loading asc file; NCols: " << NCols << " NRows: " << NRows << endl
-       << "X minimum: " << XMinimum << " YMinimum: " << YMinimum << endl
-         << "Data Resolution: " << DataResolution << " and No Data Value: "
-         << NoDataValue << endl;
+    //cout << "Loading flt file; NCols: " << NCols << " NRows: " << NRows << endl
+    //   << "X minimum: " << XMinimum << " YMinimum: " << YMinimum << endl
+    //     << "Data Resolution: " << DataResolution << " and No Data Value: "
+    //     << NoDataValue << endl;
 
     // this is the array into which data is fed
     Array2D<int> data(NRows,NCols,NoDataValue);
@@ -471,7 +471,7 @@ void LSDIndexRaster::read_raster(string filename, string extension)
             istringstream iss(lines[counter]);
             iss >> str >> str >> str >> str >> str;
             DataType = atoi(str.c_str());
-            cout << "Data Type = " << DataType << endl;
+            //cout << "Data Type = " << DataType << endl;
 
             // advance to the end so you move on to the new loop
             counter = lines.size();
@@ -727,10 +727,10 @@ void LSDIndexRaster::read_raster(string filename, string extension)
     }
     ifs_data.close();
 
-    cout << "Loading ENVI bil file; NCols: " << NCols << " NRows: " << NRows << endl
-         << "X minimum: " << XMinimum << " YMinimum: " << YMinimum << endl
-         << "Data Resolution: " << DataResolution << " and No Data Value: "
-         << NoDataValue << endl;
+    //cout << "Loading ENVI bil file; NCols: " << NCols << " NRows: " << NRows << endl
+    //     << "X minimum: " << XMinimum << " YMinimum: " << YMinimum << endl
+    //     << "Data Resolution: " << DataResolution << " and No Data Value: "
+    //     << NoDataValue << endl;
 
     // now update the objects raster data
     RasterData = data.copy();
@@ -3109,5 +3109,44 @@ void LSDIndexRaster::MergeIndexRasters(LSDIndexRaster& RasterToAdd)
 	}
 }
 
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Method to pad values in an LSDIndexRaster by a certain number of pixels, within the extent
+// of the original raster. Values taken from nearest pixel with precedence from bottom right
+// to top left. Diagonals given equal preference to orthogonals for now.
+// MDH 20/07/17
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+void LSDIndexRaster::PadRaster(int NPixels)
+{
+  // Arrays of indexes of neighbour cells with respect to target cell
+  int dX[] = {1, 1, 1, 0, -1, -1, -1, 0};
+  int dY[] = {-1, 0, 1, 1, 1, 0, -1, -1};
+  Array2D<int> NewRasterData = RasterData.copy();
+  
+  // Loop through pad size (quick and dirty!)
+  for (int n = 0; n<NPixels; ++n)
+  {
+    //loop across the whole raster array
+	  for (int row = 0; row < NRows; row++)
+	  {
+		  for (int col = 0; col < NCols; col++)
+		  {
+			  // if there is a raster value, pad the cells around it with it's own value 
+			  if (RasterData[row][col] != NoDataValue)
+			  {
+				  //loop through the 8 neighbours of the target cell
+          for (int c = 0; c < 8; ++c)
+          {
+            //handle edges here
+            if ((row +dY[c] > NRows-1) || (col + dX[c] > NCols-1) || (row+dY[c]<0) || (col+dY[c]<0)) continue;
+            
+            //otherwise update values
+            else if (RasterData[row+dY[c]][col+dX[c]] == NoDataValue) NewRasterData[row+dY[c]][col+dX[c]] = RasterData[row][col];
+          }
+			  }
+		  }
+	  }
+	}
+	RasterData = NewRasterData.copy();
+}
 
 #endif

@@ -587,6 +587,14 @@ class LSDIndexRaster
   /// @author FJC
   /// @date 07/04/17
   void MergeIndexRasters(LSDIndexRaster& RasterToAdd);
+  
+  /// @brief Function to pad values in an LSDIndexRaster by a certain number of pixels
+  /// with values taken from the nearest pixel to be padded.
+  /// @param NPixels the number of pixels to pad by
+	/// @return LSDIndexRaster padded raster
+  /// @author MDH
+  /// @date 20/07/17
+  void PadRaster(int NPixels);
 
   protected:
   ///Number of rows.

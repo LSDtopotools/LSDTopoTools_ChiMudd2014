@@ -4235,7 +4235,7 @@ LSDRaster LSDJunctionNetwork::ExtractRidges(LSDFlowInfo& FlowInfo, int& min_orde
   // set min_order to 1
   if (min_order > max_order){
       min_order = 1;
-      cout << "min_order larger than max_order, min_order set to 1" << endl;
+      cout << "\tmin_order larger than max_order, min_order set to 1" << endl;
   }
 
   // test the upper limit against the maximum possible value and set
@@ -4245,7 +4245,7 @@ LSDRaster LSDJunctionNetwork::ExtractRidges(LSDFlowInfo& FlowInfo, int& min_orde
       MaxStreamOrder = max_order;
   }
   else if(max_order > MaxStreamOrder){
-      cout << "max_order exceeds stream orders found in dem, max_order set to "
+      cout << "\tmax_order exceeds stream orders found in dem, max_order set to "
       << MaxStreamOrder << endl;
   }
 
@@ -6193,7 +6193,7 @@ vector<int> LSDJunctionNetwork::Prune_Junctions_Edge_Ignore_Outlet_Reach(vector<
 {
   vector<int> BL_Donor_junctions_pruned;
   int N_BaseLevelJuncs = int(BaseLevelJunctions_Initial.size());
-  cout << endl << endl << "I am going to remove any basins draining to the edge, ignoring the outlet reach." << endl;
+  //cout << endl << endl << "I am going to remove any basins draining to the edge, ignoring the outlet reach." << endl;
 
   for(int i = 0; i < N_BaseLevelJuncs; ++i)
   {
@@ -6239,8 +6239,8 @@ vector<int> LSDJunctionNetwork::Prune_Junctions_Edge_Ignore_Outlet_Reach(vector<
       BL_Donor_junctions_pruned.push_back(BaseLevelJunctions_Initial[i]);
     }
   }
-  cout << "I have removed the channels that are draining from the edge of the DEM." << endl;
-  cout << "I now have " << BL_Donor_junctions_pruned.size() << " base level junctions" << endl;
+  //cout << "I have removed the channels that are draining from the edge of the DEM." << endl;
+  //cout << "I now have " << BL_Donor_junctions_pruned.size() << " base level junctions" << endl;
   return BL_Donor_junctions_pruned;
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

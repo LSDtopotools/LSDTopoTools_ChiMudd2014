@@ -187,6 +187,45 @@ class LSDChiTools
     /// @date 17/05/2017
     void update_chi_data_map(LSDFlowInfo& FlowInfo, float A_0, float movern);
 
+
+
+
+    /// @brief This recalcualtes chi for a single basin. Built for speed
+    ///   and is used by the MCMC routines. 
+    /// @param FlowInfo An LSDFlowInfo object
+    /// @param A_0 the A_0 parameter: in metres^2 suggested value is 1
+    /// @param m_over_n the m/n ratio
+    /// @param mimum_contributing_pixels This minimum number of contributing pixels needed before chi is calculated
+    /// @param basin_key the key to the basin you want
+    /// @param outlet_node_from_basin_key_map a map where the key is the basin key and the value is the node index of the outlet.
+    ///   you generate this map by calling get_outlet_node_from_basin_key_map()
+    /// @return No return, but the chi values FOR THIS BASIN ONLY are updated.
+    /// @author SMM
+    /// @date 14/07/2017
+    void update_chi_data_map_for_single_basin(LSDFlowInfo& FlowInfo, float A_0, float movern, 
+                                     int minimum_contributing_pixels, int basin_key,
+                                     map<int,int> outlet_node_from_basin_key_map);
+
+
+    /// @brief This recalcualtes chi for a single basin. Built for speed
+    ///   and is used by the MCMC routines. 
+    /// @detail This version uses a discharge raster
+    /// @param FlowInfo An LSDFlowInfo object
+    /// @param A_0 the A_0 parameter: in metres^2 suggested value is 1
+    /// @param m_over_n the m/n ratio
+    /// @param mimum_contributing_pixels This minimum number of contributing pixels needed before chi is calculated
+    /// @param basin_key the key to the basin you want
+    /// @param outlet_node_from_basin_key_map a map where the key is the basin key and the value is the node index of the outlet.
+    ///   you generate this map by calling get_outlet_node_from_basin_key_map()
+    /// @param Discharge an LSDRaster of discharge
+    /// @return No return, but the chi values FOR THIS BASIN ONLY are updated.
+    /// @author SMM
+    /// @date 14/07/2017
+    void update_chi_data_map_for_single_basin(LSDFlowInfo& FlowInfo, float A_0, float movern, 
+                                     int minimum_contributing_pixels, int basin_key,
+                                     map<int,int> outlet_node_from_basin_key_map, LSDRaster& Discharge);
+
+
     /// @brief This function makes a chi map and prints to a csv file
     /// @detail the lat and long coordinates in the csv are in WGS84
     /// @param FlowInfo an LSDFlowInfo object
@@ -226,9 +265,10 @@ class LSDChiTools
     /// @detail WARNING: ONLY use if you have segmented with skip 0 and iterations 1. Otherwise
     ///  you will get a new segment for every channel pixel
     /// @param FlowInfo an LSDFlowInfo object
+    /// @param maximum_segment_length is the longest a segment is allowed to be before a new segment is created
     /// @author SMM
     /// @date 4/02/2017
-    void segment_counter(LSDFlowInfo& FlowInfo);
+    void segment_counter(LSDFlowInfo& FlowInfo, float maximum_segment_length);
 
     /// @brief This function is used to tag channels with a segment number
     ///  It decides on segments if the M_Chi value has changed so should only be used
@@ -238,10 +278,11 @@ class LSDChiTools
     /// @detail WARNING: ONLY use if you have segmented with skip 0 and iterations 1. Otherwise
     ///  you will get a new segment for every channel pixel
     /// @param FlowInfo an LSDFlowInfo object
+    /// @param maximum_segment_length is the longest a segment is allowed to be before a new segment is created
     /// @return LSDIndexRaster showing stream network indexed by segment ID
     /// @author MDH
     /// @date 15/06/2017
-    LSDIndexRaster segment_mapping(LSDFlowInfo& FlowInfo);
+    LSDIndexRaster segment_mapping(LSDFlowInfo& FlowInfo, float maximum_segment_length);
 
     /// @brief This function calculates the fitted elevations: It uses m_chi and b_chi
     ///  data to get the fitted elevation of the channel points.
@@ -296,6 +337,36 @@ class LSDChiTools
     /// @date 04/05/2017
     float test_segment_collinearity(LSDFlowInfo& FlowInfo, int reference_channel, int test_channel, float sigma);
 
+    /// @brief This returns an maximum liklihood estiamtor by comparing
+    ///  a channel (with a particular source number) against a reference channel, using specific points 
+    ///  on the test channel
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param reference_channel the source key of the reference channel
+    /// @param test_channel the source key of the test channel    
+    /// @param sigma The uncertainty for the MLE calculation. In practice this simply scales MLE
+    ///     If you have many nodes this number needs to be large
+    /// @param chi_distances_to_test The distances in chi space to test 
+    /// @return The maximum likelihood estimator
+    /// @author SMM
+    /// @date 20/07/2017
+    float test_segment_collinearity_using_points(LSDFlowInfo& FlowInfo, int reference_channel, int test_channel, 
+                                             float sigma, vector<float> chi_distances_to_test);
+
+    /// @brief This takes a basin key and returns all the residuals of the
+    ///  channels. 
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param only_use_mainstem_as_reference If true, only use the mainstem as a reference channel
+    /// @param test_channel the source key of the test channel    
+    /// @param sigma The uncertainty for the MLE calculation. In practice this simply scales MLE
+    ///     If you have many nodes this number needs to be large
+    /// @param baselevel_key The key to the basin you want
+    /// @return A vector containing all the residuals
+    /// @author SMM
+    /// @date 21/07/2017
+    vector<float> retrieve_all_residuals_by_basin(LSDFlowInfo& FlowInfo, bool only_use_mainstem_as_reference,
+                                                 int baselevel_key);
+
+
     /// @brief This computes a collinearity metric for all combinations of
     ///  channels for a given basin
     /// @detail It takes all the combinations of sources and gets the goodness of fit between each pair
@@ -317,14 +388,57 @@ class LSDChiTools
                                         vector<float>& MLE_values, vector<float>& RMSE_values, 
                                         float sigma);
 
+    /// @brief This computes a collinearity metric for all combinations of
+    ///  channels for a given basin. This version uses specified points in chi space
+    ///  to compare against other channels rather than the entire channel
+    /// @detail It takes all the combinations of sources and gets the goodness of fit between each pair
+    ///  of sources.
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param only_use_mainstem_as_reference True if you only want to use the mainstem
+    /// @param basin_key The key into the basin you want to test all collinearity of.
+    /// @param reference_source integer vector replaced in function that has the reference vector for each comparison
+    /// @param test_source integer vector replaced in function that has the test vector for each comparison
+    /// @param MLE_values the MLE for each comparison. Replaced in function.
+    /// @param RMSE_values the RMSE for each comparison (i.e. between source 0 1, 0 2, 0 3, etc.). Replaced in function.
+    /// @param sigma The uncertainty for the MLE calculation. In practice this simply scales MLE
+    /// @param chi_distances_to_test The distances in chi space to test 
+    /// @author SMM
+    /// @date 20/07/2017
+    float test_all_segment_collinearity_by_basin_using_points(LSDFlowInfo& FlowInfo, bool only_use_mainstem_as_reference,
+                                        int basin_key,
+                                        vector<int>& reference_source, vector<int>& test_source,
+                                        vector<float>& MLE_values, vector<float>& RMSE_values, 
+                                        float sigma, vector<float> chi_distances_to_test);
+
+
+
+
+
+
+    /// @brief This wraps the collinearity tester, looping through different m over n
+    ///  values and calculating goodness of fit statistics.
+    /// @detail This gets the median residual. The best fit will have a median residual
+    ///  closest to zero
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param JN an LSDJunctionNetwork object
+    /// @param start_movern the starting m/n ratio
+    /// @param delta_movern the change in m/n
+    /// @param n_novern the number of m/n values to use
+    /// @param only_use_mainstem_as_reference a boolean, if true only compare channels to mainstem .
+    /// @param The file prefix for the data files
+    /// @author SMM
+    /// @date 21/07/2017
+     void calculate_goodness_of_fit_collinearity_fxn_movern_using_median_residuals(LSDFlowInfo& FlowInfo, LSDJunctionNetwork& JN,
+                        float start_movern, float delta_movern, int n_movern,
+                        bool only_use_mainstem_as_reference,
+                        string file_prefix);
+
+
+
     /// @brief This wraps the collinearity tester, looping through different m over n
     ///  values and calculating goodness of fit statistics.
     /// @param FlowInfo an LSDFlowInfo object
-    /// @param source_nodes a vector containing the sorted sorce nodes (by flow distance)
-    /// @param outlet_nodes a vector continaing the outlet nodes
-    /// @param Elevation an LSDRaster containing elevation info
-    /// @param DistanceFromOutlet an LSDRaster with the flow distance
-    /// @param DrainageArea an LSDRaster with the drainage area
+    /// @param JN an LSDJunctionNetwork object
     /// @param start_movern the starting m/n ratio
     /// @param delta_movern the change in m/n
     /// @param n_novern the number of m/n values to use
@@ -341,15 +455,14 @@ class LSDChiTools
                         bool only_use_mainstem_as_reference,
                         string file_prefix, float sigma);
 
+
+
+
     /// @brief This wraps the collinearity tester, looping through different m over n
     ///  values and calculating goodness of fit statistics.
     ///  Same as above but can use a discharge raster to calculate chi
     /// @param FlowInfo an LSDFlowInfo object
-    /// @param source_nodes a vector containing the sorted sorce nodes (by flow distance)
-    /// @param outlet_nodes a vector continaing the outlet nodes
-    /// @param Elevation an LSDRaster containing elevation info
-    /// @param DistanceFromOutlet an LSDRaster with the flow distance
-    /// @param DrainageArea an LSDRaster with the drainage area
+    /// @param JN an LSDJunctionNetwork object
     /// @param start_movern the starting m/n ratio
     /// @param delta_movern the change in m/n
     /// @param n_novern the number of m/n values to use
@@ -365,6 +478,143 @@ class LSDChiTools
                         bool only_use_mainstem_as_reference,
                         string file_prefix,
                         LSDRaster& Discharge, float sigma);
+
+
+
+
+
+    /// @brief This wraps the collinearity tester, looping through different m over n
+    ///  values and calculating goodness of fit statistics.
+    /// @detail Uses discrete points rather than all the tributary data
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param JN an LSDJunctionNetwork object
+    /// @param start_movern the starting m/n ratio
+    /// @param delta_movern the change in m/n
+    /// @param n_novern the number of m/n values to use
+    /// @param only_use_mainstem_as_reference a boolean, if true only compare channels to mainstem .
+    /// @param The file prefix for the data files
+    /// @param sigma The uncertainty for the MLE calculation. In practice this simply scales MLE.
+    /// @param chi_distance_fractions These are a vector of fractions of distance of the
+    ///   length of the mainstem that you want to sample the tributaries. For example if the
+    ///   mainstem is 10 m long in chi space and you have {0.1,0.2,0.3} as the fraction you
+    ///   sample the tributaries 1, 2 and 3 metres upstream of their confluence. 
+    /// @author SMM
+    /// @date 20/07/2017
+    void calculate_goodness_of_fit_collinearity_fxn_movern_using_points(LSDFlowInfo& FlowInfo, LSDJunctionNetwork& JN,
+                        float start_movern, float delta_movern, int n_movern,
+                        bool only_use_mainstem_as_reference,
+                        string file_prefix, float sigma, 
+                        vector<float> chi_distance_fractions);
+
+    /// @brief This wraps the collinearity tester, looping through different m over n
+    ///  values and calculating goodness of fit statistics.
+    ///  Same as above but can use a discharge raster to calculate chi
+    /// @detail Uses discrete points rather than all the tributary data
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param JN an LSDJunctionNetwork object
+    /// @param start_movern the starting m/n ratio
+    /// @param delta_movern the change in m/n
+    /// @param n_novern the number of m/n values to use
+    /// @param only_use_mainstem_as_reference a boolean, if true only compare channels to mainstem .
+    /// @param The file prefix for the data files
+    /// @param Discharge and LSDRaster of discharge
+    /// @param sigma The uncertainty for the MLE calculation. In practice this simply scales MLE.
+    /// @param chi_distance_fractions These are a vector of fractions of distance of the
+    ///   length of the mainstem that you want to sample the tributaries. For example if the
+    ///   mainstem is 10 m long in chi space and you have {0.1,0.2,0.3} as the fraction you
+    ///   sample the tributaries 1, 2 and 3 metres upstream of their confluence. 
+    /// @author SMM
+    /// @date 20/07/2017
+    void calculate_goodness_of_fit_collinearity_fxn_movern_with_discharge_using_points(LSDFlowInfo& FlowInfo,
+                        LSDJunctionNetwork& JN, float start_movern, float delta_movern, int n_movern,
+                        bool only_use_mainstem_as_reference,
+                        string file_prefix,
+                        LSDRaster& Discharge, float sigma, 
+                        vector<float> chi_distance_fractions);
+
+
+
+
+
+
+
+    /// @brief This function drives a Monte Carlo-Markov chain model It wraps 
+    /// the dmovern tuning and the main chain. 
+    /// @param FlowInfo An LSDFlowInfo object
+    /// @param minimum_contributing_pixel chi is only calculated if the contributing pixels are bigger than this
+    /// @param sigma The sigma value for checking the MLE of chi
+    /// @param movern_minimum The minimum movern value to be tested
+    /// @param movern_maximum The maximum movern value to be tested
+    /// @param N_chain_links The number of iterations in the chain you want
+    /// @param OUT_DIR the output directory where you want the file
+    /// @param OUT_ID prefix of the output file
+    /// @param use_points a bool that if true means you use the point version of the collinearity test
+    /// @return No return but makes chaing files with extension _chain.csv 
+    /// @author SMM
+    /// @date 17/07/2017
+    void MCMC_driver(LSDFlowInfo& FlowInfo, int minimum_contributing_pixels, float sigma,
+                                 float movern_minimum, float movern_maximum,
+                                 int N_chain_links, 
+                                 string OUT_DIR, string OUT_ID, bool use_points);
+
+    /// @brief This function drives a Monte Carlo-Markov chain model and tries to tune
+    ///  the dmovern_stddev value to get between 20-30% acceptance rate
+    /// @param FlowInfo An LSDFlowInfo object
+    /// @param minimum_contributing_pixel chi is only calculated if the contributing pixels are bigger than this
+    /// @param NIterations The number of iterations in the chain you want
+    /// @param sigma The sigma value for checking the MLE of chi
+    /// @param movern_minimum The minimum movern value to be tested
+    /// @param movern_maximum The maximum movern value to be tested
+    /// @param basin key The key of the basin to be tested
+    /// @param use_points a bool that if true means you use the point version of the collinearity test
+    /// @return The tuned dmovern_stddev. 
+    /// @author SMM
+    /// @date 13/07/2017
+    float MCMC_for_movern_tune_dmovern(LSDFlowInfo& FlowInfo, int minimum_contributing_pixels, float sigma,
+                                 float movern_minimum, float movern_maximum, 
+                                 int basin_key, bool use_points);
+
+    /// @brief This function drives a Monte Carlo-Markov chain model and tries to tune
+    ///  the sigma value to get between 20-30% acceptance rate
+    /// @param FlowInfo An LSDFlowInfo object
+    /// @param minimum_contributing_pixel chi is only calculated if the contributing pixels are bigger than this
+    /// @param dmovernstddev The desired stddev of m/n changes
+    /// @param movern_minimum The minimum movern value to be tested
+    /// @param movern_maximum The maximum movern value to be tested
+    /// @param basin key The key of the basin to be tested
+    /// @param use_points a bool that if true means you use the point version of the collinearity test
+    /// @return sigma The tuned sigma value for checking the MLE of chi
+    /// @author SMM
+    /// @date 17/07/2017
+    float MCMC_for_movern_tune_sigma(LSDFlowInfo& FlowInfo, int minimum_contributing_pixels, 
+                                     float dmovernstddev,
+                                     float movern_minimum, float movern_maximum, 
+                                     int basin_key, bool use_points);
+
+
+    /// @brief This function drives a Monte Carlo-Markov chain model for getting
+    ///  the confidence intervals on the m/n value. 
+    /// @detail You can turn the chain file printing off at first to tune the
+    ///  dmovern_sigma so that it arrices at a 25% acceptance rate
+    /// @param ChainFname The name of the chain file (with path)
+    /// @param printChain  If true, the chain file is printed
+    /// @param FlowInfo An LSDFlowInfo object
+    /// @param minimum_contributing_pixel chi is only calculated if the contributing pixels are bigger than this
+    /// @param NIterations The number of iterations in the chain you want
+    /// @param sigma The sigma value for checking the MLE of chi
+    /// @param dmovernstddev The standard deviation in the change in m/n test values.
+    ///    This needs to be tuned so the acceptance rate is ~25%
+    /// @param movern_minimum The minimum movern value to be tested
+    /// @param movern_maximum The maximum movern value to be tested
+    /// @param basin key The key of the basin to be tested
+    /// @param use_points a bool that if true means you use the point version of the collinearity test
+    /// @return acceptanc probability. 
+    /// @author SMM
+    /// @date 13/07/2017
+    float MCMC_for_movern(string ChainFname, bool printChain, LSDFlowInfo& FlowInfo, 
+                          int minimum_contributing_pixels, int NIterations, float sigma, float dmovern_stddev,
+                          float movern_minimum, float movern_maximum, int basin_key, bool use_points);
+
 
     /// @brief This prints a series of chi profiles as a function of mover
     ///  for visualisation
@@ -391,6 +641,13 @@ class LSDChiTools
                                    float start_movern, float delta_movern,
                                    int n_movern, LSDRaster& Discharge);
 
+
+    /// @brief This inverst the key_to_baselevel map
+    ///  so that the key is the baselevel key and the value is the node index of the outlet node
+    /// @return An <int,int> map where key is baselevel key and value is node index of outlet node
+    /// @author SMM
+    /// @date 14/07/2017
+    map<int,int> get_outlet_node_from_basin_key_map();
 
     /// @brief This gets the node index (the reference into LSDFlowInfo) of a source
     ///  based on a source key
@@ -442,6 +699,24 @@ class LSDChiTools
                                  vector<float>& trib_elevation);
 
 
+    /// @brief This takes the chi locations of a tributarry vector and then uses
+    ///  linear interpolation to determine the elevation on a reference channel
+    ///  of points at a vector of fixed distances upstream the tributary channel
+    /// @param reference_chi the chi coordiantes of the reference channel
+    /// @param reference_elevation the elevations on the reference channel
+    /// @param trib_chi the chi coordiantes of the tributary channel
+    /// @param trib_elevation the elevations on the tributary channel
+    /// @param chi_distances_to_test the distances upstream of the confluence on the tributary channel to test the residuals
+    /// @return A vector of the elevations on the chi locations of the tributary channel
+    /// @author SMM
+    /// @date 20/07/2017
+    vector<float> project_points_onto_reference_channel(vector<float>& reference_chi,
+                                 vector<float>& reference_elevation, vector<float>& trib_chi,
+                                 vector<float>& trib_elevation, vector<float> chi_distances_to_test);
+
+
+
+
     /// @brief This performs slope area analysis. It goes down through each
     ///  source node and collects S-A data along these channels.
     ///  It uses the suggested appraoch of Wobus et al. 2006 in that it uses
@@ -456,6 +731,27 @@ class LSDChiTools
     void get_slope_area_data(LSDFlowInfo& FlowInfo, float vertical_interval,
                              vector<int>& midpoint_nodes, vector<float>& slopes);
 
+
+    /// @brief This function takes raw S-A data (generated by get_slope_area_data)
+    ///  and runs a bootstrapping procedure to find the confidence intervals
+    ///  of the regression coeffcients and the intercepts.
+    /// @brief Note that it converts to log space before running the regression
+    /// @param FlowInfo The LSDFlowInfo object
+    /// @param SA_midpoint_node The node index of the midpoints of all the data 
+    /// @param SA_slope: The slope of the data at the midpoints (the slope is)
+    ///  averaged over several pixels
+    /// @param N_iterations: The number of bootstrap iterations. 
+    /// @param keep_data_prob The probability that you will keep any given data point in the data set. 
+    /// @param filename The name of file (with extension and directory) for printing
+    /// @author SMM
+    /// @date 17/07/2017
+    void bootstrap_slope_area_data(LSDFlowInfo& FlowInfo,
+                                          vector<int>& SA_midpoint_node,
+                                          vector<float>& SA_slope, 
+                                          int N_iterations, 
+                                          float bootstrap_keep_data_prob, 
+                                          string filename);
+                                          
     /// @detail This takes slope area data and bins the data so that we can
     ///  pretend horrible, noisy S-A data is adequate for understanding
     ///  channel behaviour.
@@ -470,6 +766,7 @@ class LSDChiTools
     /// @date 31/05/2017
     void bin_slope_area_data(LSDFlowInfo& FlowInfo, vector<int>& SA_midpoint_node,
                              vector<float>& SA_slope, float log_bin_width, string filename);
+
 
 
     /// @detail This takes slope area data and bins the data so that we can
@@ -631,6 +928,19 @@ class LSDChiTools
     /// @date 05/06/2017
     void print_chi_data_map_to_csv(LSDFlowInfo& FlowInfo, string filename);
 
+
+    /// @brief This prints a csv file with chi data from the data maps for a specific basin
+    ///  the columns are:
+    ///  latitude,longitude,chi,elevation,flow distance,drainage area,
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param filename The name of the filename to print to (should have full
+    ///   path and the extension .csv
+    /// @param basin_key the basin key.
+    /// @author SMM
+    /// @date 14/07/2017
+    void print_chi_data_map_to_csv_for_single_basin(LSDFlowInfo& FlowInfo, string filename, int basin_key);
+
+
     /// @brief This prints a csv file with all the data from the data maps
     ///  the columns are:
     ///  latitude,longitude,chi,elevation,flow distance,drainage area,m_chi,b_chi
@@ -740,7 +1050,7 @@ class LSDChiTools
     ///  value is the baselevel key. Again used for visualisation
     map<int,int> baselevel_keys_map;
 
-    /// THis has as many elements as there are sources. The key in the map is the
+    /// This has as many elements as there are sources. The key in the map is the
     ///  node index of the source, and the value is the source key.
     map<int,int> key_to_source_map;
 
@@ -758,6 +1068,11 @@ class LSDChiTools
     /// main stem in each basin is 0, the second is 1, the 3rd is 2, etc. Counting starts
     /// again when a new baselevel node starts.
     vector<int> source_nodes_ranked_by_basin;
+    
+    
+    /// In this map the key is the basin key and the value is the node of the
+    /// baselevel source
+    map<int,int> source_node_of_mainstem_map;
 
   private:
     void create(LSDRaster& Raster);

@@ -2640,6 +2640,10 @@ void LSDRaster::DiamondSquare_SampleStep(int stepsize, float scale)
 // it creates a resized diamond square pseudo-fractal raster
 // it has the same xllcorner and yllcorner as the original raster,
 // but is resized so the NRows and NCols are to the closed power of 2
+//
+// Believe it or not I lifted this algorithm from Notch, the creator of Minecraft, 
+// who posted it online and then had it modified by Charles Randall
+// https://www.bluh.org/code-the-diamond-square-algorithm/
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 LSDRaster LSDRaster::DiamondSquare(int feature_order, float scale)
 {
@@ -3443,8 +3447,8 @@ vector<LSDRaster> LSDRaster::calculate_polyfit_surface_metrics(float window_radi
 
   // Move window over DEM, fitting 2nd order polynomial surface to the
   // elevations within the window.
-  cout << "\n\tRunning 2nd order polynomial fitting" << endl;
-  cout << "\t\tDEM size = " << NRows << " x " << NCols << endl;
+  //cout << "\n\tRunning 2nd order polynomial fitting" << endl;
+  //cout << "\t\tDEM size = " << NRows << " x " << NCols << endl;
   int ndv_present = 0;
 
   for(int i=0;i<NRows;++i)
@@ -4895,6 +4899,29 @@ LSDRaster LSDRaster::remove_positive_hilltop_curvature(LSDRaster& hilltop_curvat
 
   return CHT;
 }
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//
+// REMOVE POSITIVE VALUES FROM RASTER
+// This function removes positive values from a raster, for use with hilltop curvature values
+//
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+void LSDRaster::remove_positive_values()
+{
+  for (int row = 0; row < NRows; row++)
+  {
+    for (int col = 0; col < NCols; col++)
+    {
+      if (RasterData[row][col] >= 0)
+      {
+        RasterData[row][col] = NoDataValue;
+      }
+    }
+  }
+}
+
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -10727,7 +10754,7 @@ LSDIndexRaster LSDRaster::Create_Mask(string Condition, float TestValue)
   //declare mask array
   Array2D<int> Mask(NRows,NCols,NoDataValue);
 
-  cout << "Creating Mask: Condition is " << Condition << endl;
+  //cout << "Creating Mask: Condition is " << Condition << endl;
   for (int i=0; i<NRows; ++i)
   {
     for (int j=0; j<NCols; ++j)
@@ -10772,7 +10799,7 @@ LSDRaster LSDRaster::ExtractByMask(LSDIndexRaster Mask)
   {
     for (int j=0; j<NCols; ++j)
     {
-      if (MaskArray[i][j] == 1)
+      if (MaskArray[i][j] > 0)
       {
         MaskedArray[i][j] = RasterData[i][j];
       }
@@ -10780,6 +10807,32 @@ LSDRaster LSDRaster::ExtractByMask(LSDIndexRaster Mask)
   }
   LSDRaster MaskedRaster(NRows,NCols,XMinimum,YMinimum,DataResolution,NoDataValue,MaskedArray,GeoReferencingStrings);
   return MaskedRaster;
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Extract values by mask and update existing LSDRaster object
+//
+// MDH, 26/7/17
+//
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+void LSDRaster::MaskRaster(LSDIndexRaster Mask)
+{
+  // declare new array
+  Array2D<float> MaskedArray(NRows,NCols,NoDataValue);
+  Array2D<int> MaskArray = Mask.get_RasterData();
+  int NDV = Mask.get_NoDataValue();
+  
+  for (int i=0; i<NRows; ++i)
+  {
+    for (int j=0; j<NCols; ++j)
+    {
+      if (MaskArray[i][j] == NDV)
+      {
+        RasterData[i][j] = NoDataValue;
+      }
+    }
+  }
 }
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
