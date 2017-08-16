@@ -1286,7 +1286,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">BaselevelJunctions_file</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">"NULL"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The filename of a baselevel junctions file. If this points to an existing file all the algorithmic basin extraction routines (<code>find_complete_basins_in_window</code>,<code>find_largest_complete_basins</code>) are ignored but you can test for edge effects (<code>test_drainage_boundaries: true</code>-- this is the default). The file is a list of integers that each refer to a junction index. You can look at the junction indices by setting <code>print_junctions_to_csv: true</code> and looking at the junctions in a GIS.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The filename of a baselevel junctions file. If this points to an existing file all the algorithmic basin extraction routines (<code>find_complete_basins_in_window</code>,<code>find_largest_complete_basins</code>) are ignored but you can test for edge effects (<code>test_drainage_boundaries: true</code>-- this is the default). The file is a list of integers that each refer to a junction index. You can look at the junction indices by setting <code>print_junctions_to_csv: true</code> and looking at the junctions in a GIS. <strong>You do not include the directory, this comes from <code>read path</code>, but you do need to include the extension.</strong> The file must just be a list of itegers that correspond to the junctions you want extracted.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">find_complete_basins_in_window</p></td>
@@ -1356,7 +1356,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_channels_to_csv</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Prints the channel network to a csv file. Includes stream order and other useful information. Much more memory efficient than printing the whole raster.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prints the channel network to a csv file. Includes stream order and other useful information. Much more memory efficient than printing the whole raster. It prints all channel nodes across the DEM rather than printing nodes upstream of selected basins.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_junction_index_raster</p></td>
@@ -1460,7 +1460,19 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">calculate_MLE_collinearity</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. This uses <strong>ALL</strong> nodes in the channel network. The effect is that longer channels have greater influence of the result than small channels.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">calculate_MLE_collinearity_with_points</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">fasle</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. It uses specific points on tributaries to conpare the the mainstem. These are located at fixed chi distances upstream of the lower junction of the tributary. The effect is to ensure that all tributaries are weighted similarly in calculating <em>m/n</em>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">movern_residuals_test</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">fasle</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back the</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_profiles_fxn_movern_csv</p></td>
@@ -1491,6 +1503,18 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">If true this compares the goodness of fit between the mainstem and all tributaries in each basin for each <em>m/n</em> value. If false, it compares <strong>all</strong> tributaries and the main stem to every other tributary.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCMC_movern_analysis</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, runs a Monte Carlo Markov Chain analysis of the best fit <em>m/n</em>. First attempts to tune the sigma value for the profuiles to get an MCMC acceptance rate of 25%, then runs a chain to contrain uncertainties. At the moment the tuning doesn&#8217;t seem to be working properly!!</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCMC_chain_links</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of links in the MCMC chain</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">SA_vertical_interval</p></td>
@@ -1601,6 +1625,12 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file with latitude, longitude and the chi coordinate. Can be converted to a GeoJSON with the flag <code>convert_csv_to_geojson</code>. This options gives more flexibility in visualisation than the raster, since in the raster data points will only render as one pixel.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_simple_chi_map_to_csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints the data maps (with latitude, longitude, elevation, flow distance, area, source key, basin key, and chi) to a csv file. This is used with some of our visualisation scripts. It takes the A_0_ and m/n values from the main parameters (defaults are 1 m<sup>2</sup> and 0.5, respectively). Note that unlike the <code>print_channels_to_csv</code> this function takes nodes uplospe of the selected basins rather than the entire channel network.</p></td>
 </tr>
 </tbody>
 </table>
