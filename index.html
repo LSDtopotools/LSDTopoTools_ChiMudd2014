@@ -1286,7 +1286,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">BaselevelJunctions_file</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">"NULL"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The filename of a baselevel junctions file. If this points to an existing file all the algorithmic basin extraction routines (<code>find_complete_basins_in_window</code>,<code>find_largest_complete_basins</code>) are ignored but you can test for edge effects (<code>test_drainage_boundaries: true</code>-- this is the default). The file is a list of integers that each refer to a junction index. You can look at the junction indices by setting <code>print_junctions_to_csv: true</code> and looking at the junctions in a GIS.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The filename of a baselevel junctions file. If this points to an existing file all the algorithmic basin extraction routines (<code>find_complete_basins_in_window</code>,<code>find_largest_complete_basins</code>) are ignored but you can test for edge effects (<code>test_drainage_boundaries: true</code>-- this is the default). The file is a list of integers that each refer to a junction index. You can look at the junction indices by setting <code>print_junctions_to_csv: true</code> and looking at the junctions in a GIS. <strong>You do not include the directory, this comes from <code>read path</code>, but you do need to include the extension.</strong> The file must just be a list of itegers that correspond to the junctions you want extracted.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">find_complete_basins_in_window</p></td>
@@ -2431,7 +2431,7 @@ $ git clone https://github.com/LSDtopotools/LSDTT_chi_examples.git</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-07-25 11:38:50 BST
+Last updated 2017-06-20 10:02:06 GMT Daylight Time
 </div>
 </div>
 </body>
