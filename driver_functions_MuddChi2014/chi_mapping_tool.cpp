@@ -123,6 +123,7 @@ int main (int nNumberofArgs,char *argv[])
   bool_default_map["test_drainage_boundaries"] = true;
   bool_default_map["only_take_largest_basin"] = false; 
   string_default_map["BaselevelJunctions_file"] = "NULL";
+  bool_default_map["extend_channel_to_node_before_receiver_junction"] = true;
 
   // IMPORTANT: S-A analysis and chi analysis wont work if you have a truncated
   // basin. For this reason the default is to test for edge effects
@@ -194,7 +195,7 @@ int main (int nNumberofArgs,char *argv[])
 
   bool_default_map["print_chi_coordinate_raster"] = false;
   bool_default_map["print_simple_chi_map_to_csv"] = false;
-
+  bool_default_map["print_chi_data_maps"] = false;
 
   // these are routines that run segmentation
   bool_default_map["print_simple_chi_map_with_basins_to_csv"] = false;
@@ -206,7 +207,7 @@ int main (int nNumberofArgs,char *argv[])
   bool_default_map["print_sources_to_csv"] = false;
   bool_default_map["print_sources_to_raster"] = false;
   bool_default_map["print_baselevel_keys"] = false;
-  bool_default_map["print_chi_data_maps"] = false;
+
 
   // These enable calculation of chi based on discharge
   bool_default_map["use_precipitation_raster_for_chi"] = false;
@@ -239,10 +240,42 @@ int main (int nNumberofArgs,char *argv[])
   string raster_ext =  LSDPP.get_dem_read_extension();
   vector<string> boundary_conditions = LSDPP.get_boundary_conditions();
   string CHeads_file = LSDPP.get_CHeads_file();
-  string BaselevelJunctions_file = LSDPP.get_BaselevelJunctions_file();
+  string BaselevelJunctions_file = this_string_map["BaselevelJunctions_file"];
+
+
 
   cout << "Read filename is: " <<  DATA_DIR+DEM_ID << endl;
-  cout << "Write filename is: " << OUT_DIR+OUT_ID << endl; 
+  cout << "Write filename is: " << OUT_DIR+OUT_ID << endl;
+  
+  if(BaselevelJunctions_file == "NULL" || BaselevelJunctions_file == "Null" || BaselevelJunctions_file == "null" || BaselevelJunctions_file.empty() == true)
+  {
+    if(BaselevelJunctions_file.empty())
+    {
+      cout << "You have a null baselevel junctions file; the string is empty." << endl;
+    }
+    else
+    {
+      cout << "You have a null baselevel junctions file, it is: " << BaselevelJunctions_file << endl;
+    }
+  }
+  else
+  {
+    BaselevelJunctions_file = RemoveControlCharactersFromEndOfString(BaselevelJunctions_file);
+    BaselevelJunctions_file = DATA_DIR+BaselevelJunctions_file;
+    cout << "You have selected a baselevel junctions file, it is: " << BaselevelJunctions_file << endl;
+    cout << "Let me check if it exists..." << endl;
+    
+    ifstream test_file;
+    test_file.open(BaselevelJunctions_file.c_str());
+    if( test_file.fail() )
+    {
+      cout << "\nWHOOPS the baselevel file: \"" << BaselevelJunctions_file
+         << "\" doesn't exist" << endl;
+      cout << "I am changing it to a NULL value!" << endl;
+      BaselevelJunctions_file = "NULL";
+    }
+    test_file.close();
+  }
 
     // check to see if the raster exists
   LSDRasterInfo RI((DATA_DIR+DEM_ID), raster_ext);
@@ -468,7 +501,7 @@ int main (int nNumberofArgs,char *argv[])
   //Check to see if a list of junctions for extraction exists
   if (BaselevelJunctions_file == "NULL" || BaselevelJunctions_file == "Null" || BaselevelJunctions_file == "null" || BaselevelJunctions_file.empty() == true)
   {
-    cout << "No junction file. I am going to select basins for you using an algorithm. " << endl;
+    cout << "To reiterate, there is no base level junction file. I am going to select basins for you using an algorithm. " << endl;
     // remove basins drainage from edge if that is what the user wants
     if (this_bool_map["find_complete_basins_in_window"])
     {
@@ -506,29 +539,31 @@ int main (int nNumberofArgs,char *argv[])
   }
   else
   {
-    cout << "I am attempting to read junctions from a junction list." << endl;
+    cout << "I am attempting to read base level junctions from a base level junction list." << endl;
+    cout << "If this is not a simple text file that only contains itegers there will be problems!" << endl;
     
     //specify junctions to work on from a list file
-    string JunctionsFile = DATA_DIR+BaselevelJunctions_file; 
+    //string JunctionsFile = DATA_DIR+BaselevelJunctions_file; 
     cout << "The junctions file is: " << BaselevelJunctions_file << endl;
 
 
     vector<int> JunctionsList;
-    ifstream infile(JunctionsFile.c_str());
+    ifstream infile(BaselevelJunctions_file.c_str());
     if (infile)
     {
-      cout << "Junctions File " << JunctionsFile << " exists" << endl;;
+      cout << "Junctions File " << BaselevelJunctions_file << " exists" << endl;;
       int n;
       while (infile >> n) BaseLevelJunctions_Initial.push_back(n);
     }
     else
     {
-      cout << "Fatal Error: Junctions File " << JunctionsFile << " does not exist" << endl;
+      cout << "Fatal Error: Junctions File " << BaselevelJunctions_file << " does not exist" << endl;
       exit(EXIT_FAILURE);
     }
 
     // Now make sure none of the basins drain to the edge
     cout << "I am pruning junctions that are influenced by the edge of the DEM!" << endl;
+    cout << "This is necessary because basins draining to the edge will have incorrect chi values." << endl;
     BaseLevelJunctions = JunctionNetwork.Prune_Junctions_Edge_Ignore_Outlet_Reach(BaseLevelJunctions_Initial, FlowInfo, filled_topography);
 
   }
@@ -682,18 +717,33 @@ int main (int nNumberofArgs,char *argv[])
     cout << "I am getting the source and outlet nodes for the overlapping channels" << endl;
     cout << "The n_nodes to visit are: " << n_nodes_to_visit << endl;
 
-    //Check to see if working with a specified list of baselevel junctions
-    if (this_string_map["BaselevelJunctions_file"] == "NULL"
-        || this_string_map["BaselevelJunctions_file"] == "Null"
-        || this_string_map["BaselevelJunctions_file"] == "null")
+    if (this_bool_map["extend_channel_to_node_before_receiver_junction"])
     {
-      cout << "I am not working with a BaselevelJunctions_file." << endl;
-      JunctionNetwork.get_overlapping_channels(FlowInfo, BaseLevelJunctions, DistanceFromOutlet,
+      cout << endl << endl << "=====================================================" << endl;
+      cout << "I am now getting the channels for the chi tool." << endl;
+      cout << "  These channels extend below the junction to the channel that stops" << endl;
+      cout << "  just before the reciever junction. This option is used to remain" << endl;
+      cout << "  consitent with basin ordering, since a 2nd order basin will begin" << endl;
+      cout << "  at the channel one node upslope of the most upstream 3rd order junction." << endl; 
+      cout << "  If you simply want the channel starting from the selcted junction, " << endl;
+      cout << "  set the option:" << endl;
+      cout << "    extend_channel_to_node_before_receiver_junction" << endl;
+      cout << "  to false." << endl;
+      cout << "=====================================================" << endl << endl;
+      JunctionNetwork.get_overlapping_channels_to_downstream_outlets(FlowInfo, BaseLevelJunctions, DistanceFromOutlet,
                                     source_nodes,outlet_nodes,baselevel_node_of_each_basin,n_nodes_to_visit);
     }
     else
     {
-      JunctionNetwork.get_overlapping_channels_to_downstream_outlets(FlowInfo, BaseLevelJunctions, DistanceFromOutlet,
+      cout << endl << endl << "=====================================================" << endl;
+      cout << "I am now getting the channels for the chi tool." << endl;
+      cout << "  These channels will start from the baselevel junctions selected. " << endl;
+      cout << "  If you want them to extend to below the junction to the channel that stops" << endl;
+      cout << "  just before the reciever junction, then set the option:" << endl;
+      cout << "    extend_channel_to_node_before_receiver_junction" << endl;
+      cout << "  to true." << endl;
+      cout << "=====================================================" << endl << endl;
+      JunctionNetwork.get_overlapping_channels(FlowInfo, BaseLevelJunctions, DistanceFromOutlet,
                                     source_nodes,outlet_nodes,baselevel_node_of_each_basin,n_nodes_to_visit);
     }
   }
