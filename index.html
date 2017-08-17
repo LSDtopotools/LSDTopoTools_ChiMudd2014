@@ -1265,6 +1265,12 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </thead>
 <tbody>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CHeads_file</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NULL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This reads a channel heads file. It will supercede the <code>threshold_contributing_pixels</code> flag. That is, if you give a valid CHeads filename the code will ignore the threshold pixels and use the sources in the file instead. You can calculate channel heads using our <a href="https://github.com/LSDtopotools/LSDTopoTools_ChannelExtraction">channel extraction tools</a>. The file needs to be a <strong>csv</strong> file and you pass the filename <strong>WITHOUT EXTENSION</strong>. The format of the filename is one with 5 columns: <code>node_index,row,col,x,y</code>. The <code>x,y</code> coordinates are in local UTM coordinates.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">threshold_contributing_pixels</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
@@ -1283,10 +1289,16 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">The maximum number of pixels in a basin for it to be retained. This is only used by <code>find_complete_basins_in_window</code> but that algorithm for selecting basins is the default.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">BaselevelJunctions_file</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">"NULL"</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The filename of a baselevel junctions file. If this points to an existing file all the algorithmic basin extraction routines (<code>find_complete_basins_in_window</code>,<code>find_largest_complete_basins</code>) are ignored but you can test for edge effects (<code>test_drainage_boundaries: true</code>-- this is the default). The file is a list of integers that each refer to a junction index. You can look at the junction indices by setting <code>print_junctions_to_csv: true</code> and looking at the junctions in a GIS. <strong>You do not include the directory, this comes from <code>read path</code>, but you do need to include the extension.</strong> The file must just be a list of itegers that correspond to the junctions you want extracted.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">extend_channel_to_node_before_receiver_junction</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, the channel network will extend beyond selected baselevel junctions downstream until it reaches the pixel before the receiver junction. If false, the channel simply extends upstream from the seleced basin. The reason for this switch is because if one if extracting basins by drainage order, then the, say, a 2nd order drainage basin starts at the node immediately upstream of the most upstream 3rd order junction.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">find_complete_basins_in_window</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool (true or 1 will work)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>THIS IS THE DEFAULT METHOD! If you don&#8217;t want this method you need to set it to false.</strong> If this is true, it i) Gets all the basins in a DEM and takes thos between the <code>minimum_basin_size_pixels</code> and <code>maximum_basin_size_pixels</code>. It then removes basins that are influenced by the edge of the DEM, and then removes nested basins. The reason for removing basins draining the edge is that all chi and S-A analysis requires that the basin is complete. If not, your area, and therefore chi coordinate, will be incorrect.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">find_complete_basins_in_window</p></td>
@@ -1316,7 +1328,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_basin_raster</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a raster with the basins.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a raster with the basins. <strong>IMPORTANT!</strong> This should be set to true if you want to use any of our <a href="https://github.com/LSDtopotools/LSDMappingTools">python plotting functions</a> that use basin information.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1347,6 +1359,12 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">If true, this converts any csv file (except for slope-area data) to geojson format. This format takes up much more space than csv (file sizes can be 10x larger) but is georeferenced and can be loaded directly into a GIS. Also useful for webmapping. It assumes your raster is in UTM coordinates, and prints points with latitude and longitude in WGS84.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_raster_without_seas</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a raster that has removed the seas (and very high peaks). This is useful if your NoDataValue is not registering and you use the <code>minimum_elevation</code>, <code>maximum_eleation</code>, and <code>remove_seas</code> flags to correct this. <strong>WARNING!</strong> This overwrites your original raster.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_stream_order_raster</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
@@ -1356,7 +1374,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_channels_to_csv</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Prints the channel network to a csv file. Includes stream order and other useful information. Much more memory efficient than printing the whole raster. It prints all channel nodes across the DEM rather than printing nodes upstream of selected basins.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Prints the channel network to a csv file. Includes stream order and other useful information. Much more memory efficient than printing the whole raster. It prints <strong>all</strong> channel nodes across the DEM rather than printing nodes upstream of selected basins. <strong>If you want to see the channels selected for chi analysis use <code>print_chi_data_maps</code>.</strong></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_junction_index_raster</p></td>
@@ -1383,7 +1401,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints the drainage area raster (units are m<sup>2</sup>).</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">write hillshade</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">write_hillshade</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints the hillshade raster. The format of this is stupidly different from other printing calls for a stupid inheritance reason. Try to ignore. Most GIS routines have a hillshading options but for some reason they look crappier than our in-house hillshading. I&#8217;m not sure why but if you want a hillshade I recommend using this function.</p></td>
@@ -1465,14 +1483,14 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">calculate_MLE_collinearity_with_points</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">fasle</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. It uses specific points on tributaries to conpare the the mainstem. These are located at fixed chi distances upstream of the lower junction of the tributary. The effect is to ensure that all tributaries are weighted similarly in calculating <em>m/n</em>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">movern_residuals_test</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">fasle</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back the</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the mean residual between the main stem and all the tributary nodes. It is used to search for the <em>m/n</em> value where the residual switches from negative to positive. The rationale is that the correct <em>m/n</em> might be reflected where the mean residual is closest to zero.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_profiles_fxn_movern_csv</p></td>
@@ -1627,10 +1645,10 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file with latitude, longitude and the chi coordinate. Can be converted to a GeoJSON with the flag <code>convert_csv_to_geojson</code>. This options gives more flexibility in visualisation than the raster, since in the raster data points will only render as one pixel.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">print_simple_chi_map_to_csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_chi_data_maps</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints the data maps (with latitude, longitude, elevation, flow distance, area, source key, basin key, and chi) to a csv file. This is used with some of our visualisation scripts. It takes the A_0_ and m/n values from the main parameters (defaults are 1 m<sup>2</sup> and 0.5, respectively). Note that unlike the <code>print_channels_to_csv</code> this function takes nodes uplospe of the selected basins rather than the entire channel network.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>This needs to be true for python visualisation.</strong> If true, prints a raster with latitude, longitude and the chi coordinate, elevation, flow distance, drainage area, source key and baselevel keys to a csv file with the extension <code>_chi_data_map.csv</code>. Many of our <a href="https://github.com/LSDtopotools/LSDMappingTools">visualisation scripts</a> rely on this file.</p></td>
 </tr>
 </tbody>
 </table>
