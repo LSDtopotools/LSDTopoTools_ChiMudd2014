@@ -1,0 +1,17 @@
+dist: trusty
+sudo: required
+language:
+  - cpp
+compiler:
+  - gcc
+before_install:
+  - cd driver_functions_MuddChi2014 
+script:
+  # Run your build commands next
+  - make -f chi_get_profiles.make
+  - make -f chi_m_over_n_analysis.make
+  - make -f chi_step1_write_junctions.make
+  - make -f chi_step2_write_channel_file.make
+  - make -f chi_step2_write_channel_file_discharge.make
+  - make -f chi_mapping_tool.make
+  
