@@ -516,7 +516,34 @@ MathJax.Hub.Config({
 </li>
 </ul>
 </li>
-<li><a href="#_calculating_concavity">7. Calculating concavity</a></li>
+<li><a href="#_calculating_concavity">7. Calculating concavity</a>
+<ul class="sectlevel2">
+<li><a href="#_before_you_start">7.1. Before you start</a></li>
+<li><a href="#_options_you_need_for_calculating_the_most_likely_concavity">7.2. Options you need for calculating the most likely concavity</a>
+<ul class="sectlevel3">
+<li><a href="#_the_two_key_options">7.2.1. The two key options</a></li>
+<li><a href="#_other_options_all_have_sensible_defaults">7.2.2. Other options: all have sensible defaults</a></li>
+</ul>
+</li>
+<li><a href="#_running_the_m_n_analysis">7.3. Running the m/n analysis</a></li>
+<li><a href="#_visualising_the_results_of_our_m_n_analyses">7.4. Visualising the results of our m/n analyses</a></li>
+<li><a href="#_interpreting_results_from_the_m_n_analyses_and_pitfalls">7.5. Interpreting results from the m/n analyses and pitfalls</a>
+<ul class="sectlevel3">
+<li><a href="#_uncertainty_and_confidence_in_the_results">7.5.1. Uncertainty and confidence in the results</a></li>
+<li><a href="#_parameter_values_that_appear_to_influence_results">7.5.2. Parameter values that appear to influence results</a></li>
+<li><a href="#_some_typical_landscapes">7.5.3. Some typical landscapes</a></li>
+<li><a href="#_advice_for_presenting_results">7.5.4. Advice for presenting results</a></li>
+<li><a href="#_troubleshooting">7.5.5. Troubleshooting</a></li>
+</ul>
+</li>
+<li><a href="#_files_output_by_the_m_n_analysis">7.6. Files output by the m/n analysis</a></li>
+<li><a href="#_all_options_used_in_the_m_n_analyses">7.7. All options used in the m/n analyses</a>
+<ul class="sectlevel3">
+<li><a href="#_the_two_key_options_2">7.7.1. The two key options</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -2451,23 +2478,241 @@ $ git clone https://github.com/LSDtopotools/LSDTT_chi_examples.git</code></pre>
 <h2 id="_calculating_concavity">7. Calculating concavity</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>In this section you will find instructions on using the <strong>chi mapping tool</strong> to calculate channel concavity. What is channel concavity? If you look at typical channels, you will find steep headwaters but as you move downstream the channels will become gentler. Authors in the middle of the twentieth century began to calculate channel slope as one moved downstream and found sysematic relasionships between drainage area, <em>A</em> and channel slope, <em>S</em>, finding that the relasionship could be described with STEM:[S = k_s A^{-\theta}]. This relasionship is often called Flint&#8217;s law, after a 1975 paper. The exponent, \(\theta\), is called the concavity because it describes how concave the channel is: if the channel profile has little variation in slope downstream the channel has a low concavity.</p>
+<p>In this section you will find instructions on using the <strong>chi mapping tool</strong> to calculate channel concavity. What is channel concavity? If you look at typical channels, you will find steep headwaters but as you move downstream the channels will become gentler. Authors in the middle of the twentieth century began to calculate channel slope as one moved downstream and found sysematic relasionships between drainage area, <em>A</em> and channel slope, <em>S</em>, finding that the relasionship could be described with \(S = k_s A^{-\theta}\). This relasionship is often called Flint&#8217;s law, after a 1975 paper. The exponent, \(\theta\), is called the concavity because it describes how concave the channel is: if the channel profile has little variation in slope downstream the channel has a low concavity.</p>
 </div>
 <div class="paragraph">
-<p>A number of models have been proposed for channel incision into bedrock, and a number of these models describe erosion as some funciton of slope and drainage area, and in the simplist version of these family of models, called stream power models, the concavity is related to the slope and area exponents, where erosion rate is modelled as STEM:[E = k A^m S^n] and if uplift is balanced by erosion the predicted topographic outcome is STEM:[\theta = m/n]. There is much debate about the appropriateness of these simple models but it is probably not controversial to say that most geomorphologists believe the concavity refelcts the transport and erosion processes taking place within upland river.</p>
+<p>A number of models have been proposed for channel incision into bedrock, and a number of these models describe erosion as some funciton of slope and drainage area, and in the simplist version of these family of models, called stream power models, the concavity is related to the slope and area exponents, where erosion rate is modelled as \(E = k A^m S^n\) and if uplift is balanced by erosion the predicted topographic outcome is \(\theta = m/n\). There is much debate about the appropriateness of these simple models but it is probably not controversial to say that most geomorphologists believe the concavity refelcts the transport and erosion processes taking place within upland river.</p>
 </div>
 <div class="paragraph">
 <p>In addition, a number of authors have used channel steepness to infer either erosion and uplift rates across river networks, and these calculations often involve computing the channel concavity. This can be done in a number of ways. We at <strong>LSDTopoTools</strong> have included a number of methods, both traditional and newly developed, for the purpose of computing the channel concavity in river networks. In this section you will find instructions for using our tools.</p>
 </div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+In this documentation, you will find references to <em>concavity</em> or \(\theta\) and the \(m/n\) ratio. The concavity, \(\theta\), is a purely geometric relasionship between channel slope and drainage area. On the other hand \(m/n\) is derived from stream power and therefore includes some assumptions about the incision model. Because chi (\(\chi\)) can be calculated by assuing an \(m/n\) ratio using topographic data, it also describes slope-area relasionships, but chi analysis is more closely linked to incision models than concavity. Because most of our methods use chi analysis, we use typicaly state that our methods search for the most likely \(m/n\) ratio rather than the most likeley concavity.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_before_you_start">7.1. Before you start</h3>
 <div class="paragraph">
-<p>Unresolved directive in book/07-concavity/calculating-concavity.asc - include::sections/example-01.asc[]</p>
+<p>Before you start, make sure you have
+* Set up <strong>LSDTopoTools</strong> and compiled. Follow the instructions here: <a href="#_getting_the_software">Getting the software</a>
+* Install the appropriate python packages. Follow the instructions here: <a href="#_setting_up_python">Setting up Python</a>
+* Make sure your data is in the correct format (i.e., WG1984 UTM projection, ENVI bil format). Follow instructions here: <a href="#_preparing_your_data">Preparing your data</a></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_options_you_need_for_calculating_the_most_likely_concavity">7.2. Options you need for calculating the most likely concavity</h3>
+<div class="paragraph">
+<p>For these analyses you will use our multi-purpose channel analysis package: the <strong>chi mapping tool</strong>. We will assume you have already compiled the tool and know how to direct it to your data using the <em>driver file</em>. If you don&#8217;t know about those things you&#8217;ll need to go back a few chapters in this documentation.</p>
+</div>
+<div class="paragraph">
+<p>The good news is that we have automated the computations with a single switch in the driver function. In the driver file, you just need the option <code>estimate_best_fit_movern: true</code>.
+However, there are a few more options that are important in generating sensible output for the analysis</p>
+</div>
+<div class="sect3">
+<h4 id="_the_two_key_options">7.2.1. The two key options</h4>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 13. Main options for performing a concavity or <em>m/n</em> analysis</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Keyword</th>
+<th class="tableblock halign-left valign-top">Input type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">estimate_best_fit_movern</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You need to switch this to <code>true</code> to perform all the analysis for channel concavity or <em>m/n</em>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">collinearity_MLE_sigma</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This is a scaling factor for our maximum likelihood estimator (MLE). In our paper we demonstrate how this is simply a constant that can be removed from MLE calculations, so supervifically its value doesn&#8217;t matter. However, if this value is low, then the MLE values will be zero and you will not get reliable results. If you are getting estimates of <em>m/n</em> that are very low, it might be because sigma is too low. If this is the case you should increase sigma until the best fit values of <em>m/n</em> do not change. <strong>In most cases you can use the default but if you have very large networks you may need to increase this parameter</strong>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_other_options_all_have_sensible_defaults">7.2.2. Other options: all have sensible defaults</h4>
+<div class="paragraph">
+<p>There are a number of other options you can choose in the <em>m/n</em> analysis but we have extensively tested the method on dozens of numerical and real test landscapes and the defaults work under most conditions. We encourage users to test the sensitivity of their results to these parameters, but for initial analyses you should not have to change any extra parameters.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_running_the_m_n_analysis">7.3. Running the m/n analysis</h3>
+<div class="paragraph">
+<p>As with all of our tools, we suggest you keep your data and the source code seperate. We will assume the standard directory struture descrbed in the section: <a href="#_installing_the_code_and_setting_up_directories">Installing the code and setting up directories</a>.</p>
+</div>
+<div class="paragraph">
+<p>We will assume your data is in the folder <code>/LSDTopoTools/Topographic_projects/LSDTT_chi_examples</code>, which you can clone from github.</p>
+</div>
+<div class="paragraph">
+<p>A very simple driver file is in the example folder, called <code>movern_Xian.driver</code>. This is the driver function:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-paramfile" data-lang="paramfile"># Parameters for performing chi analysis
+# Comments are preceeded by the hash symbol
+# Documentation can be found here:
+# https://lsdtopotools.github.io/LSDTopoTools_ChiMudd2014/
+
+# These are parameters for the file i/o
+# IMPORTANT: You MUST make the write directory: the code will not work if it doesn't exist.
+read path: /LSDTopoTools/Topographic_projects/LSDTT_chi_examples
+write path: /LSDTopoTools/Topographic_projects/LSDTT_chi_examples
+read fname: Xian
+write fname: Xian_movern
+channel heads fname: NULL
+
+# Parameter for filling the DEM
+min_slope_for_fill: 0.0001
+
+# Parameters for selecting channels and basins
+threshold_contributing_pixels: 5000
+minimum_basin_size_pixels: 100000
+maximum_basin_size_pixels: 400000
+find_complete_basins_in_window: true
+
+# Everything you need for an m over n analysis
+estimate_best_fit_movern: true</code></pre>
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>All you need to do is run ths file using the <strong>chi_mapping_tool</strong>. If you followed instructions for installing the software, this tool will be in the directory <code>/LSDTopoTools/Git_projects/LSDTopoTools_</code>. Navigate to that folder:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">$ cd /LSDTopoTools/Git_projects/LSDTopoTool_ChiMudd2014/driver_functions_MuddChi2014/</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Now run the correct driver file:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">$ ./chi_mapping_tool.exe /LSDTopoTools/Topographic_projects/LSDTT_chi_examples movern_Xian.driver</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Congratulations! You have set your first movern analysis running. It might take a little while to work its way though all the analyses so sit back, relax, and catch up on some <a href="http://www.bbc.co.uk/football/hibernianfc/">important news</a>. When it finishes you will be ready to visualise your data.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_visualising_the_results_of_our_m_n_analyses">7.4. Visualising the results of our m/n analyses</h3>
+<div class="paragraph">
+<p>We have built a single python script that does all the visualisation for you. It works with one call to the script: <em>*easy peasy!!*</em></p>
+</div>
+<div class="paragraph">
+<p>Unfortunately there are a few hiccups in getting the python installed, which we describe in the section <a href="#_setting_up_python">Setting up Python</a>.</p>
+</div>
+<div class="paragraph">
+<p>This will be slightly different than instructions in that section, since the advice there is to run python scripts from <strong>spyder</strong>. In this instance, we will run from command line.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_interpreting_results_from_the_m_n_analyses_and_pitfalls">7.5. Interpreting results from the m/n analyses and pitfalls</h3>
+<div class="paragraph">
+<p>We have tested these routines across a number of landscapes and hope that other workers will find them useful and enhance their own work. Here we explore a number of issues we have come across in interpreting results from these analyses.</p>
+</div>
+<div class="sect3">
+<h4 id="_uncertainty_and_confidence_in_the_results">7.5.1. Uncertainty and confidence in the results</h4>
+
+</div>
+<div class="sect3">
+<h4 id="_parameter_values_that_appear_to_influence_results">7.5.2. Parameter values that appear to influence results</h4>
+
+</div>
+<div class="sect3">
+<h4 id="_some_typical_landscapes">7.5.3. Some typical landscapes</h4>
+
+</div>
+<div class="sect3">
+<h4 id="_advice_for_presenting_results">7.5.4. Advice for presenting results</h4>
+
+</div>
+<div class="sect3">
+<h4 id="_troubleshooting">7.5.5. Troubleshooting</h4>
+
+</div>
+</div>
+<div class="sect2">
+<h3 id="_files_output_by_the_m_n_analysis">7.6. Files output by the m/n analysis</h3>
+<div class="paragraph">
+<p>The \(m/n\) analysis will produce a number of new files in both raster and comma seperated value formats. You can also tell the code to print csv files to geojson files if you want to directly load them into your favourite GIS.</p>
+</div>
+<div class="paragraph">
+<p>We expect most users will go straight to the figures generated by our python script, which should be publication quality. However, we list here the file outputs so you can inspect the data outputs ith which you can create your own plotting routines, if you so wish. We believe data should be transparent and reproducible, so all our python plots make figures from data that has been printed to file: you will always be able to see the data behind the figures. Please do not abuse our willingness to do this by taking our data an publishing horrible figures created in excel.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_all_options_used_in_the_m_n_analyses">7.7. All options used in the m/n analyses</h3>
+<div class="paragraph">
+<p>This is a complete list of the options that are used in the \(m/n\) analysis.</p>
+</div>
+<div class="sect3">
+<h4 id="_the_two_key_options_2">7.7.1. The two key options</h4>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 14. Main options for performing a concavity or <em>m/n</em> analysis</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Keyword</th>
+<th class="tableblock halign-left valign-top">Input type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">estimate_best_fit_movern</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You need to switch this to <code>true</code> to perform all the analysis for channel concavity or <em>m/n</em>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">collinearity_MLE_sigma</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This is a scaling factor for our maximum likelihood estimator (MLE). In our paper we demonstrate how this is simply a constant that can be removed from MLE calculations, so supervifically its value doesn&#8217;t matter. However, if this value is low, then the MLE values will be zero and you will not get reliable results. If you are getting estimates of <em>m/n</em> that are very low, it might be because sigma is too low. If this is the case you should increase sigma until the best fit values of <em>m/n</em> do not change.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-09-08 15:09:33 GMT Daylight Time
+Last updated 2017-09-09 09:07:36 GMT Daylight Time
 </div>
 </div>
 </body>
