@@ -468,11 +468,13 @@ MathJax.Hub.Config({
 <li><a href="#_selecting_channels_and_basins">4.3.3. Selecting channels and basins</a></li>
 <li><a href="#_basic_data_output_before_calculating_chi">4.3.4. Basic data output (before calculating chi)</a></li>
 <li><a href="#_basic_parameters_for_the_chi_coordinate">4.3.5. Basic parameters for the chi coordinate</a></li>
-<li><a href="#_parameters_for_exploring_the_em_m_n_em_ratio">4.3.6. Parameters for exploring the <em>m/n</em> ratio</a></li>
-<li><a href="#_parameters_for_segmentation_of_channels">4.3.7. Parameters for segmentation of channels</a></li>
-<li><a href="#_printing_of_simple_chi_maps">4.3.8. Printing of simple chi maps</a></li>
-<li><a href="#_chi_maps_with_segmentation_and_basin_and_channel_selection">4.3.9. Chi maps with segmentation and basin and channel selection</a></li>
-<li><a href="#_parameters_for_dealing_with_discharge_rather_than_drainage_area">4.3.10. Parameters for dealing with discharge rather than drainage area</a></li>
+<li><a href="#_burning_rasters_to_csv">4.3.6. Burning rasters to csv</a></li>
+<li><a href="#_parameters_for_exploring_the_em_m_n_em_ratio_with_chi_analysis">4.3.7. Parameters for exploring the <em>m/n</em> ratio with chi analysis</a></li>
+<li><a href="#_parameters_for_exploring_the_em_m_n_em_ratio_with_slope_area_analysis">4.3.8. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</a></li>
+<li><a href="#_parameters_for_segmentation_of_channels">4.3.9. Parameters for segmentation of channels</a></li>
+<li><a href="#_printing_of_simple_chi_maps">4.3.10. Printing of simple chi maps</a></li>
+<li><a href="#_chi_maps_with_segmentation_and_basin_and_channel_selection">4.3.11. Chi maps with segmentation and basin and channel selection</a></li>
+<li><a href="#_parameters_for_dealing_with_discharge_rather_than_drainage_area">4.3.12. Parameters for dealing with discharge rather than drainage area</a></li>
 </ul>
 </li>
 <li><a href="#_example_parameter_files">4.4. Example parameter files</a></li>
@@ -521,8 +523,9 @@ MathJax.Hub.Config({
 <li><a href="#_before_you_start">7.1. Before you start</a></li>
 <li><a href="#_options_you_need_for_calculating_the_most_likely_concavity">7.2. Options you need for calculating the most likely concavity</a>
 <ul class="sectlevel3">
-<li><a href="#_the_two_key_options">7.2.1. The two key options</a></li>
+<li><a href="#_some_key_options">7.2.1. Some key options</a></li>
 <li><a href="#_other_options_all_have_sensible_defaults">7.2.2. Other options: all have sensible defaults</a></li>
+<li><a href="#_what_the_code_estimate_best_fit_movern_code_routine_does">7.2.3. What the <code>estimate_best_fit_movern</code> routine does</a></li>
 </ul>
 </li>
 <li><a href="#_running_the_m_n_analysis">7.3. Running the m/n analysis</a></li>
@@ -539,7 +542,8 @@ MathJax.Hub.Config({
 <li><a href="#_files_output_by_the_m_n_analysis">7.6. Files output by the m/n analysis</a></li>
 <li><a href="#_all_options_used_in_the_m_n_analyses">7.7. All options used in the m/n analyses</a>
 <ul class="sectlevel3">
-<li><a href="#_the_two_key_options_2">7.7.1. The two key options</a></li>
+<li><a href="#_parameters_for_exploring_the_em_m_n_em_ratio_with_chi_analysis_2">7.7.1. Parameters for exploring the <em>m/n</em> ratio with chi analysis</a></li>
+<li><a href="#_parameters_for_exploring_the_em_m_n_em_ratio_with_slope_area_analysis_2">7.7.2. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</a></li>
 </ul>
 </li>
 </ul>
@@ -585,12 +589,12 @@ We have already seen that erosion is favored by declivity. Where the declivity i
 </div>
 <div class="paragraph">
 <p>Since then, many geomorpholgists have attempted to extract information about erosion rates from channel profiles.
-Chi analysis is a method of extracting information from channel profiles that attempts to compare channels with different discharges first proposed by Leigh Royden and colleagues at MIT.
+Chi analysis is a method of extracting information from channel profiles that attempts to compare channels with different discharges first proposed by <a href="https://eapsweb.mit.edu/people/lhroyden">Leigh Royden</a> and colleagues at MIT.
 <a href="https://lsdtopotools.github.io/">LSDTopoTools</a> has a number of tools for performing chi analysis.</p>
 </div>
 <div class="paragraph">
 <p>This document gives instructions on how to use the segment fitting tool for channel profile analysis
-developed by the Land Surface Dynamics group at the University of Edinburgh.
+developed by <a href="http://www.geos.ed.ac.uk/homes/smudd">Simon Mudd</a> and colleagues at the <a href="http://www.ed.ac.uk/geosciences">University of Edinburgh</a>.
 The tool is used to examine the geometry of channels using the integral method of channel profile analysis.
 For background to the method, and a description of the algorithms, we refer the reader to
 <a href="http://www.http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al. (2014)</a>.
@@ -675,7 +679,13 @@ the user should read <a href="http://mit.edu/perron/www/files/PerronRoyden13.pdf
 <p>A chapter on the details of running the software, including the options available and the data output formats: <a href="#_running_the_chi_analysis_options_and_outputs">Running the chi analysis: options and outputs</a>. This section rather detailed; if you want specific examples that walk you through analysis go to the following chapter.</p>
 </li>
 <li>
+<p>A brief section on what you need to visualise outputs using out python scripts: <a href="#_visualisation">Visualisation</a></p>
+</li>
+<li>
 <p>A series of example walkthoughs: <a href="#_examples_of_chi_analysis">Examples of chi analysis</a></p>
+</li>
+<li>
+<p>A section on consraining the <em>m/n</em> ratio and channel concavity: <a href="#_calculating_concavity">Calculating concavity</a></p>
 </li>
 </ul>
 </div>
@@ -909,7 +919,7 @@ Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetu
 <p><strong>All your raster data (i.e., your topographic data and subsidiary datasets) need to be in <a href="https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system">UTM</a> coordinate system.</strong></p>
 </div>
 <div class="paragraph">
-<p>We use [<a href="https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system" class="bare">https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system</a>] since it is a global dataset. However you will need to look up the UTM zone of your data. We use <a href="http://www.dmap.co.uk/utmworld.htm">this map</a> to determine our UTM zone.</p>
+<p>We use <a href="https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system">the UTM coordinate system</a> since it is a global dataset. However you will need to look up the UTM zone of your data. We use <a href="http://www.dmap.co.uk/utmworld.htm">this map</a> to determine our UTM zone.</p>
 </div>
 <div class="paragraph">
 <p><strong>If you fail to convert to UTM these programs will probably crash!</strong></p>
@@ -970,6 +980,14 @@ You need to convert your rasters to UTM coordinates! If you fail to do this at b
 <p>If you use Ubuntu, use: <code>sudo apt-get gdal-bin</code></p>
 </li>
 </ul>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">If you don&#8217;t like using command line interface</div>
+<div class="paragraph">
+<p>All instructions below are based on using a command line interface. If you want to use our tools I am afraid you will need to get used to this. However, <a href="http://www.qgis.org/en/site/">QGIS</a> has GDAL built in so any raster conversions you do in <a href="http://www.qgis.org/en/site/">QGIS</a> will be the same as those listed below. If you use ArcMap there is no telling what you will get but the main thing you will probably get is frozen and/or crashed software. ArcMap is good for a lot of things but this is not one of them.</p>
 </div>
 </div>
 </div>
@@ -1329,12 +1347,6 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>THIS IS THE DEFAULT METHOD! If you don&#8217;t want this method you need to set it to false.</strong> If this is true, it i) Gets all the basins in a DEM and takes thos between the <code>minimum_basin_size_pixels</code> and <code>maximum_basin_size_pixels</code>. It then removes basins that are influenced by the edge of the DEM, and then removes nested basins. The reason for removing basins draining the edge is that all chi and S-A analysis requires that the basin is complete. If not, your area, and therefore chi coordinate, will be incorrect.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">find_complete_basins_in_window</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">bool (true or 1 will work)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>THIS IS THE DEFAULT METHOD! If you don&#8217;t want this method you need to set it to false.</strong> If this is true, it i) Gets all the basins in a DEM and takes thos between the <code>minimum_basin_size_pixels</code> and <code>maximum_basin_size_pixels</code>. It then removes basins that are influenced by the edge of the DEM, and then removes nested basins. The reason for removing basins draining the edge is that all chi and S-A analysis requires that the basin is complete. If not, your area, and therefore chi coordinate, will be incorrect.</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">find_largest_complete_basins</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool (true or 1 will work)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
@@ -1356,7 +1368,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_basin_raster</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a raster with the basins. <strong>IMPORTANT!</strong> This should be set to true if you want to use any of our <a href="https://github.com/LSDtopotools/LSDMappingTools">python plotting functions</a> that use basin information.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a raster with the basins. <strong>IMPORTANT!</strong> This should be set to true if you want to use any of our <a href="https://github.com/LSDtopotools/LSDMappingTools">python plotting functions</a> that use basin information. Note that if this is true it will also print csv files with basin numbers and source numbers to assist plotting.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1484,9 +1496,24 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </table>
 </div>
 <div class="sect3">
-<h4 id="_parameters_for_exploring_the_em_m_n_em_ratio">4.3.6. Parameters for exploring the <em>m/n</em> ratio</h4>
+<h4 id="_burning_rasters_to_csv">4.3.6. Burning rasters to csv</h4>
+<div class="paragraph">
+<p>In some circumstances you might want to "burn" secondary data onto your data of the channel network. One example would be if you had a geologic map and wanted to add the rock type as a column to point data about your channels. These routines will take a raster and will add the data values from that raster to each point in the chi data.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+At the moment the burning function only works for the <code>print_chi_data_maps</code> routine.
+</td>
+</tr>
+</table>
+</div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 6. Parameters for trying to constrain the <em>m/n</em> ratio, including slope-area analysis.</caption>
+<caption class="title">Table 6. Parameters for burning a raster to csv files.</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -1503,29 +1530,45 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">calculate_MLE_collinearity</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">burn_raster_to_csv</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. This uses <strong>ALL</strong> nodes in the channel network. The effect is that longer channels have greater influence of the result than small channels.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, takes raster data and appends it to csv data of channel points.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">calculate_MLE_collinearity_with_points</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. It uses specific points on tributaries to conpare the the mainstem. These are located at fixed chi distances upstream of the lower junction of the tributary. The effect is to ensure that all tributaries are weighted similarly in calculating <em>m/n</em>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">burn_raster_prefix</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NULL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The prefix of the raster (without the <code>bil</code> extension) that contains the data to be burned. Does not include the directory path. The raster <strong>MUST</strong> be in the same directory as your input DEM.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">movern_residuals_test</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the mean residual between the main stem and all the tributary nodes. It is used to search for the <em>m/n</em> value where the residual switches from negative to positive. The rationale is that the correct <em>m/n</em> might be reflected where the mean residual is closest to zero.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">burn_data_csv_column_header</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">burned_data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The column header for your burned data. If you want our python plotting tools to be happy, <strong>do not give this a name with spaces</strong>.</p></td>
 </tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_parameters_for_exploring_the_em_m_n_em_ratio_with_chi_analysis">4.3.7. Parameters for exploring the <em>m/n</em> ratio with chi analysis</h4>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 7. Parameters for trying to constrain the <em>m/n</em> ratio using chi analysis</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">print_profiles_fxn_movern_csv</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true this loops though every <em>m/n</em> value and prints (to a single csv file) all the chi-elevation profiles. Used to visualise the effect of changing the <em>m/n</em> ratio on the profiles.</p></td>
+<th class="tableblock halign-left valign-top">Keyword</th>
+<th class="tableblock halign-left valign-top">Input type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
 </tr>
+</thead>
+<tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">start_movern</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
@@ -1551,10 +1594,64 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">If true this compares the goodness of fit between the mainstem and all tributaries in each basin for each <em>m/n</em> value. If false, it compares <strong>all</strong> tributaries and the main stem to every other tributary.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">calculate_MLE_collinearity</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. This uses <strong>ALL</strong> nodes in the channel network. The effect is that longer channels have greater influence of the result than small channels.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">calculate_MLE_collinearity_with_points</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. It uses specific points on tributaries to conpare the the mainstem. These are located at fixed chi distances upstream of the lower junction of the tributary. The effect is to ensure that all tributaries are weighted similarly in calculating <em>m/n</em>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">calculate_MLE_collinearity_with_points_MC</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. It uses specific points on tributaries to conpare the the mainstem. The location of these points is selected at random and this process is reapeated a number of times (the default is 1000) to quantify uncertanty in the best fit <em>m/n</em> ration.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">collinearity_MLE_sigma</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A value that scales MLE. It does not afffect which <em>m/n</em> value is the most likeley. However it affects the absolute value of MLE. If it is set too low, MLE values for poorly fit segments will be zero. We have performed sensitivity and found that once all channels have nonzero MLE values the most likely channel does not change. So this should be set high enough to ensure there are nonzero MLE values for all tributaries. Set this too high, however, and all MLE values will be very close to 1 so plotting becomes difficult as the difference between MLE are at many significant digits (e.g., 0.9999997 vs 0.9999996). We have found that a value of 1000 works in most situations.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MC_point_fractions</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">For the <code>calculate_MLE_collinearity_with_points_MC</code> analysis, this is the number of points on each tributary to test against the main stem channel.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MC_point_iterations</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">For the <code>calculate_MLE_collinearity_with_points_MC</code> analysis, this is the number iterations of drawing random points with which to build best fit <em>m/n</em> statistics.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">max_MC_point_fraction</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The maximum fraction of the length, in chi, of the main stem that points will be measured over the tributary. For example, if the main stem has a chi lenght of 2 metres, then points on tributaries up to 1 metres from the conluence with the main stem will be tested by the <code>calculate_MLE_collinearity_with_points_MC</code> routine.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">movern_residuals_test</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the mean residual between the main stem and all the tributary nodes. It is used to search for the <em>m/n</em> value where the residual switches from negative to positive. The rationale is that the correct <em>m/n</em> might be reflected where the mean residual is closest to zero.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_profiles_fxn_movern_csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true this loops though every <em>m/n</em> value and prints (to a single csv file) all the chi-elevation profiles. Used to visualise the effect of changing the <em>m/n</em> ratio on the profiles.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">MCMC_movern_analysis</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true, runs a Monte Carlo Markov Chain analysis of the best fit <em>m/n</em>. First attempts to tune the sigma value for the profuiles to get an MCMC acceptance rate of 25%, then runs a chain to contrain uncertainties. At the moment the tuning doesn&#8217;t seem to be working properly!!</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, runs a Monte Carlo Markov Chain analysis of the best fit <em>m/n</em>. First attempts to tune the sigma value for the profuiles to get an MCMC acceptance rate of 25%, then runs a chain to contrain uncertainties. At the moment the tuning doesn&#8217;t seem to be working properly!! This is also extremely computationally expensive, for a, say, 10Mb DEM analysis might last several days on a single CPU core. If you want uncertainty values for the <em>m/n</em> ratio you should use the <code>calculate_MLE_collinearity_with_points_MC</code> routine.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">MCMC_chain_links</p></td>
@@ -1562,6 +1659,40 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">5000</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Number of links in the MCMC chain</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCMC_movern_minimum</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.05</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Minimum value of the <em>m/n</em> ratio tested by the MCMC routine.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCMC_movern_maximum</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1.5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum value of the <em>m/n</em> ratio tested by the MCMC routine.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_parameters_for_exploring_the_em_m_n_em_ratio_with_slope_area_analysis">4.3.8. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</h4>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 8. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Keyword</th>
+<th class="tableblock halign-left valign-top">Input type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">SA_vertical_interval</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
@@ -1580,13 +1711,43 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">This prints the slope-area analysis to a csv file. It includes the raw data and binned data. It is organised by both source and basin so you analyise different channels. See the section on outputs for full details.</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">segment_slope_area_data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, uses the segmentation algorithm in <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al., JGR-ES 2014</a> to segment the log-binned S-A data for the main stem channel.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">slope_area_minimum_segment_length</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets the minimum segment lenght of a fitted segment to the S-A data.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bootstrap_SA_data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This bootstraps S-A data by removing a fraction of the data (set below) in each iteration and calculating the regression coefficients. It is used to estimate uncertainty, but it deosn&#8217;t really work since uncertainty in regression coefficients reduces with more samples and S-A datasets have thousands of samples. Left here as a kind of monument to our futile efforts.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N_SA_bootstrap_iterations</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of boostrapping iterations</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SA_bootstrap_retain_node_prbability</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fraction of the data retained in each bootstrapping iteration.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_parameters_for_segmentation_of_channels">4.3.7. Parameters for segmentation of channels</h4>
+<h4 id="_parameters_for_segmentation_of_channels">4.3.9. Parameters for segmentation of channels</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 7. Parameters for calculating the segments of similar chi slope (\(M_{\chi}\)). Details can be found in <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al., JGR-ES 2014</a>.</caption>
+<caption class="title">Table 9. Parameters for calculating the segments of similar chi slope (\(M_{\chi}\)). Details can be found in <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al., JGR-ES 2014</a>.</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -1642,9 +1803,12 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </table>
 </div>
 <div class="sect3">
-<h4 id="_printing_of_simple_chi_maps">4.3.8. Printing of simple chi maps</h4>
+<h4 id="_printing_of_simple_chi_maps">4.3.10. Printing of simple chi maps</h4>
+<div class="paragraph">
+<p>For most of our visualisation routines, the key printing option to set to <strong>true</strong> is <code>print_chi_data_maps</code>.</p>
+</div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 8. Options for printing simple chi maps</caption>
+<caption class="title">Table 10. Options for printing simple chi maps</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -1682,9 +1846,9 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </table>
 </div>
 <div class="sect3">
-<h4 id="_chi_maps_with_segmentation_and_basin_and_channel_selection">4.3.9. Chi maps with segmentation and basin and channel selection</h4>
+<h4 id="_chi_maps_with_segmentation_and_basin_and_channel_selection">4.3.11. Chi maps with segmentation and basin and channel selection</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 9. Options for chi maps and secondary data files that split channels and basins</caption>
+<caption class="title">Table 11. Options for chi maps and secondary data files that split channels and basins</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -1740,12 +1904,12 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 </table>
 </div>
 <div class="sect3">
-<h4 id="_parameters_for_dealing_with_discharge_rather_than_drainage_area">4.3.10. Parameters for dealing with discharge rather than drainage area</h4>
+<h4 id="_parameters_for_dealing_with_discharge_rather_than_drainage_area">4.3.12. Parameters for dealing with discharge rather than drainage area</h4>
 <div class="paragraph">
 <p>These allow the user to drive chi with discharge rather than drainage area. It is somewhat rudimentary at the moment in that it  assumes the rainfall rate in length per time is translated into some constant discharge. This is not a hydrological model! It simply accumulates precipitation through a channel network with no regard to hydrological processes, infiltration and evaporation, or the timing of storms.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 10. Parameters for dealing with precipitation and discharge.</caption>
+<caption class="title">Table 12. Parameters for dealing with precipitation and discharge.</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -1772,6 +1936,12 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">When true, the program will use precipitation to generate a discharge raster and this will be used to calculate chi, rather than drainage area.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_discharge_raster</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">When true, prints the discharge raster (a convolution of contributing area and precipitation).</p></td>
 </tr>
 </tbody>
 </table>
@@ -1845,7 +2015,7 @@ ENVI bil should not be mistaken for ESRI bil. Make sure you are using ENVI bil f
 <div class="sect3">
 <h4 id="_raster_output">4.6.1. Raster output</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 11. These are basic rasters that don&#8217;t require chi analysis.</caption>
+<caption class="title">Table 13. These are basic rasters that don&#8217;t require chi analysis.</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
@@ -1915,7 +2085,7 @@ If the <code>convert_csv_to_geojson</code> flag is set to <code>true</code> then
 </table>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 12. Point data avaiable in csv or geojson format. Switch to true to turn on.</caption>
+<caption class="title">Table 14. Point data avaiable in csv or geojson format. Switch to true to turn on.</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
@@ -2517,9 +2687,9 @@ In this documentation, you will find references to <em>concavity</em> or \(\thet
 However, there are a few more options that are important in generating sensible output for the analysis</p>
 </div>
 <div class="sect3">
-<h4 id="_the_two_key_options">7.2.1. The two key options</h4>
+<h4 id="_some_key_options">7.2.1. Some key options</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 13. Main options for performing a concavity or <em>m/n</em> analysis</caption>
+<caption class="title">Table 15. Main options for performing a concavity or <em>m/n</em> analysis</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -2547,6 +2717,24 @@ However, there are a few more options that are important in generating sensible 
 <td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">This is a scaling factor for our maximum likelihood estimator (MLE). In our paper we demonstrate how this is simply a constant that can be removed from MLE calculations, so supervifically its value doesn&#8217;t matter. However, if this value is low, then the MLE values will be zero and you will not get reliable results. If you are getting estimates of <em>m/n</em> that are very low, it might be because sigma is too low. If this is the case you should increase sigma until the best fit values of <em>m/n</em> do not change. <strong>In most cases you can use the default but if you have very large networks you may need to increase this parameter</strong>.</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">threshold_contributing_pixels</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This is the minimum number of contributing pixels to form a channel. Lower values will result in denser channel networks.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">minimum_basin_size_pixels</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This is the minimum size of basin in terms of contributing pixels at the outlet.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">maximum_basin_size_pixels</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">500000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This is the maximum size of basin in terms of contributing pixels at the outlet.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -2554,6 +2742,34 @@ However, there are a few more options that are important in generating sensible 
 <h4 id="_other_options_all_have_sensible_defaults">7.2.2. Other options: all have sensible defaults</h4>
 <div class="paragraph">
 <p>There are a number of other options you can choose in the <em>m/n</em> analysis but we have extensively tested the method on dozens of numerical and real test landscapes and the defaults work under most conditions. We encourage users to test the sensitivity of their results to these parameters, but for initial analyses you should not have to change any extra parameters.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_what_the_code_estimate_best_fit_movern_code_routine_does">7.2.3. What the <code>estimate_best_fit_movern</code> routine does</h4>
+<div class="paragraph">
+<p>If you set <code>estimate_best_fit_movern</code> you switch on all the routines for <em>m/n</em> analysis, and plotting of the data. These switches are:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-paramfile" data-lang="paramfile"># we need to make sure we select basins the correct way
+find_complete_basins_in_window: true
+print_basin_raster: true
+write_hillshade: true
+print_chi_data_maps: true
+
+# run the chi methods of estimating best fit m/n
+this_bool_map["calculate_MLE_collinearity: true
+calculate_MLE_collinearity_with_points_MC: true
+print_profiles_fxn_movern_csv: true
+movern_residuals_test: true
+
+# run the SA methods of estimating best fit m/n
+print_slope_area_data: true
+segment_slope_area_data: true</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can see what these do in the section: <a href="#_parameter_file_options">Parameter file options</a>.</p>
 </div>
 </div>
 </div>
@@ -2666,16 +2882,41 @@ estimate_best_fit_movern: true</code></pre>
 <div class="paragraph">
 <p>We expect most users will go straight to the figures generated by our python script, which should be publication quality. However, we list here the file outputs so you can inspect the data outputs ith which you can create your own plotting routines, if you so wish. We believe data should be transparent and reproducible, so all our python plots make figures from data that has been printed to file: you will always be able to see the data behind the figures. Please do not abuse our willingness to do this by taking our data an publishing horrible figures created in excel.</p>
 </div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 16. Raster files</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Filename contains</th>
+<th class="tableblock halign-left valign-top">File type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">estimate_best_fit_movern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">You need to switch this to <code>true</code> to perform all the analysis for channel concavity or <em>m/n</em>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">collinearity_MLE_sigma</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="sect2">
 <h3 id="_all_options_used_in_the_m_n_analyses">7.7. All options used in the m/n analyses</h3>
 <div class="paragraph">
-<p>This is a complete list of the options that are used in the \(m/n\) analysis.</p>
+<p>This is a complete list of the options that are used in the \(m/n\) analysis. Note that many other options are possible for printing, basin selection and output data formats. You will find all possible options in the section: <a href="#_parameter_file_options">Parameter file options</a>. What is reported below is just repeated from that section.</p>
 </div>
 <div class="sect3">
-<h4 id="_the_two_key_options_2">7.7.1. The two key options</h4>
+<h4 id="_parameters_for_exploring_the_em_m_n_em_ratio_with_chi_analysis_2">7.7.1. Parameters for exploring the <em>m/n</em> ratio with chi analysis</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 14. Main options for performing a concavity or <em>m/n</em> analysis</caption>
+<caption class="title">Table 17. Parameters for trying to constrain the <em>m/n</em> ratio using chi analysis</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -2692,16 +2933,176 @@ estimate_best_fit_movern: true</code></pre>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">estimate_best_fit_movern</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">start_movern</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">In several of the <em>m/n</em> testing functions, the program starts at this <em>m/n</em> value and then iterates through a number of increasing <em>m/n</em> values, calculating the goodness of fit to each one.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">delta_movern</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">In several of the <em>m/n</em> testing functions, the program increments <em>m/n</em> by this value.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">n_movern</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">In several of the <em>m/n</em> testing functions, the program increments <em>m/n</em> this number of times.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">only_use_mainstem_as_reference</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true this compares the goodness of fit between the mainstem and all tributaries in each basin for each <em>m/n</em> value. If false, it compares <strong>all</strong> tributaries and the main stem to every other tributary.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">calculate_MLE_collinearity</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">You need to switch this to <code>true</code> to perform all the analysis for channel concavity or <em>m/n</em>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. This uses <strong>ALL</strong> nodes in the channel network. The effect is that longer channels have greater influence of the result than small channels.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">calculate_MLE_collinearity_with_points</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. It uses specific points on tributaries to conpare the the mainstem. These are located at fixed chi distances upstream of the lower junction of the tributary. The effect is to ensure that all tributaries are weighted similarly in calculating <em>m/n</em>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">calculate_MLE_collinearity_with_points_MC</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. It uses specific points on tributaries to conpare the the mainstem. The location of these points is selected at random and this process is reapeated a number of times (the default is 1000) to quantify uncertanty in the best fit <em>m/n</em> ration.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">collinearity_MLE_sigma</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This is a scaling factor for our maximum likelihood estimator (MLE). In our paper we demonstrate how this is simply a constant that can be removed from MLE calculations, so supervifically its value doesn&#8217;t matter. However, if this value is low, then the MLE values will be zero and you will not get reliable results. If you are getting estimates of <em>m/n</em> that are very low, it might be because sigma is too low. If this is the case you should increase sigma until the best fit values of <em>m/n</em> do not change.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A value that scales MLE. It does not afffect which <em>m/n</em> value is the most likeley. However it affects the absolute value of MLE. If it is set too low, MLE values for poorly fit segments will be zero. We have performed sensitivity and found that once all channels have nonzero MLE values the most likely channel does not change. So this should be set high enough to ensure there are nonzero MLE values for all tributaries. Set this too high, however, and all MLE values will be very close to 1 so plotting becomes difficult as the difference between MLE are at many significant digits (e.g., 0.9999997 vs 0.9999996). We have found that a value of 1000 works in most situations.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MC_point_fractions</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">For the <code>calculate_MLE_collinearity_with_points_MC</code> analysis, this is the number of points on each tributary to test against the main stem channel.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MC_point_iterations</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">For the <code>calculate_MLE_collinearity_with_points_MC</code> analysis, this is the number iterations of drawing random points with which to build best fit <em>m/n</em> statistics.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">max_MC_point_fraction</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The maximum fraction of the length, in chi, of the main stem that points will be measured over the tributary. For example, if the main stem has a chi lenght of 2 metres, then points on tributaries up to 1 metres from the conluence with the main stem will be tested by the <code>calculate_MLE_collinearity_with_points_MC</code> routine.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">movern_residuals_test</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the mean residual between the main stem and all the tributary nodes. It is used to search for the <em>m/n</em> value where the residual switches from negative to positive. The rationale is that the correct <em>m/n</em> might be reflected where the mean residual is closest to zero.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_profiles_fxn_movern_csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true this loops though every <em>m/n</em> value and prints (to a single csv file) all the chi-elevation profiles. Used to visualise the effect of changing the <em>m/n</em> ratio on the profiles.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCMC_movern_analysis</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, runs a Monte Carlo Markov Chain analysis of the best fit <em>m/n</em>. First attempts to tune the sigma value for the profuiles to get an MCMC acceptance rate of 25%, then runs a chain to contrain uncertainties. At the moment the tuning doesn&#8217;t seem to be working properly!! This is also extremely computationally expensive, for a, say, 10Mb DEM analysis might last several days on a single CPU core. If you want uncertainty values for the <em>m/n</em> ratio you should use the <code>calculate_MLE_collinearity_with_points_MC</code> routine.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCMC_chain_links</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of links in the MCMC chain</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCMC_movern_minimum</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.05</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Minimum value of the <em>m/n</em> ratio tested by the MCMC routine.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCMC_movern_maximum</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1.5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum value of the <em>m/n</em> ratio tested by the MCMC routine.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_parameters_for_exploring_the_em_m_n_em_ratio_with_slope_area_analysis_2">7.7.2. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</h4>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 18. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Keyword</th>
+<th class="tableblock halign-left valign-top">Input type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SA_vertical_interval</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">20</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This parameter is used for slope-area analysis. Each channel is traced downslope. A slope (or gradient) is calculated by dividing the fall in the channel elevation over the flow distance; the program aims to calculate the slope at as near to a fixed vertical interval as possible following advice of Wobus et al 2006.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">log_A_bin_width</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This is for slope-area analysis. The raw slope-area data is always a horrendous mess. To get something that is remotely sensible you must bin the data. We bin the data in bins of the logarithm of the Area in metres^2. This is the log bin width.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_slope_area_data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This prints the slope-area analysis to a csv file. It includes the raw data and binned data. It is organised by both source and basin so you analyise different channels. See the section on outputs for full details.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">segment_slope_area_data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, uses the segmentation algorithm in <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al., JGR-ES 2014</a> to segment the log-binned S-A data for the main stem channel.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">slope_area_minimum_segment_length</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets the minimum segment lenght of a fitted segment to the S-A data.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bootstrap_SA_data</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This bootstraps S-A data by removing a fraction of the data (set below) in each iteration and calculating the regression coefficients. It is used to estimate uncertainty, but it deosn&#8217;t really work since uncertainty in regression coefficients reduces with more samples and S-A datasets have thousands of samples. Left here as a kind of monument to our futile efforts.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N_SA_bootstrap_iterations</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Number of boostrapping iterations</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">SA_bootstrap_retain_node_prbability</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">0.5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fraction of the data retained in each bootstrapping iteration.</p></td>
 </tr>
 </tbody>
 </table>
@@ -2712,7 +3113,7 @@ estimate_best_fit_movern: true</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-09-09 09:07:36 GMT Daylight Time
+Last updated 2017-09-08 15:09:33 GMT Daylight Time
 </div>
 </div>
 </body>
