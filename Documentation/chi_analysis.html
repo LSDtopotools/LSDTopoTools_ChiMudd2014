@@ -493,8 +493,10 @@ MathJax.Hub.Config({
 <li><a href="#_using_python">5.2. Using python</a>
 <ul class="sectlevel3">
 <li><a href="#_setting_up_python">5.2.1. Setting up Python</a></li>
-<li><a href="#_using_spyder">5.2.2. Using Spyder</a></li>
-<li><a href="#_getting_our_plotting_tools">5.2.3. Getting our plotting tools</a></li>
+<li><a href="#_setting_up_python_using_a_conda_virtual_environment">5.2.2. Setting up python using a conda virtual environment</a></li>
+<li><a href="#_using_spyder">5.2.3. Using Spyder</a></li>
+<li><a href="#_getting_our_plotting_tools">5.2.4. Getting our plotting tools</a></li>
+<li><a href="#_fixing_python_gdal_in_windows">5.2.5. Fixing python gdal in windows</a></li>
 </ul>
 </li>
 </ul>
@@ -528,8 +530,13 @@ MathJax.Hub.Config({
 <li><a href="#_what_the_code_estimate_best_fit_movern_code_routine_does">7.2.3. What the <code>estimate_best_fit_movern</code> routine does</a></li>
 </ul>
 </li>
-<li><a href="#_running_the_m_n_analysis">7.3. Running the m/n analysis</a></li>
-<li><a href="#_visualising_the_results_of_our_m_n_analyses">7.4. Visualising the results of our m/n analyses</a></li>
+<li><a href="#_running_the_em_m_n_em_analysis">7.3. Running the <em>m/n</em> analysis</a></li>
+<li><a href="#_visualising_the_results_of_our_m_n_analyses">7.4. Visualising the results of our m/n analyses</a>
+<ul class="sectlevel3">
+<li><a href="#_generating_all_the_plots">7.4.1. Generating all the plots</a></li>
+<li><a href="#_what_sort_of_plots_do_i_get">7.4.2. What sort of plots do I get?</a></li>
+</ul>
+</li>
 <li><a href="#_interpreting_results_from_the_m_n_analyses_and_pitfalls">7.5. Interpreting results from the m/n analyses and pitfalls</a>
 <ul class="sectlevel3">
 <li><a href="#_uncertainty_and_confidence_in_the_results">7.5.1. Uncertainty and confidence in the results</a></li>
@@ -1883,6 +1890,18 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 <td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file with latitude, longitude and a host of chi information including the chi slope, chi intercept, drainage area, chi coordinate and other features of the drainage network. The \(M_{\chi}\) values are calculated with the segmentation algorithm of <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al. 2014</a>.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_segments</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, this gives each segment a unique ID that is written to the <code>segmented_M_chi_map</code> (use <code>print_segmented_M_chi_map_to_csv: true</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_segments_raster</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, this gives each segment a unique ID and prints to raster. <strong>For this to work <code>print_segments</code> must be true.</strong> We use this to map other landscape metrics, such as various hillslope metrics, to channel segments.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_source_keys</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
@@ -2266,28 +2285,37 @@ Do not set up python in a vagrant server. Instead do it in your host operating s
 <i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-Our visualisation routines involve some computation, and dealing with geospatial data. This means that there are a numer of packages to install. This might take some time. If you are alreay using python for something critical you may consider setting up a <a href="https://realpython.com/blog/python/python-virtual-environments-a-primer/">virtual</a> <a href="http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/">environment</a> to ensure all of these new packages don&#8217;t break what you&#8217;ve already got.
+Our visualisation routines involve some computation, and dealing with geospatial data. This means that there are a numer of packages to install. This might take some time. If you are already using python for something critical you may consider setting up a <a href="https://realpython.com/blog/python/python-virtual-environments-a-primer/">virtual</a> <a href="http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/">environment</a> to ensure all of these new packages don&#8217;t break what you&#8217;ve already got.
 </td>
 </tr>
 </table>
 </div>
 </li>
 <li>
-<p>Once you have installed  <a href="http://conda.pydata.org/miniconda.html">miniconda</a>, you can go into a powershell (windows) or terminal (MacOS and Linux) and get the other stuff you need:</p>
+<p>Once you have installed  <a href="http://conda.pydata.org/miniconda.html">miniconda</a>, you can go into a command prompt (windows) or terminal (MacOS and Linux) and get the other stuff you need. To get the command prompt in windows look for the <strong>cmd.exe</strong> program.</p>
+</li>
+<li>
+<p>You sould create a python environment for <strong>LSDTopoTools</strong>. Read about <a href="https://conda.io/docs/user-guide/tasks/manage-environments.html">conda python environemts here</a>:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-consol" data-lang="consol">  PS&gt; conda config --add channels conda-forge
-  PS&gt; conda install shapely
-  PS&gt; conda install fiona
-  PS&gt; conda install rasterio
-  PS&gt; conda install scipy
-  PS&gt; conda install matplotlib
-  PS&gt; conda install pandas
-  PS&gt; conda install gdal
-  PS&gt; conda install pyproj
-  PS&gt; conda install spyder</code></pre>
+<pre class="highlight"><code class="language-console" data-lang="console">&gt; conda config --add channels conda-forge
+&gt; conda create --name LSDTT
+&gt; conda install -n LSDTT shapely
+&gt; conda install -n LSDTT fiona
+&gt; conda install -n LSDTT rasterio
+&gt; conda install -n LSDTT scipy
+&gt; conda install -n LSDTT matplotlib
+&gt; conda install -n LSDTT pandas
+&gt; conda install -n LSDTT gdal
+&gt; conda install -n LSDTT pyproj
+&gt; conda install -n LSDTT descartes
+&gt; conda install -n LSDTT spyder
+&gt; conda activate LSDTT</code></pre>
 </div>
 </div>
+</li>
+<li>
+<p>Every time you use our tools, you should activate the <strong>LSDTT</strong> python environment.</p>
 </li>
 <li>
 <p>To run spyder you just type <code>spyder</code> at the command line.</p>
@@ -2320,13 +2348,72 @@ It is entirely possible that we have forgotten some package, but if you run one 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_using_spyder">5.2.2. Using Spyder</h4>
+<h4 id="_setting_up_python_using_a_conda_virtual_environment">5.2.2. Setting up python using a conda virtual environment</h4>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This is an alternative to the previous section!
+</td>
+</tr>
+</table>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Download and install <a href="http://conda.pydata.org/miniconda.html">miniconda</a> on your host machine.</p>
+</li>
+<li>
+<p>Open a command prompt (use the start menu to search for <strong>cmd.exe</strong>)</p>
+</li>
+<li>
+<p>Get our  <a href="https://raw.githubusercontent.com/LSDtopotools/LSDMappingTools/a1e4bd94911afc25a10ed2482553736bc2ce8894/environment.yml">environment file</a>.</p>
+</li>
+<li>
+<p>Create the environment from that file with:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">&gt; conda env create -f environment.yml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I&#8217;m afraid this will take a little while.</p>
+</div>
+</li>
+<li>
+<p>Activate the environment:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">&gt; activate LSDTT</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This environment does not include <strong>spyder</strong>, you can install it with <code>conda install -n LSDTT spyder</code>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_using_spyder">5.2.3. Using Spyder</h4>
 <div class="paragraph">
 <p>Once you have installed python, you can use it from the command line (i.e. from a powershell or terminal window). However, you might prefer using a nice development environment that checks your code and has pretty colours and reassuring windows. When we are not using text editors (see our section <a href="#_text_editors_for_modifying_files">Text editors for modifying files</a>) we tend to use Spyder, which has an editor that can give you help with python packages and highlight your mistakes. You should have already installed it with <code>conda install spyder</code>, so to get it running go into a powershell or terminal window and just type:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-console" data-lang="console">PS&gt; spyder</code></pre>
+<pre class="highlight"><code class="language-console" data-lang="console">&gt; spyder</code></pre>
 </div>
 </div>
 <div class="admonitionblock important">
@@ -2343,7 +2430,7 @@ You cannot run spyder on the vagrant machine since it has no windowing system. I
 </div>
 </div>
 <div class="sect3">
-<h4 id="_getting_our_plotting_tools">5.2.3. Getting our plotting tools</h4>
+<h4 id="_getting_our_plotting_tools">5.2.4. Getting our plotting tools</h4>
 <div class="paragraph">
 <p>Our vagrant setup has no graphic interface (you only interact with it through a terminal) so we suggest using your host operating system for python.</p>
 </div>
@@ -2387,6 +2474,22 @@ In your host operating system these files will not be in <code>/LSDTopoTools/Git
 </li>
 <li>
 <p>Once you have this repository you can move on to our examples in the next chapter.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_fixing_python_gdal_in_windows">5.2.5. Fixing python gdal in windows</h4>
+<div class="paragraph">
+<p>If you are using windows, there is a stupid bug in the <strong>conda</strong> gdal package where it cannot find the gdal data. To fix this:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Search for the file <strong>gcs.csv</strong>. Note the folder in which it is located. On my system it is in <code>C:\Miniconda2\Library\share\gdal</code></p>
+</li>
+<li>
+<p>Go into the control panel, go to system (or system and security, then system), click on <strong>advanced system settings</strong> and in system variables enter a new variable: <strong>GDAL_DATA</strong>. For the value of this enter the directory where the gdal data is that you fond above.</p>
 </li>
 </ol>
 </div>
@@ -2774,7 +2877,7 @@ segment_slope_area_data: true</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_running_the_m_n_analysis">7.3. Running the m/n analysis</h3>
+<h3 id="_running_the_em_m_n_em_analysis">7.3. Running the <em>m/n</em> analysis</h3>
 <div class="paragraph">
 <p>As with all of our tools, we suggest you keep your data and the source code seperate. We will assume the standard directory struture descrbed in the section: <a href="#_installing_the_code_and_setting_up_directories">Installing the code and setting up directories</a>.</p>
 </div>
@@ -2792,21 +2895,20 @@ segment_slope_area_data: true</code></pre>
 # https://lsdtopotools.github.io/LSDTopoTools_ChiMudd2014/
 
 # These are parameters for the file i/o
-# IMPORTANT: You MUST make the write directory: the code will not work if it doesn't exist.
+# IMPORTANT: You MUST make the write directory: the code will not work if it doens't exist.
 read path: /LSDTopoTools/Topographic_projects/LSDTT_chi_examples
 write path: /LSDTopoTools/Topographic_projects/LSDTT_chi_examples
 read fname: Xian
-write fname: Xian_movern
+write fname: movern_Xian
 channel heads fname: NULL
 
-# Parameter for filling the DEM
-min_slope_for_fill: 0.0001
+# We remove parts of the landscape below 400 metres elevation to remove some alluvial fans.
+minimum_elevation: 400
 
 # Parameters for selecting channels and basins
 threshold_contributing_pixels: 5000
-minimum_basin_size_pixels: 100000
+minimum_basin_size_pixels: 150000
 maximum_basin_size_pixels: 400000
-find_complete_basins_in_window: true
 
 # Everything you need for an m over n analysis
 estimate_best_fit_movern: true</code></pre>
@@ -2838,6 +2940,18 @@ estimate_best_fit_movern: true</code></pre>
 </div>
 <div class="sect2">
 <h3 id="_visualising_the_results_of_our_m_n_analyses">7.4. Visualising the results of our m/n analyses</h3>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+You need to run the analysis before any of this will work!
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>We have built a single python script that does all the visualisation for you. It works with one call to the script: <em>*easy peasy!!*</em></p>
 </div>
@@ -2846,6 +2960,111 @@ estimate_best_fit_movern: true</code></pre>
 </div>
 <div class="paragraph">
 <p>This will be slightly different than instructions in that section, since the advice there is to run python scripts from <strong>spyder</strong>. In this instance, we will run from command line.</p>
+</div>
+<div class="sect3">
+<h4 id="_generating_all_the_plots">7.4.1. Generating all the plots</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>If you are in Windows, you need to take care of a little problem first: <a href="#_fixing_python_gdal_in_windows">Fixing python gdal in windows</a></p>
+</li>
+<li>
+<p>Now open a command shell window (search your star menu for <strong>cmd.exe</strong>).</p>
+</li>
+<li>
+<p>If you have installed a conda environment for <strong>LSDTopoTools</strong> (see the section <a href="#_setting_up_python">Setting up Python</a> for details), activate it with:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">&gt; activate LSDTT</code></pre>
+</div>
+</div>
+</li>
+<li>
+<p>Now, go to the place you cloned <strong>LSDMappingTools</strong>. For instructions on that look here: <a href="#_getting_our_plotting_tools">Getting our plotting tools</a>. You will need to use the <code>cd</code> command to get there.</p>
+</li>
+<li>
+<p>Once you are in the correct directory, you need to run the python script:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">&gt; python PlotMoverNAnalysis.py -dir C:\VagrantBoxes\LSDTopoTools\Topographic_projects\LSDTT_chi_examples\ -fname movern_Xian -ALL True</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note here that we have assumed you have put your files, on your host machine, in <code>C:\VagrantBoxes\</code>. If your files are somewhere else you need to change this. The <code>-dir</code> flag wants the directory of the data and the <code>-fname</code> flag wants the prefix of the data. The <code>-ALL</code> flag means you want to do all the plotting.</p>
+</div>
+</li>
+<li>
+<p>This can take a little while. Why don&#8217;t you relax and <a href="https://www.youtube.com/watch?v=OcLhUiYrZhA">watch a video</a> while you wait?</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_what_sort_of_plots_do_i_get">7.4.2. What sort of plots do I get?</h4>
+<div class="paragraph">
+<p>In your data folder you will now find not one, but four new folders:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>raster_plots</code></p>
+</li>
+<li>
+<p><code>SA_plots</code></p>
+</li>
+<li>
+<p><code>chi_plots</code></p>
+</li>
+<li>
+<p><code>summary_plots</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These contain a cornucopia of images for you to explore.</p>
+</div>
+<div class="sect4">
+<h5 id="_figures_in_the_raster_plots_folder">Figures in the Raster_plots folder</h5>
+<div class="paragraph">
+<p>The <strong>raster_plots</strong> directory contains images of the extracted basins:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/movern_Xian_basin_keys.png" alt="Basins around Mount Hua for _m/n_ analysis">
+</div>
+<div class="title">Figure 4. The extracted basins for the <em>m/n</em> analysis</div>
+</div>
+<div class="paragraph">
+<p>It also contains images of the most likeley <em>m/n</em> ratio following three methods: slope-area analysis, collinearity analysis of chi profiles using all channel points, and collinearity using chi points at random intervals iterated upon using a Monte-Carlo scheme. Our extensive testing against numerical models under ideal conditions suggest the least trustworthy of these extracted <em>m/n</em> ratios is the slope-area data, whereas the most trustworthy are the data derived from the Monte Carlo chi approach. It is not possible to know which of these methods is "true" but if all methods agree you can have high confidence in the <em>m/n</em> ratio and if they disagree our guidance is to use the Monte Carlo chi method.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/movern_Xian_basins_movern_chi_points.png" alt="Mount Hua Monte Carlo chi results">
+</div>
+<div class="title">Figure 5. The most likely <em>m/n</em> values using collinearity test of chi profiles with Monte Carlo sampling</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_figures_in_the_sa_plots_folder">Figures in the SA_plots folder</h5>
+<div class="paragraph">
+<p>This folder contains two versions of slope-area plots. The first contains the slope area data of all the tributaries, for example:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/movern_Xian_SA_plot_raw_and_binned_basin6.png" alt="S-A data of all channels in the basin">
+</div>
+<div class="title">Figure 6. S-A data of all channels in the basin</div>
+</div>
+<div class="paragraph">
+<p>The second set of S-A data contains only the trunk channel and also has segments extracted from the <a href="http://www.http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al. (2014)</a> segmentation algorithm.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/movern_Xian_SA_plot_raw_and_segmented_basin6.png" alt="S-A of trunk with segments">
+</div>
+<div class="title">Figure 7. S-A data of the trunk stream with statistically extracted segments.</div>
+</div>
+</div>
 </div>
 </div>
 <div class="sect2">
