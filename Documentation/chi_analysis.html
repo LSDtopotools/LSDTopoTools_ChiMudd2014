@@ -3002,7 +3002,7 @@ You need to run the analysis before any of this will work!
 <div class="sect3">
 <h4 id="_what_sort_of_plots_do_i_get">7.4.2. What sort of plots do I get?</h4>
 <div class="paragraph">
-<p>In your data folder you will now find not one, but four new folders:</p>
+<p>In your data directory you will now find not one, but four new directories:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -3024,7 +3024,7 @@ You need to run the analysis before any of this will work!
 <p>These contain a cornucopia of images for you to explore.</p>
 </div>
 <div class="sect4">
-<h5 id="_figures_in_the_raster_plots_folder">Figures in the Raster_plots folder</h5>
+<h5 id="_figures_in_the_strong_raster_plots_strong_directory">Figures in the <strong>Raster_plots</strong> directory</h5>
 <div class="paragraph">
 <p>The <strong>raster_plots</strong> directory contains images of the extracted basins:</p>
 </div>
@@ -3045,7 +3045,7 @@ You need to run the analysis before any of this will work!
 </div>
 </div>
 <div class="sect4">
-<h5 id="_figures_in_the_sa_plots_folder">Figures in the SA_plots folder</h5>
+<h5 id="_figures_in_the_strong_sa_plots_strong_directory">Figures in the <strong>SA_plots</strong> directory</h5>
 <div class="paragraph">
 <p>This folder contains two versions of slope-area plots. The first contains the slope area data of all the tributaries, for example:</p>
 </div>
@@ -3063,6 +3063,43 @@ You need to run the analysis before any of this will work!
 <img src="images/movern_Xian_SA_plot_raw_and_segmented_basin6.png" alt="S-A of trunk with segments">
 </div>
 <div class="title">Figure 7. S-A data of the trunk stream with statistically extracted segments.</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_figures_in_the_strong_chi_plots_strong_directory">Figures in the <strong>chi_plots</strong> directory</h5>
+<div class="paragraph">
+<p>This directory has a large number of images: each chi-elevation plot for each basin for each <em>m/n</em> tested. If you are seeing interesting patterns in the raster data you should absolutely explore these plots to see what the chi profiles are doing as you vary <em>m/n</em>.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/MLE_profiles6_0.4.png" alt="A typical chi plot">
+</div>
+<div class="title">Figure 8. chi plots</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_figures_in_the_strong_summary_plots_strong_directory">Figures in the <strong>summary_plots</strong> directory</h5>
+<div class="paragraph">
+<p>We also print summary plots that let you explore the variation of computed <em>m/n</em> values across a landscape. There are three plots in this directory and two <strong>.csv</strong> files that contain the underlying data. The three plots are</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>A plot showing the best fit <em>m/n</em> as a function of basin key that inclde the various chi methods and the slope-area method using a regression through all the data.</p>
+<div class="imageblock">
+<div class="content">
+<img src="images/movern_Xian_movern_summary.png" alt="Summary _m/n_ plot">
+</div>
+<div class="title">Figure 9. Summary plot of most likely <em>m/n</em> ratio for various methods</div>
+</div>
+</li>
+<li>
+<p>A plot showing the best fit <em>m/n</em> as a function of basin key that inclde the various chi methods and the slope-area method using a regression through all segments and tributaries. These S-A data tend to have very high varibility, as reflected in the uncertainty bands.</p>
+</li>
+<li>
+<p>A plot showing the probability of different <em>m/n</em> values of each of the different methods plotted as a <a href="http://blog.revolutionanalytics.com/2017/07/joyplots.html">joyplot</a>.</p>
+</li>
+</ol>
 </div>
 </div>
 </div>
