@@ -537,16 +537,18 @@ MathJax.Hub.Config({
 <li><a href="#_what_sort_of_plots_do_i_get">7.4.2. What sort of plots do I get?</a></li>
 </ul>
 </li>
-<li><a href="#_interpreting_results_from_the_m_n_analyses_and_pitfalls">7.5. Interpreting results from the m/n analyses and pitfalls</a>
+<li><a href="#_interpreting_results_from_the_em_m_n_em_analyses_and_pitfalls">7.5. Interpreting results from the <em>m/n</em> analyses and pitfalls</a>
 <ul class="sectlevel3">
 <li><a href="#_uncertainty_and_confidence_in_the_results">7.5.1. Uncertainty and confidence in the results</a></li>
 <li><a href="#_parameter_values_that_appear_to_influence_results">7.5.2. Parameter values that appear to influence results</a></li>
-<li><a href="#_some_typical_landscapes">7.5.3. Some typical landscapes</a></li>
-<li><a href="#_advice_for_presenting_results">7.5.4. Advice for presenting results</a></li>
-<li><a href="#_troubleshooting">7.5.5. Troubleshooting</a></li>
 </ul>
 </li>
-<li><a href="#_files_output_by_the_m_n_analysis">7.6. Files output by the m/n analysis</a></li>
+<li><a href="#_files_output_by_the_m_n_analysis">7.6. Files output by the m/n analysis</a>
+<ul class="sectlevel3">
+<li><a href="#_files_created_by_the_strong_chi_mapping_tool_strong">7.6.1. Files created by the <strong>chi mapping tool</strong></a></li>
+<li><a href="#_files_created_by_the_python_script_plotmovernanalysis_py">7.6.2. Files created by the python script PlotMoverNAnalysis.py</a></li>
+</ul>
+</li>
 <li><a href="#_all_options_used_in_the_m_n_analyses">7.7. All options used in the m/n analyses</a>
 <ul class="sectlevel3">
 <li><a href="#_parameters_for_exploring_the_em_m_n_em_ratio_with_chi_analysis_2">7.7.1. Parameters for exploring the <em>m/n</em> ratio with chi analysis</a></li>
@@ -3098,6 +3100,12 @@ You need to run the analysis before any of this will work!
 </li>
 <li>
 <p>A plot showing the probability of different <em>m/n</em> values of each of the different methods plotted as a <a href="http://blog.revolutionanalytics.com/2017/07/joyplots.html">joyplot</a>.</p>
+<div class="imageblock">
+<div class="content">
+<img src="images/movern_Xian_movern_hist.png" alt="Joyplot of the _m/n_ ratio">
+</div>
+<div class="title">Figure 10. Joyplot of the most likeley <em>m/n</em> values across all basins in the landscape</div>
+</div>
 </li>
 </ol>
 </div>
@@ -3105,29 +3113,49 @@ You need to run the analysis before any of this will work!
 </div>
 </div>
 <div class="sect2">
-<h3 id="_interpreting_results_from_the_m_n_analyses_and_pitfalls">7.5. Interpreting results from the m/n analyses and pitfalls</h3>
+<h3 id="_interpreting_results_from_the_em_m_n_em_analyses_and_pitfalls">7.5. Interpreting results from the <em>m/n</em> analyses and pitfalls</h3>
 <div class="paragraph">
 <p>We have tested these routines across a number of landscapes and hope that other workers will find them useful and enhance their own work. Here we explore a number of issues we have come across in interpreting results from these analyses.</p>
 </div>
 <div class="sect3">
 <h4 id="_uncertainty_and_confidence_in_the_results">7.5.1. Uncertainty and confidence in the results</h4>
-
+<div class="paragraph">
+<p>There are issues in both slope-area analysis and chi-based methods of estimating concavity (\(\theta\)) and the <em>m/n</em> ratio. S-A data is extremely noisy, whereas the chi method makes some assumptions about how channels erode. In real landscapes, there in no way to test if the extracted <em>m/n</em> ratio is correct.</p>
+</div>
+<div class="paragraph">
+<p>We have attempted to understand how well these methods do using numerical models that force to opey the stream power law. This has the obvious drawback that we don&#8217;t know if the stream power law is representative of channel erosion processes in any given landscape. But at a minimum we can force an <em>m/n</em> ratio under idealised, simulated conditions and see how well the methods are able to reproduce the correct <em>m/n</em> ratio.</p>
+</div>
+<div class="paragraph">
+<p>We have performed a number of simulations where uplift (and thus erosion) rates vary in time, where the <em>n</em> exponent varies between model runs, and where both uplift and erodibility vary in space. The latter two violate assumption of the chi method but in real landscapes many of these assumptions will be violated and we wanted to know if one could still extract reasonable approximations of the <em>m/n</em> ratio.</p>
+</div>
+<div class="paragraph">
+<p>What we found was that slope area analysis performs the worst when reconstructing <em>m/n</em> values, whereas our monte carlo points method performs the best: even in highly perturbed landscapes the true <em>m/n</em> ratio fell within the error bounds of the compute <em>m/n</em> ratio. For full reporting of these results please see our upcoming ESURF paper (as of 14-September we are not finished but we hope to submit in October).</p>
+</div>
+<div class="paragraph">
+<p><strong>For slope-area analysis</strong>, we tried to estimate uncertainty initially by getting the uncertainties on the regression coefficients of log S-log A data (we did this with bootstrapping and looking standard uncertainties of regression coefficients found in typical statistical packages). The problem with this is that there are very large numbers of data points and these uncertainty metrics are reduced (i.e. lower uncertanty) as more data is added. So the regression coefficents, according to these metrics, are very certain, but compared to model runs the coefficients are wrong! Our appraoch has been to estimate the <em>m/n</em> ratio for all tributaries, and for segments of the channel network, as well as for all data and for the truck channel, and report all the values. These have very high ranges of values in most landscapes. Overall our reccomendation is that if slope area data agrees with chi-based metrics that one can have high confidence in the estimated <em>m/n</em> values but otherwise slope area data should be treated with caution.</p>
+</div>
+<div class="paragraph">
+<p><strong>For chi-based analyses</strong>, we tried several methods. Firstly, we compare the fit between all tributary data and the trunk channel. Since all data is used, there are no measures of uncertainty. This is quite unstatisfying so the second method we used was to randomly select a fixed number of points at fixed locations upstream of the tributary junction, calculate the likelyhood based on these points, and iterate using this method several hundred or even thousand times. This allows is to calculate a range of maximum likelihood estimators (MLE) for each <em>m/n</em> ratio, and we then can calculate the uncertainty bands. We do this by using the minimum MLE value for the most likely <em>m/n</em> and then seeing where this is equal to the maximum value of MLE for other <em>m/n</em> ratios.</p>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_parameter_values_that_appear_to_influence_results">7.5.2. Parameter values that appear to influence results</h4>
-
+<div class="paragraph">
+<p>There are a few parameter values that can influence results.</p>
 </div>
-<div class="sect3">
-<h4 id="_some_typical_landscapes">7.5.3. Some typical landscapes</h4>
-
+<div class="ulist">
+<ul>
+<li>
+<p>Basin selection is quite important, especially for chi methods. Our chi methods compare the chi-elevation profiles of tributaries to the trunk channel. This means that if your basin has no or few tributaries you will not get particulary robust results. This is also the case if all of your tributaries are quite short. You can increase the number and lenght of tributaries by either increasing the basin size (so increasing <code>minimum_basin_size_pixels</code> and <code>minimum_basin_size_pixels</code>) or by reducing the threshold contributing area to initiate a channel (<code>threshold_contributing_pixels</code>).</p>
+</li>
+<li>
+<p>Avoiding fan surfaces or alluvial surfaces: Our tools are mainly designed for mountain landscapes. Alluvial fans and alluvial channel have different concavities than bedrock channels. In addiiton, these tend to be low relief surfaces so slope values are very sensitive to topographic errors. By turning <code>remove_seas: true</code> and setting the <code>minimum_elevation</code> to a value that is the approximate elevation of your mountain front.</p>
+</li>
+<li>
+<p>The <code>collinearity_MLE_sigma</code> should be increased if you are finding that most of your <em>m/n</em> ratios are coming out as the same, very low value. Sometimes channels have low concavity! But sometimes the MLEs in a basin are all zero and in this case the code defaults to the lowest <em>m/n</em> value given (<code>start_movern</code>). You can tell if channels are actually low concavity by looking at the chi plots.</p>
+</li>
+</ul>
 </div>
-<div class="sect3">
-<h4 id="_advice_for_presenting_results">7.5.4. Advice for presenting results</h4>
-
-</div>
-<div class="sect3">
-<h4 id="_troubleshooting">7.5.5. Troubleshooting</h4>
-
 </div>
 </div>
 <div class="sect2">
@@ -3138,31 +3166,178 @@ You need to run the analysis before any of this will work!
 <div class="paragraph">
 <p>We expect most users will go straight to the figures generated by our python script, which should be publication quality. However, we list here the file outputs so you can inspect the data outputs ith which you can create your own plotting routines, if you so wish. We believe data should be transparent and reproducible, so all our python plots make figures from data that has been printed to file: you will always be able to see the data behind the figures. Please do not abuse our willingness to do this by taking our data an publishing horrible figures created in excel.</p>
 </div>
+<div class="sect3">
+<h4 id="_files_created_by_the_strong_chi_mapping_tool_strong">7.6.1. Files created by the <strong>chi mapping tool</strong></h4>
+<div class="paragraph">
+<p>These files will be created by the <strong>chi mapping tool</strong> and will be located in the directory designated by the <code>read path</code> parameter in the parameter file.</p>
+</div>
 <table class="tableblock frame-all grid-all spread">
 <caption class="title">Table 16. Raster files</caption>
 <colgroup>
-<col style="width: 20%;">
-<col style="width: 20%;">
-<col style="width: 20%;">
-<col style="width: 40%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top">Filename contains</th>
 <th class="tableblock halign-left valign-top">File type</th>
 <th class="tableblock halign-left valign-top">Description</th>
-<th class="tableblock halign-left valign-top">estimate_best_fit_movern</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">You need to switch this to <code>true</code> to perform all the analysis for channel concavity or <em>m/n</em>.</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">collinearity_MLE_sigma</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_hs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">raster</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The hillshade raster.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_AllBasins</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">raster</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A raster with the basins. The numbering is based on the basin keys.</p></td>
 </tr>
 </tbody>
 </table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 17. Files used for plotting channels, basins and profiles</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Filename contains</th>
+<th class="tableblock halign-left valign-top">File type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_AllBasinsInfo.csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A csv file that contains some information about the basins and their outlets. Used in our python plotting routines.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_chi_data_map</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This contains data for the channel pixels that is used to plot channels, such as location of the pixels (in lat-long WGS1984), elevation, flow distance, drainage area, and information about the basin and source key (the latter being a key to identify individual tributaries). Chi is also reporte in this file, it is defaulted to <em>m/n</em> = 0.5. To look at profiles with differen <em>m/n</em> values use <code>_movern</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_movern</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This prints the chi-elevation profiles. The data includes locations f the channel points, and also chi coordinate for each point for every <em>m/n</em> value analysed.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 18. Files containing statistics from chi-based methods</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Filename contains</th>
+<th class="tableblock halign-left valign-top">File type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_movernstats_XX_fullstats</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Contains the MLE and RMSE values for each tributary in each basin when compared to the trunk stream. Every <em>m/n</em> value has its own file, so if <em>m/n</em> = 0.1, the filename would be called <code>_movernstats_0.1_fullstats</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_movernstats_basinstats</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This takes the total MLE for each basin, which is the product of the MLE values for each tributary in the basin, and reports these for each <em>m/n</em> value investigated. Essentially collates MLE information from the <code>_movernstats_XX_fullstats</code> files.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_MCpoint_XX_pointsMC</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This reports on the results from the Monte-Carlo points approach. For each <em>m/n</em> value, it samples points for <code>N</code> iterations (determined by the <code>MC_point_iterations</code> flag) and then caluculates summary statistics for each basin. These include minimum, first quartile, median, third quartile and maximum MLE values. Each <em>m/n</em> ratio gets its own file, so if <em>m/n</em> = 1 the file is called <code>_MCpoint_0.1_pointsMC.csv</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_MCpoint_points_MC_basinstats</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This reports on the results from the Monte-Carlo points approach, compiling data from the <code><em>MCpoint_XX_pointsMC.csv</code>. The file reports on each basin, with the first quartial, median and third quartial reported for every _m/n</em> analysed. Note that now that I have gone through the trouble of writing this documentation it is unlikeley these idiotic filenames will change. I take full responsiblity. Mi dispiache. SMM</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_movern_residuals_median</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This reports the median value of all the residuals of the full chi dataset between tributaries and the trunk stream. The idea here was that the best fit <em>m/n</em> value might correspond to where residuals were evenly distributed above and below the main stem channel. After testing this, however, we found that this always overestimated <em>m/n</em>, so we do not include it in the summary plots. Retained here for completeness. The first and thrird quartile of residuals are also reported in thier own files (<code>_movern_residuals_Q1</code> and <code>_movern_residuals_Q3</code>).</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 19. Files associated with slope-area analysis</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Filename contains</th>
+<th class="tableblock halign-left valign-top">File type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_SAvertical</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This is the slope area data. Slope is calculated over a fixed vertical interval, where the area is calculated in the middle of this vertical interval. The interval is set by <code>SA_vertical_interval</code>. The vertical intervals do not cross tributary junctions so there should be no large jumps in drainage area within a verical interval.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_SAbinned</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This is the slope area data averaged into log bins. Summary statistics are provided for each bin (see column headings). The width of the log bins is determined by <code>log_A_bin_width</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_SAsegmented</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This contains information about the segments in log S- log A space determined by the segmentation algorithm of <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al. 2014</a>. The minimum segment length is set by <code>slope_area_minimum_segment_length</code>. Regression statistics (slope, intercept, R<sup>2</sup>) and <a href="https://en.wikipedia.org/wiki/Durbin%E2%80%93Watson_statistic">Durbin-Watson</a> statistics are reported for each segment.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_files_created_by_the_python_script_plotmovernanalysis_py">7.6.2. Files created by the python script PlotMoverNAnalysis.py</h4>
+<div class="paragraph">
+<p>These files will be created by <strong>PlotMoverNAnalysis.py * and will be in the *summary_plots</strong> directory.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 20. Summary files</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Filename contains</th>
+<th class="tableblock halign-left valign-top">File type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_movern_summary</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This contains summary data on the most likely <em>m/n</em> ratio using a number of different methods. The methods are labeled in the column headers.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">_SA_segment_summary</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">csv</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This contains the summary data on the best fit <em>m/n</em> values of slope-area segments in each basin.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_all_options_used_in_the_m_n_analyses">7.7. All options used in the m/n analyses</h3>
@@ -3172,7 +3347,7 @@ You need to run the analysis before any of this will work!
 <div class="sect3">
 <h4 id="_parameters_for_exploring_the_em_m_n_em_ratio_with_chi_analysis_2">7.7.1. Parameters for exploring the <em>m/n</em> ratio with chi analysis</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 17. Parameters for trying to constrain the <em>m/n</em> ratio using chi analysis</caption>
+<caption class="title">Table 21. Parameters for trying to constrain the <em>m/n</em> ratio using chi analysis</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -3296,7 +3471,7 @@ You need to run the analysis before any of this will work!
 <div class="sect3">
 <h4 id="_parameters_for_exploring_the_em_m_n_em_ratio_with_slope_area_analysis_2">7.7.2. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 18. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</caption>
+<caption class="title">Table 22. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
