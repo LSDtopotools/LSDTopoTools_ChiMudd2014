@@ -414,8 +414,8 @@ float get_median(vector<float> y_data)
   if ( (n_data_points % 2) == 0)
   {
     dMedian = ( (y_data[n_data_points/2] + (y_data[(n_data_points/2) - 1]))/2.0 );
-  } 
-  else 
+  }
+  else
   {
     dMedian = (y_data[n_data_points/2]);
   }
@@ -433,8 +433,8 @@ float get_median_sorted(vector<float> sorted_y_data)
   if ((n_data_points % 2) == 0)
   {
     dMedian = ((sorted_y_data[n_data_points/2] + (sorted_y_data[(n_data_points/2) - 1]))/2.0 );
-  } 
-  else 
+  }
+  else
   {
     dMedian = (sorted_y_data[n_data_points/2]);
   }
@@ -448,9 +448,9 @@ float get_median_absolute_deviation(vector<float> y_data, float median)
 {
   int n_data_points = y_data.size();
   sort(y_data.begin(),y_data.end());
-  
+
   vector<float> deviations;
-  
+
   for (int i = 0; i<n_data_points; i++)
   {
     deviations.push_back( fabs(median-y_data[i]) );
@@ -468,7 +468,7 @@ vector<float> get_IQR_and_median(vector<float> y_data)
   int n_data_points = y_data.size();
 
   sort(y_data.begin(),y_data.end());
-  
+
   float Min = y_data[0];
   float Max = y_data[n_data_points-1];
 
@@ -479,27 +479,27 @@ vector<float> get_IQR_and_median(vector<float> y_data)
   {
     // the data is even so we get the average of the two middle values.
     dMedian = ((y_data[n_data_points/2] + (y_data[(n_data_points/2) - 1]))/2.0);
-    
+
     // each half space contains this many nodes. We need the median of this half space
     int half_space = n_data_points/2;
-    
+
     // slice the vector in two
     vector<float>::iterator first = y_data.begin() + half_space;
     //vector<float>::iterator last = y_data.begin() + half_space+1;
     vector<float> First_Slice(y_data.begin(), first);
     vector<float> Second_Slice(first, y_data.end());
-    
+
     dLQ = get_median_sorted(First_Slice);
     dUQ = get_median_sorted(Second_Slice);
-  } 
-  else 
+  }
+  else
   {
     dMedian = (y_data[n_data_points/2]);
     int half_space = n_data_points/2;
     vector<float>::iterator first = y_data.begin() + half_space;
     vector<float> First_Slice(y_data.begin(), first+1);
     vector<float> Second_Slice(first, y_data.end());
-    
+
     dLQ = get_median_sorted(First_Slice);
     dUQ = get_median_sorted(Second_Slice);
   }
@@ -509,7 +509,7 @@ vector<float> get_IQR_and_median(vector<float> y_data)
   all_the_stats.push_back(dMedian);
   all_the_stats.push_back(dUQ);
   all_the_stats.push_back(Max);
-  
+
   return all_the_stats;
 }
 
@@ -1024,39 +1024,54 @@ void quantile_quantile_analysis_defined_percentiles(vector<float>& data, vector<
 // [8] median absolute deviation (MAD)
 vector<float> calculate_descriptive_stats(vector<float>& data)
 {
-  // get the number of data points
+  // get the number of data points and set the vector
   int n_data = int(data.size());
-
-  // first sort the data
-  sort(data.begin(), data.end());
-  
-  float mean = get_mean(data);
-  float std_dev = get_standard_deviation(data, mean);
-  float std_err = get_standard_error(data, std_dev);
-  
-  // get the mean and standard deviation
-  float data_sum = 0;
-  for (int i = 0; i<n_data; i++)
-  {
-    data_sum+= data[i];
-  }
-  
-  vector<float> IQR = get_IQR_and_median(data);
-  float MAD = get_median_absolute_deviation(data, IQR[2]);
-  
   vector<float> descriptive_stats;
-  descriptive_stats.push_back(IQR[0]);
-  descriptive_stats.push_back(IQR[1]);
-  descriptive_stats.push_back(IQR[2]);
-  descriptive_stats.push_back(IQR[3]);
-  descriptive_stats.push_back(IQR[4]);
-  descriptive_stats.push_back(mean);
-  descriptive_stats.push_back(std_dev);
-  descriptive_stats.push_back(std_err);
-  descriptive_stats.push_back(MAD);
-  
-  return descriptive_stats;
-  
+
+  // TEMPORARY BUg TRACKER - we'll have to find a solution at some point
+  if(n_data == 0)
+  {
+    cout<< "DEV-DEBUG STATEMENT: LSDStatsTools - calculate_descriptive_stats - void vector feeded" << endl;
+    for(int i = 0;i<9;i++ )
+    {
+      descriptive_stats.push_back(-9999);
+    }
+    return descriptive_stats;
+  }
+  else
+  {
+    // first sort the data
+    sort(data.begin(), data.end());
+
+    float mean = get_mean(data);
+    float std_dev = get_standard_deviation(data, mean);
+    float std_err = get_standard_error(data, std_dev);
+
+    // get the mean and standard deviation
+    float data_sum = 0;
+    for (int i = 0; i<n_data; i++)
+    {
+      data_sum+= data[i];
+    }
+
+    vector<float> IQR = get_IQR_and_median(data);
+    float MAD = get_median_absolute_deviation(data, IQR[2]);
+
+
+    descriptive_stats.push_back(IQR[0]);
+    descriptive_stats.push_back(IQR[1]);
+    descriptive_stats.push_back(IQR[2]);
+    descriptive_stats.push_back(IQR[3]);
+    descriptive_stats.push_back(IQR[4]);
+    descriptive_stats.push_back(mean);
+    descriptive_stats.push_back(std_dev);
+    descriptive_stats.push_back(std_err);
+    descriptive_stats.push_back(MAD);
+
+    return descriptive_stats;
+  }
+
+
 }
 
 
@@ -1225,10 +1240,10 @@ vector<float> bootstrap_linear_regression(vector<float>& x_data, vector<float>& 
   vector<float> residuals;
   long seed1 = time(NULL);
   int N_nodes = int(x_data.size());
-  
+
   vector<float> regress_slope;
   vector<float> regress_intercept;
-  
+
   for(int i = 0; i<N_iterations; i++)
   {
     vector<float> this_x;
@@ -1237,31 +1252,31 @@ vector<float> bootstrap_linear_regression(vector<float>& x_data, vector<float>& 
     {
       float this_prob = ran3(&seed1);
       //cout << "node: " << node << " ap:" << acceptance_prob << " thisProb = " << this_prob << endl;
-      
+
       if (this_prob > acceptance_prob)
       {
         this_x.push_back( x_data[node]);
         this_y.push_back( y_data[node]);
-        
+
         //cout << "x: " << x_data[node] << " y: " << y_data[node] << endl;
       }
 
-      
-      
+
+
     }
     // get the regression
     vector<float> regress_coeff = simple_linear_regression(this_x, this_y, residuals);
     regress_slope.push_back(regress_coeff[0]);
     regress_intercept.push_back(regress_coeff[1]);
-    
+
     //cout << "RS: " << regress_coeff[0] << " RI: " << regress_coeff[1] << endl;
-    
-    
+
+
   }
   // Now the slope and intercept will be contained in regress_slope and regress_intercept
-  // vectors. These can be used to get median and confidence interval numbers. 
+  // vectors. These can be used to get median and confidence interval numbers.
   vector<float> descriptive_stats_slope =  calculate_descriptive_stats(regress_slope);
-  
+
   //cout << "Got the descriptive stats from the bootstrap: " << endl;
   //cout << "[0] minimum: " << descriptive_stats_slope[0] << endl;
   //cout << "[1] first quartile: " << descriptive_stats_slope[1] << endl;
@@ -1272,9 +1287,9 @@ vector<float> bootstrap_linear_regression(vector<float>& x_data, vector<float>& 
   //cout << "[6] standard deviation: " << descriptive_stats_slope[6] << endl;
   //cout << "[7] standard error: " << descriptive_stats_slope[7] << endl;
   //cout << "[8] median absolute deviation (MAD): " << descriptive_stats_slope[8] << endl;
-  
+
   return descriptive_stats_slope;
-  
+
 }
 
 
@@ -2552,13 +2567,13 @@ vector< vector < vector<int> > > partition_driver_to_vecvecvec(int k, int minimu
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // This returns combinations. It prints to screen.
-// The vector v is empty; it is used for storing data. 
+// The vector v is empty; it is used for storing data.
 // We using n choose Maxk (so say, 10 integers in combos of three means n = 10, k =3)
-// Maxk is the maximum numer of integers you use.  
+// Maxk is the maximum numer of integers you use.
 // from
 // http://www.cs.utexas.edu/users/djimenez/utsa/cs3343/lecture25.html
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-void combinations (vector<int> v, int start, int n, int k, int maxk) 
+void combinations (vector<int> v, int start, int n, int k, int maxk)
 {
   int i;
   if (int(v.size()) <= maxk)
@@ -2569,11 +2584,11 @@ void combinations (vector<int> v, int start, int n, int k, int maxk)
 
   // k here counts through positions in the maxk-element v.
   //if k > maxk, then the v is complete and we can use it.
-  if (k > maxk) 
+  if (k > maxk)
   {
     //insert code here to use combinations as you please */
     //cout << "maxk is: " << maxk << endl;
-    for (i=1; i<=maxk; i++) 
+    for (i=1; i<=maxk; i++)
     {
       cout << v[i] << " ";
     }
@@ -2583,7 +2598,7 @@ void combinations (vector<int> v, int start, int n, int k, int maxk)
 
   // for this k'th element of the v, try all start..n
   //elements in that position
-  for (i=start; i<=n; i++) 
+  for (i=start; i<=n; i++)
   {
     v[k] = i;
 
@@ -2597,15 +2612,15 @@ void combinations (vector<int> v, int start, int n, int k, int maxk)
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // This returns combinations. It prints to screen.
-// The vector v is empty; it is used for storing data. 
+// The vector v is empty; it is used for storing data.
 // We using n choose Maxk (so say, 10 integers in combos of three means n = 10, k =3)
-// Maxk is the maximum numer of integers you use.  
+// Maxk is the maximum numer of integers you use.
 // from
 // http://www.cs.utexas.edu/users/djimenez/utsa/cs3343/lecture25.html
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-void combinations (vector<int> v, int start, int n, int k, int maxk, vector<vector <int> >& these_combinations) 
+void combinations (vector<int> v, int start, int n, int k, int maxk, vector<vector <int> >& these_combinations)
 {
-  
+
   int i;
   if (int(v.size()) <= maxk)
   {
@@ -2615,12 +2630,12 @@ void combinations (vector<int> v, int start, int n, int k, int maxk, vector<vect
 
   // k here counts through positions in the maxk-element v.
   //if k > maxk, then the v is complete and we can use it.
-  if (k > maxk) 
+  if (k > maxk)
   {
     //insert code here to use combinations as you please */
     //cout << "maxk is: " << maxk << endl;
     vector<int> this_combo;
-    for (i=1; i<=maxk; i++) 
+    for (i=1; i<=maxk; i++)
     {
       this_combo.push_back( v[i]);
     }
@@ -2630,7 +2645,7 @@ void combinations (vector<int> v, int start, int n, int k, int maxk, vector<vect
 
   // for this k'th element of the v, try all start..n
   //elements in that position
-  for (i=start; i<=n; i++) 
+  for (i=start; i<=n; i++)
   {
     v[k] = i;
 
@@ -2645,14 +2660,14 @@ void combinations (vector<int> v, int start, int n, int k, int maxk, vector<vect
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // This just takes two inputs, the number of integers (starting from 1) and
 // the "choose" variable (k)
-vector< vector<int> > combinations(int n, int k, bool zero_indexed) 
+vector< vector<int> > combinations(int n, int k, bool zero_indexed)
 {
-  
+
   vector< vector<int> > combovecvec;
   vector<int> v(n+1);
-  
+
   combinations(v, 1, n, 1, k,combovecvec);
-  
+
   // Flag for zero indexing. A stupid, brute force way to do it but it works
   if (zero_indexed)
   {
@@ -4543,7 +4558,7 @@ void bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, float bi
       //cout << "Element of median: " << floor(YDataSize/2) << endl;
       //cout << "Median is: " << YDataVector[floor(YDataSize/2)] << endl;
       MedianY[bin_id] = YDataVector[floor(YDataSize/2)];
-      
+
     }
   }
 
@@ -4604,18 +4619,18 @@ void bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, float bi
 //          InputArrayX
 //
 // This includes a number of extra statistics for the dependent variable
-// 
+//
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 void bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, float bin_width,
-              vector<float>& midpoints_output, vector<float>&  MeanX_output, 
+              vector<float>& midpoints_output, vector<float>&  MeanX_output,
               vector<float>&  MedianX_output, vector<float>&  StandardDeviationX_output,
-              vector<float>& StandardErrorX_output, vector<float>& MADX_output, 
+              vector<float>& StandardErrorX_output, vector<float>& MADX_output,
               vector<float>& MeanY_output, vector<float>& MinimumY_output,
               vector<float>& FirstQuartileY_output, vector<float>& MedianY_output,
               vector<float>& ThirdQuartileY_output, vector<float>& MaximumY_output,
-              vector<float>&  StandardDeviationY_output, vector<float>& StandardErrorY_output, 
-              vector<float>& MADY_output, vector<int>& number_observations_output, 
-              float NoDataValue) 
+              vector<float>&  StandardDeviationY_output, vector<float>& StandardErrorY_output,
+              vector<float>& MADY_output, vector<int>& number_observations_output,
+              float NoDataValue)
 
 {
 
@@ -4727,8 +4742,8 @@ void bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, float bi
   vector<float> StandardDeviationY(NBins,0.0);
   vector<float> StandardErrorY(NBins,0.0);
   vector<float> MADY(NBins,0.0);
-  
-    
+
+
   vector<float> MedianX(NBins,0.0);
   vector<float> StandardDeviationX(NBins,0.0);
   vector<float> StandardErrorX(NBins,0.0);
@@ -4747,7 +4762,7 @@ void bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, float bi
 
       vector<float> descriptive_stats_X = calculate_descriptive_stats(this_binned_X);
       vector<float> descriptive_stats_Y = calculate_descriptive_stats(this_binned_Y);
-      
+
       // get stats for Y data
       MinimumY[bin_id] = descriptive_stats_Y[0];
       FirstQuartileY[bin_id] = descriptive_stats_Y[1];
@@ -4757,15 +4772,15 @@ void bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, float bi
       StandardDeviationY[bin_id] = descriptive_stats_Y[6];
       StandardErrorY[bin_id] = descriptive_stats_Y[7];
       MADY[bin_id] = descriptive_stats_Y[8];
-  
+
       // Get stats for X data
       MedianX[bin_id] = descriptive_stats_X[2];
       StandardDeviationX[bin_id] = descriptive_stats_X[6];
       StandardErrorX[bin_id] = descriptive_stats_X[7];
       MADX[bin_id] = descriptive_stats_X[8];
-      
-      
-      
+
+
+
     }
   }
 
@@ -4778,7 +4793,7 @@ void bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, float bi
   StandardDeviationX_output = StandardDeviationX;
   StandardErrorX_output = StandardErrorX;
   MADX_output = MADX;
-  
+
   MeanY_output = MeanY;
   MinimumY_output = MinimumY;
   FirstQuartileY_output = FirstQuartileY;
@@ -4788,7 +4803,7 @@ void bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, float bi
   StandardDeviationY_output = StandardDeviationY;
   StandardErrorY_output = StandardErrorY;
   MADY_output = MADY;
-  
+
   number_observations_output = number_observations;
 }
 

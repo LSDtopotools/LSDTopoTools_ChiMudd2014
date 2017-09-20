@@ -314,7 +314,19 @@ void LSDSpatialCSVReader::load_csv_data(string filename)
         }
         else if (i == longitude_index)
         {
-          temp_longitude.push_back( atof(this_string_vec[i].c_str() ) );
+          float this_longitude = atof(this_string_vec[i].c_str() );
+          
+          /*
+          if (this_longitude < -180)
+          {
+            this_longitude = 360+this_longitude;
+          }
+          if (this_longitude > 180)
+          {
+            this_longitude = this_longitude-360;
+          }
+          */
+          temp_longitude.push_back( this_longitude );
 
         }
         else
@@ -782,6 +794,7 @@ void LSDSpatialCSVReader::burn_raster_data_to_csv(LSDRaster& ThisRaster,string c
   }
   else
   {
+    //cout << "Let me get the x and y data." << endl;
     get_x_and_y_from_latlong(UTME,UTMN);
     int n_nodes = int(UTME.size());
     for(int i = 0; i<n_nodes; i++)
@@ -791,6 +804,7 @@ void LSDSpatialCSVReader::burn_raster_data_to_csv(LSDRaster& ThisRaster,string c
       this_UTMN = UTMN[i];
 
       this_value = ThisRaster.get_value_of_point(this_UTME, this_UTMN);
+      //cout << "Node is: " << i << " and value is: " << this_value << endl;
       s << this_value;
       new_column_data.push_back(s.str());
     }
@@ -1066,7 +1080,22 @@ void LSDSpatialCSVReader::print_data_to_csv(string csv_outname)
   for (int i = 0; i < N_nodes; i++)
   {
     outfile.precision(9);
-    outfile << latitude[i] << "," << longitude[i];
+    
+    double this_longitude;
+    if (longitude[i] > 180)
+    {
+      this_longitude = longitude[i]-360.0;
+    }
+    else if (longitude[i] < -180)
+    {
+      this_longitude = 360.0+longitude[i];
+    }
+    else
+    {
+      this_longitude = longitude[i];
+    }
+    
+    outfile << latitude[i] << "," << this_longitude;
     for( map<string, vector<string> >::iterator it = data_map.begin(); it != data_map.end(); ++it)
     {
       outfile << "," <<it->second[i];
@@ -1099,8 +1128,24 @@ void LSDSpatialCSVReader::print_data_to_geojson(string json_outname)
     int n_nodes = int(latitude.size());
     for(int i = 0; i< n_nodes; i++)
     {
+      double this_longitude;
+      if (longitude[i] > 180)
+      {
+        this_longitude = longitude[i]-360.0;
+      }
+      else if (longitude[i] < -180)
+      {
+        this_longitude = 360.0+longitude[i];
+      }
+      else
+      {
+        this_longitude = longitude[i];
+      }
+      
+      
       string first_bit = "{ \"type\": \"Feature\", \"properties\": { \"latitude\": ";
-      string second_bit = dtoa(latitude[i])+", \"longitude\": "+ dtoa(longitude[i]);
+      //string second_bit = dtoa(latitude[i])+", \"longitude\": "+ dtoa(this_longitude);
+      string second_bit = ", \"longitude\": ";
 
       string third_bit;
       for( map<string, vector<string> >::iterator it = data_map.begin(); it != data_map.end(); ++it)
@@ -1108,9 +1153,12 @@ void LSDSpatialCSVReader::print_data_to_geojson(string json_outname)
         third_bit += ", \""+it->first+"\": "+(it->second)[i];
       }
       string fourth_bit = " }, \"geometry\": { \"type\": \"Point\", \"coordinates\": [ ";
-      string fifth_bit = dtoa(longitude[i]) +","+ dtoa(latitude[i]) +" ] } },";
+      //string fifth_bit = dtoa(this_longitude) +","+ dtoa(latitude[i]) +" ] } },";
+      string fifth_bit = " ] } },";
 
-      outfile << first_bit+second_bit+third_bit+fourth_bit+fifth_bit << endl;
+      outfile << first_bit << latitude[i] << second_bit << this_longitude
+              << third_bit+fourth_bit << this_longitude << "," << latitude[i] << fifth_bit 
+              << endl;
     }
     outfile << "]" << endl;
     outfile << "}" << endl;

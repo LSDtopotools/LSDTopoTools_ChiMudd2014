@@ -693,6 +693,9 @@ class LSDRaster
   /// @date 16/02/2014
   void DSSetFeatureCorners(int featuresize, float scale);
 
+
+
+
   /// @brief This is the square sampling step of the diamond square algorithm: it takes
   /// the average of the four corners and adds a random number to set the centrepoint
   /// of a square.
@@ -731,7 +734,7 @@ class LSDRaster
   /// in each direction to have rows and columns that are the nearest powers
   /// of 2. The xllocation and yllocation data values are preserved. The function
   /// returns a pseudo fractal landscape generated with the diamond square algorithm
-  /// Believe it or not this algorithm is absed on code poseted by Notch, the creator of Minecraft, 
+  /// Believe it or not this algorithm is absed on code poseted by Notch, the creator of Minecraft,
   /// who then had it modified by Charles Randall
   /// https://www.bluh.org/code-the-diamond-square-algorithm/
   /// @param feature order is an interger n where the feature size consists of 2^n nodes.
@@ -742,6 +745,7 @@ class LSDRaster
   /// @author SMM
   /// @date 16/02/2014
   LSDRaster DiamondSquare(int feature_order, float scale);
+
 
   // Functions relating to shading, shadowing and shielding
 
@@ -2096,7 +2100,7 @@ class LSDRaster
   /// @author MDH
   /// @date 26/07/2017
   void MaskRaster(LSDIndexRaster Mask);
-  
+
   /// @brief method to locate channel pixels outlined by Lashermes.
   ///
   /// @detail picks departure from gaussian behaviour, then uses this as a threshold to create a binary dataset.

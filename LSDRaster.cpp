@@ -2641,7 +2641,7 @@ void LSDRaster::DiamondSquare_SampleStep(int stepsize, float scale)
 // it has the same xllcorner and yllcorner as the original raster,
 // but is resized so the NRows and NCols are to the closed power of 2
 //
-// Believe it or not I lifted this algorithm from Notch, the creator of Minecraft, 
+// Believe it or not I lifted this algorithm from Notch, the creator of Minecraft,
 // who posted it online and then had it modified by Charles Randall
 // https://www.bluh.org/code-the-diamond-square-algorithm/
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -2707,7 +2707,6 @@ LSDRaster LSDRaster::DiamondSquare(int feature_order, float scale)
     return DSRaster;
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
 
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -10822,7 +10821,7 @@ void LSDRaster::MaskRaster(LSDIndexRaster Mask)
   Array2D<float> MaskedArray(NRows,NCols,NoDataValue);
   Array2D<int> MaskArray = Mask.get_RasterData();
   int NDV = Mask.get_NoDataValue();
-  
+
   for (int i=0; i<NRows; ++i)
   {
     for (int j=0; j<NCols; ++j)

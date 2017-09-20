@@ -22,7 +22,8 @@ SOURCES=chi_mapping_tool.cpp \
              ../LSDChiTools.cpp \
              ../LSDParameterParser.cpp \
              ../LSDSpatialCSVReader.cpp \
-             ../LSDCRNParameters.cpp
+             ../LSDCRNParameters.cpp \
+             ../LSDRasterMaker.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=chi_mapping_tool.exe
 
