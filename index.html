@@ -469,12 +469,13 @@ MathJax.Hub.Config({
 <li><a href="#_basic_data_output_before_calculating_chi">4.3.4. Basic data output (before calculating chi)</a></li>
 <li><a href="#_basic_parameters_for_the_chi_coordinate">4.3.5. Basic parameters for the chi coordinate</a></li>
 <li><a href="#_burning_rasters_to_csv">4.3.6. Burning rasters to csv</a></li>
-<li><a href="#_parameters_for_exploring_the_em_m_n_em_ratio_with_chi_analysis">4.3.7. Parameters for exploring the <em>m/n</em> ratio with chi analysis</a></li>
-<li><a href="#_parameters_for_exploring_the_em_m_n_em_ratio_with_slope_area_analysis">4.3.8. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</a></li>
-<li><a href="#_parameters_for_segmentation_of_channels">4.3.9. Parameters for segmentation of channels</a></li>
-<li><a href="#_printing_of_simple_chi_maps">4.3.10. Printing of simple chi maps</a></li>
-<li><a href="#_chi_maps_with_segmentation_and_basin_and_channel_selection">4.3.11. Chi maps with segmentation and basin and channel selection</a></li>
-<li><a href="#_parameters_for_dealing_with_discharge_rather_than_drainage_area">4.3.12. Parameters for dealing with discharge rather than drainage area</a></li>
+<li><a href="#_integrating_lithologic_information">4.3.7. Integrating lithologic information</a></li>
+<li><a href="#_parameters_for_exploring_the_em_m_n_em_ratio_with_chi_analysis">4.3.8. Parameters for exploring the <em>m/n</em> ratio with chi analysis</a></li>
+<li><a href="#_parameters_for_exploring_the_em_m_n_em_ratio_with_slope_area_analysis">4.3.9. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</a></li>
+<li><a href="#_parameters_for_segmentation_of_channels">4.3.10. Parameters for segmentation of channels</a></li>
+<li><a href="#_printing_of_simple_chi_maps">4.3.11. Printing of simple chi maps</a></li>
+<li><a href="#_chi_maps_with_segmentation_and_basin_and_channel_selection">4.3.12. Chi maps with segmentation and basin and channel selection</a></li>
+<li><a href="#_parameters_for_dealing_with_discharge_rather_than_drainage_area">4.3.13. Parameters for dealing with discharge rather than drainage area</a></li>
 </ul>
 </li>
 <li><a href="#_example_parameter_files">4.4. Example parameter files</a></li>
@@ -493,7 +494,7 @@ MathJax.Hub.Config({
 <li><a href="#_using_python">5.2. Using python</a>
 <ul class="sectlevel3">
 <li><a href="#_setting_up_python">5.2.1. Setting up Python</a></li>
-<li><a href="#_setting_up_python_using_a_conda_virtual_environment">5.2.2. Setting up python using a conda virtual environment</a></li>
+<li><a href="#_doing_this_without_the_code_environment_yml_code_file">5.2.2. Doing this without the <code>environment.yml</code> file</a></li>
 <li><a href="#_using_spyder">5.2.3. Using Spyder</a></li>
 <li><a href="#_getting_our_plotting_tools">5.2.4. Getting our plotting tools</a></li>
 <li><a href="#_fixing_python_gdal_in_windows">5.2.5. Fixing python gdal in windows</a></li>
@@ -705,7 +706,7 @@ the user should read <a href="http://mit.edu/perron/www/files/PerronRoyden13.pdf
 <h2 id="_getting_the_software">2. Getting the software</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We have attempted, to the best of our ability, to streamline the process of installing our software on any platform (Windows, Linux, MacOS). You will need to install a bit of software. If you have a decent internet connections this should take under an hour. The main rate limiting step is downloading files: You will need to download ~2Gb of software. This requirement is substantially reduced if you want to install on a native Linux machine.</p>
+<p>We have attempted, to the best of our ability, to streamline the process of installing our software on any platform (Windows, Linux, MacOS). You will need to install two bits of software. If you have a decent internet connection this should take under an hour. The main rate limiting step is downloading files: You will need to download ~2Gb of software. This requirement is substantially reduced if you want to install on a native Linux machine.</p>
 </div>
 <div class="sect2">
 <h3 id="_starting_up_on_your_own_linux_machine">2.1. Starting up on your own Linux machine</h3>
@@ -727,10 +728,10 @@ the user should read <a href="http://mit.edu/perron/www/files/PerronRoyden13.pdf
 <p>Download and install <a href="https://www.virtualbox.org/">virtualbox</a>.</p>
 </li>
 <li>
-<p>Download and install <a href="https://www.vagrantup.com/">vagrant</a>. You might have to restart your computer after this.</p>
+<p>Download and install <a href="https://www.vagrantup.com/">vagrant</a>. You might have to restart your computer after this. <strong>You need to install virtualbox before you install vagrant, or you might get errors.</strong></p>
 </li>
 <li>
-<p>If you are on Windows, download <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">putty.exe</a>. If you are on Linux or MacOS you can skip this (they have built-in equivalents).</p>
+<p>If you are on Windows, download <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">putty.exe</a>. If you are on Linux or MacOS you can skip this because they have built-in equivalents.</p>
 </li>
 <li>
 <p>Make a directory for your vagrant box. We tend to put ours in a directory called <code>VagrantBoxes</code>.</p>
@@ -888,7 +889,7 @@ Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetu
 </div>
 </div>
 <div class="paragraph">
-<p>In our Vagrant setup, this will install everything in the root directory (you can got there with <code>$ cd /</code>),  which is the default setup generated by our <a href="https://github.com/LSDtopotools/LSDTT_vagrantfiles">Vagrantfile</a>. If you are not in vagrant the <strong>LSDTopoTools</strong> directories will be in your home directory (you can get there with <code>$ cd ~</code>).</p>
+<p>In our Vagrant setup, this will install everything in the root directory (you can go there with <code>$ cd /</code>),  which is the default setup generated by our <a href="https://github.com/LSDtopotools/LSDTT_vagrantfiles">Vagrantfile</a>. If you are not in vagrant the <strong>LSDTopoTools</strong> directories will be in your home directory (you can get there with <code>$ cd ~</code>).</p>
 </div>
 </li>
 <li>
@@ -903,7 +904,7 @@ Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetu
 </div>
 </li>
 <li>
-<p>It turns out the <code>LSDTopoToolsSetup.py</code> tool has a number of options but we will explain these later. If you want a preview of what it does, you can call its help options:</p>
+<p>It turns out the <code>LSDTopoToolsSetup.py</code> tool has a number of options but this documentation is for the chi tools so we aren&#8217;t going to bother to explain them. However, if you want a preview of what it does, you can call its help options:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-console" data-lang="console">$ python LSDTopoToolsSetup.py -h</code></pre>
@@ -938,7 +939,7 @@ Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetu
 <div class="sect2">
 <h3 id="_get_some_data">3.1. Get some data</h3>
 <div class="paragraph">
-<p>There are many sources of topographic data, which we will not repeat here, but if you are looking for an easy interface to get either lidar or SRTM data, we suggest <a href="http://www.opentopography.org/">opentopography</a>. This site is not just for USA-based lidar but also has very nice interfaces for <a href="http://opentopo.sdsc.edu/lidar?format=sd">global data sets</a>.</p>
+<p>There are many sources of topographic data, which we will not repeat here, but if you are looking for an easy interface to get either lidar or <a href="https://www2.jpl.nasa.gov/srtm/">SRTM</a> data, we suggest <a href="http://www.opentopography.org/">opentopography</a>. This site is not just for USA-based lidar but also has very nice interfaces for <a href="http://opentopo.sdsc.edu/lidar?format=sd">global data sets</a>. It has, in our opinion, the best interface for getting <a href="https://www2.jpl.nasa.gov/srtm/">SRTM</a> data.</p>
 </div>
 <div class="paragraph">
 <p>You can also find a list of freely available lidar datasets at this site:
@@ -1078,7 +1079,20 @@ You need to convert your rasters to UTM coordinates! If you fail to do this at b
 <h2 id="_running_the_chi_analysis_options_and_outputs">4. Running the chi analysis: options and outputs</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This section explains the various options and data outputs of the <strong>chi mapping tool</strong>. If you want specific examples of usage you may wish to skip to the section: <a href="#_examples_of_chi_analysis">Examples of chi analysis</a>.</p>
+<p><strong>This section is technical and not based on tutorials!</strong> It explains the various options and data outputs of the <strong>chi mapping tool</strong>.</p>
+</div>
+<div class="paragraph">
+<p>If you want specific examples of usage you may wish to skip to theses sections</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#_examples_of_chi_analysis">Examples of chi analysis</a></p>
+</li>
+<li>
+<p><a href="#_calculating_concavity">Calculating concavity</a></p>
+</li>
+</ul>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1097,13 +1111,13 @@ These are basic notes on running <strong>LSDTopoTools</strong> on a vagrant serv
 <div class="ulist">
 <ul>
 <li>
-<p>Even though your files are the same files on the host and guest operating system, they have a different address. In Linux the files are in <code>/LSDTopoTools/</code>. In you host operating system they are in the <code>LSDTopoTools</code> folder wherever you put the <code>VagrantBoxes</code> directory.</p>
+<p>Even though your files are the same files on the host and guest operating system, they have a different address. That is, the same file will have a Linux address and an address in your host operating system (e.g., Windows). In Linux the files are in <code>/LSDTopoTools/</code>. In you host operating system they are in the <code>LSDTopoTools</code> directory within your <code>VagrantBoxes</code> directory. You will need to remember where you but the <code>VagrantBoxes</code> directory!</p>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p>So in these instructions whenever you see the <code>$</code> prompt it means you are using the guest linux machine, not your hose machine.</p>
+<p>In these instructions whenever you see the <code>$</code> prompt it means you are using the guest linux machine, which you have logged into using <code>putty.exe</code> or <code>ssh</code>, and not your host machine.</p>
 </li>
 </ul>
 </div>
@@ -1142,7 +1156,7 @@ These are basic notes on running <strong>LSDTopoTools</strong> on a vagrant serv
 <div class="sect2">
 <h3 id="_text_editors_for_modifying_files">4.1. Text editors for modifying files</h3>
 <div class="paragraph">
-<p>You will need to modify the parameter file in a text editor. You might also modify python scripts in a text editor. So you need to get a text editor. We use [Brackets] and [Atom] (these are platform independent). Sometimes we also use [PSPad].</p>
+<p>You will need to modify the parameter file in a text editor. You might also modify python scripts in a text editor. So you need to get a text editor. We use <a href="http://brackets.io/">Brackets</a> and <a href="https://atom.io/">Atom</a> (these are platform independent). Sometimes we also use <a href="http://www.pspad.com/en/">PSPad</a>.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1560,9 +1574,70 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 </table>
 </div>
 <div class="sect3">
-<h4 id="_parameters_for_exploring_the_em_m_n_em_ratio_with_chi_analysis">4.3.7. Parameters for exploring the <em>m/n</em> ratio with chi analysis</h4>
+<h4 id="_integrating_lithologic_information">4.3.7. Integrating lithologic information</h4>
+<div class="paragraph">
+<p>In some circumstances you might want to integrate lithologic, structural or tectonic information. This include burning this information onto your data of the channel network and generate some statistics about the lithologic content of each of the basins selected for analysis. This routine is an adaptation of the raster burning optimised specifically for geologic data. Outputs are formatted to be ready to use by the <a href="https://github.com/LSDtopotools/LSDMappingTools">LSDMappingTools</a> lithologic-related plotting routines.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+These option are undergoing active development. New options will be regularly added as well as a simplification of the process to prepared the dataset.
+</td>
+</tr>
+</table>
+</div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 7. Parameters for trying to constrain the <em>m/n</em> ratio using chi analysis</caption>
+<caption class="title">Table 7. Parameters for burning a raster to csv files.</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Keyword</th>
+<th class="tableblock halign-left valign-top">Input type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_litho_info</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, takes a lithologic raster data and appends it to csv data of channel points. It also generates some simple statistic in a csv file called <em>fname_SBASLITH.csv</em>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">litho_raster</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NULL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The prefix of the raster (without the <code>bil</code> extension) that contains the geological dataset. Does not include the directory path. The raster <strong>MUST</strong> be in the same directory as your input DEM. An earlier step is required to generate this file described on another part.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Once you have launched this analysis, a clipped version of your lithologic raster will be generated to the extent of your base raster for plotting purposes called <code>fname_LITHRAST.bil</code>. If your lithologic raster is significantly larger than your topographic raster it can result in long loading times, so after the first call to the <code>print_litho_info</code> routine you can replace the <code>litho_raster</code> with <code>fname_LITHRAST</code> (fname will be the name of your DEM) to save computational time.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_parameters_for_exploring_the_em_m_n_em_ratio_with_chi_analysis">4.3.8. Parameters for exploring the <em>m/n</em> ratio with chi analysis</h4>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 8. Parameters for trying to constrain the <em>m/n</em> ratio using chi analysis</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -1684,9 +1759,9 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 </table>
 </div>
 <div class="sect3">
-<h4 id="_parameters_for_exploring_the_em_m_n_em_ratio_with_slope_area_analysis">4.3.8. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</h4>
+<h4 id="_parameters_for_exploring_the_em_m_n_em_ratio_with_slope_area_analysis">4.3.9. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 8. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</caption>
+<caption class="title">Table 9. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -1754,9 +1829,9 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 </table>
 </div>
 <div class="sect3">
-<h4 id="_parameters_for_segmentation_of_channels">4.3.9. Parameters for segmentation of channels</h4>
+<h4 id="_parameters_for_segmentation_of_channels">4.3.10. Parameters for segmentation of channels</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 9. Parameters for calculating the segments of similar chi slope (\(M_{\chi}\)). Details can be found in <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al., JGR-ES 2014</a>.</caption>
+<caption class="title">Table 10. Parameters for calculating the segments of similar chi slope (\(M_{\chi}\)). Details can be found in <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al., JGR-ES 2014</a>.</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -1812,12 +1887,12 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 </table>
 </div>
 <div class="sect3">
-<h4 id="_printing_of_simple_chi_maps">4.3.10. Printing of simple chi maps</h4>
+<h4 id="_printing_of_simple_chi_maps">4.3.11. Printing of simple chi maps</h4>
 <div class="paragraph">
 <p>For most of our visualisation routines, the key printing option to set to <strong>true</strong> is <code>print_chi_data_maps</code>.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 10. Options for printing simple chi maps</caption>
+<caption class="title">Table 11. Options for printing simple chi maps</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -1855,9 +1930,9 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 </table>
 </div>
 <div class="sect3">
-<h4 id="_chi_maps_with_segmentation_and_basin_and_channel_selection">4.3.11. Chi maps with segmentation and basin and channel selection</h4>
+<h4 id="_chi_maps_with_segmentation_and_basin_and_channel_selection">4.3.12. Chi maps with segmentation and basin and channel selection</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 11. Options for chi maps and secondary data files that split channels and basins</caption>
+<caption class="title">Table 12. Options for chi maps and secondary data files that split channels and basins</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -1925,12 +2000,12 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 </table>
 </div>
 <div class="sect3">
-<h4 id="_parameters_for_dealing_with_discharge_rather_than_drainage_area">4.3.12. Parameters for dealing with discharge rather than drainage area</h4>
+<h4 id="_parameters_for_dealing_with_discharge_rather_than_drainage_area">4.3.13. Parameters for dealing with discharge rather than drainage area</h4>
 <div class="paragraph">
 <p>These allow the user to drive chi with discharge rather than drainage area. It is somewhat rudimentary at the moment in that it  assumes the rainfall rate in length per time is translated into some constant discharge. This is not a hydrological model! It simply accumulates precipitation through a channel network with no regard to hydrological processes, infiltration and evaporation, or the timing of storms.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 12. Parameters for dealing with precipitation and discharge.</caption>
+<caption class="title">Table 13. Parameters for dealing with precipitation and discharge.</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -2036,7 +2111,7 @@ ENVI bil should not be mistaken for ESRI bil. Make sure you are using ENVI bil f
 <div class="sect3">
 <h4 id="_raster_output">4.6.1. Raster output</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 13. These are basic rasters that don&#8217;t require chi analysis.</caption>
+<caption class="title">Table 14. These are basic rasters that don&#8217;t require chi analysis.</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
@@ -2085,6 +2160,12 @@ ENVI bil should not be mistaken for ESRI bil. Make sure you are using ENVI bil f
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_chi_coord.bil</strong></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Used only if you have set <code>use_precipitation_raster_for_chi</code> and <code>print_chi_coordinate_raster</code> to true, and you want a chi coordinate raster that is based on drainage area in addition to one based on discharge. Used for comparison purposes, so you can see how big of a change spatially heterogeneous precipitation causes to the chi coordinate.</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_litho_info: true
+</p><p class="tableblock"><strong>Follow intructions on <a href="#_integrating_lithologic_information">Integrating lithologic information</a></strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_LITHRAST.bil</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Automated generation of a clipped lithologic raster to simplify plotting routines.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -2106,7 +2187,7 @@ If the <code>convert_csv_to_geojson</code> flag is set to <code>true</code> then
 </table>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 14. Point data available in csv or geojson format. Switch to true to turn on.</caption>
+<caption class="title">Table 15. Point data available in csv or geojson format. Switch to true to turn on.</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
@@ -2218,6 +2299,13 @@ If the <code>convert_csv_to_geojson</code> flag is set to <code>true</code> then
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>reference_source_key,test_source_key,MLE,RMSE</em>
 </p><p class="tableblock">The <em>reference_source_key</em> is key of the channel that serves as a reference, against which goodness of fit will be measured. The <em>test_source_key</em> is the source key of the tributary which is being compared to the reference channel. The <em>MLE</em> is the maximum likelihood estimator, where better goodness of fit results in higher numbers, and the <em>RMSE</em> is the root mean square error, where smaller numbers indicate a better fit.</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_litho_info: true
+</p><p class="tableblock"><strong>_SBASLITH.csv</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This simple statistics about the geological content of each of the selected basins, percentages and count of each lithologies.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>method,basin_key,one column per geology,total</em>
+</p><p class="tableblock">The <em>method</em> is raw count or percentages. The <em>basin_key</em> is the indices into the selected basins. One column per geology codes are then generated and the correspondance between the geology code and your shapefile is explain in the annex <strong>TO ADD</strong>.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -2275,6 +2363,65 @@ Do not set up python in a vagrant server. Instead do it in your host operating s
 </div>
 <div class="paragraph">
 <p>This is a quick guide. There are many options for setting up python but this is our preferred setup.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Download and install <a href="http://conda.pydata.org/miniconda.html">miniconda</a> on your host machine.</p>
+</li>
+<li>
+<p>Open a command prompt (use the start menu to search for <strong>cmd.exe</strong>)</p>
+</li>
+<li>
+<p>Get our  <a href="https://raw.githubusercontent.com/LSDtopotools/LSDMappingTools/a1e4bd94911afc25a10ed2482553736bc2ce8894/environment.yml">environment file</a>.</p>
+</li>
+<li>
+<p>Create the environment from that file with:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">&gt; conda env create -f environment.yml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I&#8217;m afraid this will take a little while.</p>
+</div>
+</li>
+<li>
+<p>Activate the environment:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">&gt; activate LSDTT</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This environment does not include <strong>spyder</strong>, you can install it with <code>conda install -n LSDTT spyder</code>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_doing_this_without_the_code_environment_yml_code_file">5.2.2. Doing this without the <code>environment.yml</code> file</h4>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This is an alternative to the previous section!
+</td>
+</tr>
+</table>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -2347,65 +2494,6 @@ It is entirely possible that we have forgotten some package, but if you run one 
 </div>
 </li>
 </ol>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_setting_up_python_using_a_conda_virtual_environment">5.2.2. Setting up python using a conda virtual environment</h4>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-This is an alternative to the previous section!
-</td>
-</tr>
-</table>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Download and install <a href="http://conda.pydata.org/miniconda.html">miniconda</a> on your host machine.</p>
-</li>
-<li>
-<p>Open a command prompt (use the start menu to search for <strong>cmd.exe</strong>)</p>
-</li>
-<li>
-<p>Get our  <a href="https://raw.githubusercontent.com/LSDtopotools/LSDMappingTools/a1e4bd94911afc25a10ed2482553736bc2ce8894/environment.yml">environment file</a>.</p>
-</li>
-<li>
-<p>Create the environment from that file with:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-console" data-lang="console">&gt; conda env create -f environment.yml</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>I&#8217;m afraid this will take a little while.</p>
-</div>
-</li>
-<li>
-<p>Activate the environment:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-console" data-lang="console">&gt; activate LSDTT</code></pre>
-</div>
-</div>
-</li>
-</ol>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-This environment does not include <strong>spyder</strong>, you can install it with <code>conda install -n LSDTT spyder</code>
-</td>
-</tr>
-</table>
 </div>
 </div>
 <div class="sect3">
@@ -2794,7 +2882,7 @@ However, there are a few more options that are important in generating sensible 
 <div class="sect3">
 <h4 id="_some_key_options">7.2.1. Some key options</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 15. Main options for performing a concavity or <em>m/n</em> analysis</caption>
+<caption class="title">Table 16. Main options for performing a concavity or <em>m/n</em> analysis</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -3172,7 +3260,7 @@ You need to run the analysis before any of this will work!
 <p>These files will be created by the <strong>chi mapping tool</strong> and will be located in the directory designated by the <code>read path</code> parameter in the parameter file.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 16. Raster files</caption>
+<caption class="title">Table 17. Raster files</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
@@ -3199,7 +3287,7 @@ You need to run the analysis before any of this will work!
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 17. Files used for plotting channels, basins and profiles</caption>
+<caption class="title">Table 18. Files used for plotting channels, basins and profiles</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
@@ -3231,7 +3319,7 @@ You need to run the analysis before any of this will work!
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 18. Files containing statistics from chi-based methods</caption>
+<caption class="title">Table 19. Files containing statistics from chi-based methods</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
@@ -3273,7 +3361,7 @@ You need to run the analysis before any of this will work!
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 19. Files associated with slope-area analysis</caption>
+<caption class="title">Table 20. Files associated with slope-area analysis</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
@@ -3311,7 +3399,7 @@ You need to run the analysis before any of this will work!
 <p>These files will be created by <strong>PlotMoverNAnalysis.py * and will be in the *summary_plots</strong> directory.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 20. Summary files</caption>
+<caption class="title">Table 21. Summary files</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
@@ -3347,7 +3435,7 @@ You need to run the analysis before any of this will work!
 <div class="sect3">
 <h4 id="_parameters_for_exploring_the_em_m_n_em_ratio_with_chi_analysis_2">7.7.1. Parameters for exploring the <em>m/n</em> ratio with chi analysis</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 21. Parameters for trying to constrain the <em>m/n</em> ratio using chi analysis</caption>
+<caption class="title">Table 22. Parameters for trying to constrain the <em>m/n</em> ratio using chi analysis</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -3471,7 +3559,7 @@ You need to run the analysis before any of this will work!
 <div class="sect3">
 <h4 id="_parameters_for_exploring_the_em_m_n_em_ratio_with_slope_area_analysis_2">7.7.2. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 22. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</caption>
+<caption class="title">Table 23. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
