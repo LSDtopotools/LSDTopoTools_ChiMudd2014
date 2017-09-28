@@ -469,12 +469,13 @@ MathJax.Hub.Config({
 <li><a href="#_basic_data_output_before_calculating_chi">4.3.4. Basic data output (before calculating chi)</a></li>
 <li><a href="#_basic_parameters_for_the_chi_coordinate">4.3.5. Basic parameters for the chi coordinate</a></li>
 <li><a href="#_burning_rasters_to_csv">4.3.6. Burning rasters to csv</a></li>
-<li><a href="#_parameters_for_exploring_the_em_m_n_em_ratio_with_chi_analysis">4.3.7. Parameters for exploring the <em>m/n</em> ratio with chi analysis</a></li>
-<li><a href="#_parameters_for_exploring_the_em_m_n_em_ratio_with_slope_area_analysis">4.3.8. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</a></li>
-<li><a href="#_parameters_for_segmentation_of_channels">4.3.9. Parameters for segmentation of channels</a></li>
-<li><a href="#_printing_of_simple_chi_maps">4.3.10. Printing of simple chi maps</a></li>
-<li><a href="#_chi_maps_with_segmentation_and_basin_and_channel_selection">4.3.11. Chi maps with segmentation and basin and channel selection</a></li>
-<li><a href="#_parameters_for_dealing_with_discharge_rather_than_drainage_area">4.3.12. Parameters for dealing with discharge rather than drainage area</a></li>
+<li><a href="#_integrating_lithologic_information">4.3.7. Integrating lithologic information</a></li>
+<li><a href="#_parameters_for_exploring_the_em_m_n_em_ratio_with_chi_analysis">4.3.8. Parameters for exploring the <em>m/n</em> ratio with chi analysis</a></li>
+<li><a href="#_parameters_for_exploring_the_em_m_n_em_ratio_with_slope_area_analysis">4.3.9. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</a></li>
+<li><a href="#_parameters_for_segmentation_of_channels">4.3.10. Parameters for segmentation of channels</a></li>
+<li><a href="#_printing_of_simple_chi_maps">4.3.11. Printing of simple chi maps</a></li>
+<li><a href="#_chi_maps_with_segmentation_and_basin_and_channel_selection">4.3.12. Chi maps with segmentation and basin and channel selection</a></li>
+<li><a href="#_parameters_for_dealing_with_discharge_rather_than_drainage_area">4.3.13. Parameters for dealing with discharge rather than drainage area</a></li>
 </ul>
 </li>
 <li><a href="#_example_parameter_files">4.4. Example parameter files</a></li>
@@ -493,7 +494,7 @@ MathJax.Hub.Config({
 <li><a href="#_using_python">5.2. Using python</a>
 <ul class="sectlevel3">
 <li><a href="#_setting_up_python">5.2.1. Setting up Python</a></li>
-<li><a href="#_setting_up_python_using_a_conda_virtual_environment">5.2.2. Setting up python using a conda virtual environment</a></li>
+<li><a href="#_doing_this_without_the_code_environment_yml_code_file">5.2.2. Doing this without the <code>environment.yml</code> file</a></li>
 <li><a href="#_using_spyder">5.2.3. Using Spyder</a></li>
 <li><a href="#_getting_our_plotting_tools">5.2.4. Getting our plotting tools</a></li>
 <li><a href="#_fixing_python_gdal_in_windows">5.2.5. Fixing python gdal in windows</a></li>
@@ -614,7 +615,7 @@ the user should read <a href="http://mit.edu/perron/www/files/PerronRoyden13.pdf
 <div class="sect2">
 <h3 id="_channel_incision_and_geometry">1.2. Channel incision and geometry</h3>
 <div class="paragraph">
-<p>Following observations made by early workers such as Gilbert, later workers proposed models to explain erosion rates in channels. Many of these models state that erosion rate is proportional to both topographic slope and to discharge. The relationship to discharge is related to a number of factors, including how likeley the river is to pluck material from the bed, and how much sediment it can carry. Bedload can damage the bed and thus bedload particles can act as "tools" to erode the bed. A number of formulations to capture this behaviour have been proposed (e.g. <a href="http://gsabulletin.gsapubs.org/content/94/6/739">Howard and Kerby, 1983</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/94WR00757/abstract">Howard, 1994</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/1999JB900120/abstract">Whipple and Tucker 1999</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/2009JF001655/abstract">Gasparini and Brandon, 2011</a>) and these formulations can be generalised into the stream power incision model (SPIM):</p>
+<p>Following observations made by early workers such as Gilbert, later workers proposed models to explain erosion rates in channels. Many of these models state that erosion rate is proportional to both topographic slope and to discharge. The relationship to discharge is related to a number of factors, including how likely the river is to pluck material from the bed, and how much sediment it can carry. Bedload can damage the bed and thus bedload particles can act as "tools" to erode the bed. A number of formulations to capture this behaviour have been proposed (e.g. <a href="http://gsabulletin.gsapubs.org/content/94/6/739">Howard and Kerby, 1983</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/94WR00757/abstract">Howard, 1994</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/1999JB900120/abstract">Whipple and Tucker 1999</a>; <a href="http://onlinelibrary.wiley.com/doi/10.1029/2009JF001655/abstract">Gasparini and Brandon, 2011</a>) and these formulations can be generalised into the stream power incision model (SPIM):</p>
 </div>
 <div class="stemblock">
 <div class="content">
@@ -674,7 +675,7 @@ the user should read <a href="http://mit.edu/perron/www/files/PerronRoyden13.pdf
 <div class="sect2">
 <h3 id="_what_is_in_these_documents">1.3. What is in these documents</h3>
 <div class="paragraph">
-<p>This documention contains:</p>
+<p>This documentation contains:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -694,7 +695,7 @@ the user should read <a href="http://mit.edu/perron/www/files/PerronRoyden13.pdf
 <p>A series of example walkthoughs: <a href="#_examples_of_chi_analysis">Examples of chi analysis</a></p>
 </li>
 <li>
-<p>A section on consraining the <em>m/n</em> ratio and channel concavity: <a href="#_calculating_concavity">Calculating concavity</a></p>
+<p>A section on constraining the <em>m/n</em> ratio and channel concavity: <a href="#_calculating_concavity">Calculating concavity</a></p>
 </li>
 </ul>
 </div>
@@ -705,7 +706,7 @@ the user should read <a href="http://mit.edu/perron/www/files/PerronRoyden13.pdf
 <h2 id="_getting_the_software">2. Getting the software</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We have attempted, to the best of our ability, to streamline the process of installing our software on any platform (Windows, Linux, MacOS). You will need to install a bit of software. If you have a decent internet connections this should take under an hour. The main rate limiting step is downloading files: You will need to download ~2Gb of software. This requirement is substantially reduced if you want to install on a native Linux machine.</p>
+<p>We have attempted, to the best of our ability, to streamline the process of installing our software on any platform (Windows, Linux, MacOS). You will need to install two bits of software. If you have a decent internet connection this should take under an hour. The main rate limiting step is downloading files: You will need to download ~2Gb of software. This requirement is substantially reduced if you want to install on a native Linux machine.</p>
 </div>
 <div class="sect2">
 <h3 id="_starting_up_on_your_own_linux_machine">2.1. Starting up on your own Linux machine</h3>
@@ -727,10 +728,10 @@ the user should read <a href="http://mit.edu/perron/www/files/PerronRoyden13.pdf
 <p>Download and install <a href="https://www.virtualbox.org/">virtualbox</a>.</p>
 </li>
 <li>
-<p>Download and install <a href="https://www.vagrantup.com/">vagrant</a>. You might have to restart your computer after this.</p>
+<p>Download and install <a href="https://www.vagrantup.com/">vagrant</a>. You might have to restart your computer after this. <strong>You need to install virtualbox before you install vagrant, or you might get errors.</strong></p>
 </li>
 <li>
-<p>If you are on Windows, download <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">putty.exe</a>. If you are on Linux or MacOS you can skip this (they have built-in equivalents).</p>
+<p>If you are on Windows, download <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">putty.exe</a>. If you are on Linux or MacOS you can skip this because they have built-in equivalents.</p>
 </li>
 <li>
 <p>Make a directory for your vagrant box. We tend to put ours in a directory called <code>VagrantBoxes</code>.</p>
@@ -888,7 +889,7 @@ Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetu
 </div>
 </div>
 <div class="paragraph">
-<p>In our Vagrant setup, this will install everything in the root directory (you can got there with <code>$ cd /</code>),  which is the default setup generated by our <a href="https://github.com/LSDtopotools/LSDTT_vagrantfiles">Vagrantfile</a>. If you are not in vagrant the <strong>LSDTopoTools</strong> directories will be in your home directory (you can get there with <code>$ cd ~</code>).</p>
+<p>In our Vagrant setup, this will install everything in the root directory (you can go there with <code>$ cd /</code>),  which is the default setup generated by our <a href="https://github.com/LSDtopotools/LSDTT_vagrantfiles">Vagrantfile</a>. If you are not in vagrant the <strong>LSDTopoTools</strong> directories will be in your home directory (you can get there with <code>$ cd ~</code>).</p>
 </div>
 </li>
 <li>
@@ -903,7 +904,7 @@ Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetu
 </div>
 </li>
 <li>
-<p>It turns out the <code>LSDTopoToolsSetup.py</code> tool has a number of options but we will explain these later. If you want a preview of what it does, you can call its help options:</p>
+<p>It turns out the <code>LSDTopoToolsSetup.py</code> tool has a number of options but this documentation is for the chi tools so we aren&#8217;t going to bother to explain them. However, if you want a preview of what it does, you can call its help options:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-console" data-lang="console">$ python LSDTopoToolsSetup.py -h</code></pre>
@@ -938,14 +939,14 @@ Copy the text, paste it into a text editor and save it as <code>LSDTopoToolsSetu
 <div class="sect2">
 <h3 id="_get_some_data">3.1. Get some data</h3>
 <div class="paragraph">
-<p>There are many sources of topogaphic data, which we will not repeat here, but if you are looking for an easy interface to get either lidar or SRTM data, we suggest <a href="http://www.opentopography.org/">opentopography</a>. This site is not jst for USA-based lidar but also has very nice interfaces for <a href="http://opentopo.sdsc.edu/lidar?format=sd">global data sets</a>.</p>
+<p>There are many sources of topographic data, which we will not repeat here, but if you are looking for an easy interface to get either lidar or <a href="https://www2.jpl.nasa.gov/srtm/">SRTM</a> data, we suggest <a href="http://www.opentopography.org/">opentopography</a>. This site is not just for USA-based lidar but also has very nice interfaces for <a href="http://opentopo.sdsc.edu/lidar?format=sd">global data sets</a>. It has, in our opinion, the best interface for getting <a href="https://www2.jpl.nasa.gov/srtm/">SRTM</a> data.</p>
 </div>
 <div class="paragraph">
-<p>You can also find a list of freely avaialble lidar datasets at this site:
+<p>You can also find a list of freely available lidar datasets at this site:
 <a href="https://arheologijaslovenija.blogspot.co.uk/p/blog-page_81.html?spref=tw" class="bare">https://arheologijaslovenija.blogspot.co.uk/p/blog-page_81.html?spref=tw</a></p>
 </div>
 <div class="paragraph">
-<p>Once you download data you will need to convert it into a format and projection suitable for <strong>LSDTopoTools</strong>. If you have <a href="https://en.wikipedia.org/wiki/Raster_data">raster data</a>, the best way to preprocess your data is via <a href="http://www.gdal.org/">GDAL</a>, which is explained inthe section below.</p>
+<p>Once you download data you will need to convert it into a format and projection suitable for <strong>LSDTopoTools</strong>. If you have <a href="https://en.wikipedia.org/wiki/Raster_data">raster data</a>, the best way to preprocess your data is via <a href="http://www.gdal.org/">GDAL</a>, which is explained in the section below.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1078,7 +1079,20 @@ You need to convert your rasters to UTM coordinates! If you fail to do this at b
 <h2 id="_running_the_chi_analysis_options_and_outputs">4. Running the chi analysis: options and outputs</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This section explains the various options and data outputs of the <strong>chi mapping tool</strong>. If you want specific examples of usage you may wish to skip to the section: <a href="#_examples_of_chi_analysis">Examples of chi analysis</a>.</p>
+<p><strong>This section is technical and not based on tutorials!</strong> It explains the various options and data outputs of the <strong>chi mapping tool</strong>.</p>
+</div>
+<div class="paragraph">
+<p>If you want specific examples of usage you may wish to skip to theses sections</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#_examples_of_chi_analysis">Examples of chi analysis</a></p>
+</li>
+<li>
+<p><a href="#_calculating_concavity">Calculating concavity</a></p>
+</li>
+</ul>
 </div>
 <div class="sidebarblock">
 <div class="content">
@@ -1097,13 +1111,13 @@ These are basic notes on running <strong>LSDTopoTools</strong> on a vagrant serv
 <div class="ulist">
 <ul>
 <li>
-<p>Even though your files are the same files on the host and guest operating system, they have a different address. In Linux the files are in <code>/LSDTopoTools/</code>. In you host operating system they are in the <code>LSDTopoTools</code> folder wherever you put the <code>VagrantBoxes</code> directory.</p>
+<p>Even though your files are the same files on the host and guest operating system, they have a different address. That is, the same file will have a Linux address and an address in your host operating system (e.g., Windows). In Linux the files are in <code>/LSDTopoTools/</code>. In you host operating system they are in the <code>LSDTopoTools</code> directory within your <code>VagrantBoxes</code> directory. You will need to remember where you but the <code>VagrantBoxes</code> directory!</p>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p>So in these instructions whenever you see the <code>$</code> prompt it means you are using the guest linux machine, not your hose machine.</p>
+<p>In these instructions whenever you see the <code>$</code> prompt it means you are using the guest linux machine, which you have logged into using <code>putty.exe</code> or <code>ssh</code>, and not your host machine.</p>
 </li>
 </ul>
 </div>
@@ -1142,7 +1156,7 @@ These are basic notes on running <strong>LSDTopoTools</strong> on a vagrant serv
 <div class="sect2">
 <h3 id="_text_editors_for_modifying_files">4.1. Text editors for modifying files</h3>
 <div class="paragraph">
-<p>You will need to modify the parameter file in a text editor. You might also modify python scripts in a text editor. So you need to get a text editor. We use [Brackets] and [Atom] (these are platform independent). Sometimes we also use [PSPad].</p>
+<p>You will need to modify the parameter file in a text editor. You might also modify python scripts in a text editor. So you need to get a text editor. We use <a href="http://brackets.io/">Brackets</a> and <a href="https://atom.io/">Atom</a> (these are platform independent). Sometimes we also use <a href="http://www.pspad.com/en/">PSPad</a>.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1347,13 +1361,13 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">extend_channel_to_node_before_receiver_junction</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true, the channel network will extend beyond selected baselevel junctions downstream until it reaches the pixel before the receiver junction. If false, the channel simply extends upstream from the seleced basin. The reason for this switch is because if one if extracting basins by drainage order, then the, say, a 2nd order drainage basin starts at the node immediately upstream of the most upstream 3rd order junction.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, the channel network will extend beyond selected baselevel junctions downstream until it reaches the pixel before the receiver junction. If false, the channel simply extends upstream from the selected basin. The reason for this switch is because if one if extracting basins by drainage order, then the, say, a 2nd order drainage basin starts at the node immediately upstream of the most upstream 3rd order junction.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">find_complete_basins_in_window</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool (true or 1 will work)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>THIS IS THE DEFAULT METHOD! If you don&#8217;t want this method you need to set it to false.</strong> If this is true, it i) Gets all the basins in a DEM and takes thos between the <code>minimum_basin_size_pixels</code> and <code>maximum_basin_size_pixels</code>. It then removes basins that are influenced by the edge of the DEM, and then removes nested basins. The reason for removing basins draining the edge is that all chi and S-A analysis requires that the basin is complete. If not, your area, and therefore chi coordinate, will be incorrect.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>THIS IS THE DEFAULT METHOD! If you don&#8217;t want this method you need to set it to false.</strong> If this is true, it i) Gets all the basins in a DEM and takes those between the <code>minimum_basin_size_pixels</code> and <code>maximum_basin_size_pixels</code>. It then removes basins that are influenced by the edge of the DEM, and then removes nested basins. The reason for removing basins draining the edge is that all chi and S-A analysis requires that the basin is complete. If not, your area, and therefore chi coordinate, will be incorrect.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">find_largest_complete_basins</p></td>
@@ -1365,7 +1379,7 @@ For example if this is <code>Test</code> and you have selected <code>bil</code> 
 <td class="tableblock halign-left valign-top"><p class="tableblock">test_drainage_boundaries</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool (true or 1 will work)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">true</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">A boolean that, if set to true, will eliminate basins with pixels drainage from the edge. This is to get rid of basins that may be truncated by the edge of the DEM (and thus will have incorrect chi values). <strong>This only operates if BOTH <code>find_complete_basins_in_window</code> and <code>find_largest_complete_basins</code> are set to false!, OR if you are using a baselelvel junctions file.</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A boolean that, if set to true, will eliminate basins with pixels drainage from the edge. This is to get rid of basins that may be truncated by the edge of the DEM (and thus will have incorrect chi values). <strong>This only operates if BOTH <code>find_complete_basins_in_window</code> and <code>find_largest_complete_basins</code> are set to false!, OR if you are using a baselevel junctions file.</strong></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">only_take_largest_basin</p></td>
@@ -1560,9 +1574,70 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 </table>
 </div>
 <div class="sect3">
-<h4 id="_parameters_for_exploring_the_em_m_n_em_ratio_with_chi_analysis">4.3.7. Parameters for exploring the <em>m/n</em> ratio with chi analysis</h4>
+<h4 id="_integrating_lithologic_information">4.3.7. Integrating lithologic information</h4>
+<div class="paragraph">
+<p>In some circumstances you might want to integrate lithologic, structural or tectonic information. This include burning this information onto your data of the channel network and generate some statistics about the lithologic content of each of the basins selected for analysis. This routine is an adaptation of the raster burning optimised specifically for geologic data. Outputs are formatted to be ready to use by the <a href="https://github.com/LSDtopotools/LSDMappingTools">LSDMappingTools</a> lithologic-related plotting routines.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+These option are undergoing active development. New options will be regularly added as well as a simplification of the process to prepared the dataset.
+</td>
+</tr>
+</table>
+</div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 7. Parameters for trying to constrain the <em>m/n</em> ratio using chi analysis</caption>
+<caption class="title">Table 7. Parameters for burning a raster to csv files.</caption>
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Keyword</th>
+<th class="tableblock halign-left valign-top">Input type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_litho_info</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, takes a lithologic raster data and appends it to csv data of channel points. It also generates some simple statistic in a csv file called <em>fname_SBASLITH.csv</em>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">litho_raster</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">NULL</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The prefix of the raster (without the <code>bil</code> extension) that contains the geological dataset. Does not include the directory path. The raster <strong>MUST</strong> be in the same directory as your input DEM. An earlier step is required to generate this file described on another part.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Once you have launched this analysis, a clipped version of your lithologic raster will be generated to the extent of your base raster for plotting purposes called <code>fname_LITHRAST.bil</code>. If your lithologic raster is significantly larger than your topographic raster it can result in long loading times, so after the first call to the <code>print_litho_info</code> routine you can replace the <code>litho_raster</code> with <code>fname_LITHRAST</code> (fname will be the name of your DEM) to save computational time.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_parameters_for_exploring_the_em_m_n_em_ratio_with_chi_analysis">4.3.8. Parameters for exploring the <em>m/n</em> ratio with chi analysis</h4>
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 8. Parameters for trying to constrain the <em>m/n</em> ratio using chi analysis</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -1612,19 +1687,19 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 <td class="tableblock halign-left valign-top"><p class="tableblock">calculate_MLE_collinearity_with_points</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. It uses specific points on tributaries to conpare the the mainstem. These are located at fixed chi distances upstream of the lower junction of the tributary. The effect is to ensure that all tributaries are weighted similarly in calculating <em>m/n</em>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. It uses specific points on tributaries to compare to the mainstem. These are located at fixed chi distances upstream of the lower junction of the tributary. The effect is to ensure that all tributaries are weighted similarly in calculating <em>m/n</em>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">calculate_MLE_collinearity_with_points_MC</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. It uses specific points on tributaries to conpare the the mainstem. The location of these points is selected at random and this process is reapeated a number of times (the default is 1000) to quantify uncertanty in the best fit <em>m/n</em> ration.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. It uses specific points on tributaries to compare to the mainstem. The location of these points is selected at random and this process is repeated a number of times (the default is 1000) to quantify uncertainty in the best fit <em>m/n</em> ration.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">collinearity_MLE_sigma</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">A value that scales MLE. It does not afffect which <em>m/n</em> value is the most likeley. However it affects the absolute value of MLE. If it is set too low, MLE values for poorly fit segments will be zero. We have performed sensitivity and found that once all channels have nonzero MLE values the most likely channel does not change. So this should be set high enough to ensure there are nonzero MLE values for all tributaries. Set this too high, however, and all MLE values will be very close to 1 so plotting becomes difficult as the difference between MLE are at many significant digits (e.g., 0.9999997 vs 0.9999996). We have found that a value of 1000 works in most situations.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A value that scales MLE. It does not affect which <em>m/n</em> value is the most likely. However it affects the absolute value of MLE. If it is set too low, MLE values for poorly fit segments will be zero. We have performed sensitivity and found that once all channels have nonzero MLE values the most likely channel does not change. So this should be set high enough to ensure there are nonzero MLE values for all tributaries. Set this too high, however, and all MLE values will be very close to 1 so plotting becomes difficult as the difference between MLE are at many significant digits (e.g., 0.9999997 vs 0.9999996). We have found that a value of 1000 works in most situations.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">MC_point_fractions</p></td>
@@ -1642,7 +1717,7 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 <td class="tableblock halign-left valign-top"><p class="tableblock">max_MC_point_fraction</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.5</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The maximum fraction of the length, in chi, of the main stem that points will be measured over the tributary. For example, if the main stem has a chi lenght of 2 metres, then points on tributaries up to 1 metres from the conluence with the main stem will be tested by the <code>calculate_MLE_collinearity_with_points_MC</code> routine.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The maximum fraction of the length, in chi, of the main stem that points will be measured over the tributary. For example, if the main stem has a chi length of 2 metres, then points on tributaries up to 1 metres from the confluence with the main stem will be tested by the <code>calculate_MLE_collinearity_with_points_MC</code> routine.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">movern_residuals_test</p></td>
@@ -1660,7 +1735,7 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 <td class="tableblock halign-left valign-top"><p class="tableblock">MCMC_movern_analysis</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true, runs a Monte Carlo Markov Chain analysis of the best fit <em>m/n</em>. First attempts to tune the sigma value for the profuiles to get an MCMC acceptance rate of 25%, then runs a chain to contrain uncertainties. At the moment the tuning doesn&#8217;t seem to be working properly!! This is also extremely computationally expensive, for a, say, 10Mb DEM analysis might last several days on a single CPU core. If you want uncertainty values for the <em>m/n</em> ratio you should use the <code>calculate_MLE_collinearity_with_points_MC</code> routine.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, runs a Monte Carlo Markov Chain analysis of the best fit <em>m/n</em>. First attempts to tune the sigma value for the profiles to get an MCMC acceptance rate of 25%, then runs a chain to constrain uncertainties. At the moment the tuning doesn&#8217;t seem to be working properly!! This is also extremely computationally expensive, for a, say, 10Mb DEM analysis might last several days on a single CPU core. If you want uncertainty values for the <em>m/n</em> ratio you should use the <code>calculate_MLE_collinearity_with_points_MC</code> routine.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">MCMC_chain_links</p></td>
@@ -1684,9 +1759,9 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 </table>
 </div>
 <div class="sect3">
-<h4 id="_parameters_for_exploring_the_em_m_n_em_ratio_with_slope_area_analysis">4.3.8. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</h4>
+<h4 id="_parameters_for_exploring_the_em_m_n_em_ratio_with_slope_area_analysis">4.3.9. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 8. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</caption>
+<caption class="title">Table 9. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -1706,7 +1781,7 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 <td class="tableblock halign-left valign-top"><p class="tableblock">SA_vertical_interval</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">20</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This parameter is used for slope-area analysis. Each channel is traced downslope. A slope (or gradient) is calculated by dividing the fall in the channel elevation over the flow distance; the program aims to calculate the slope at as near to a fixed vertical interval as possible following advice of Wobus et al 2006.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This parameter is used for slope-area analysis. Each channel is traced downslope. A slope (or gradient) is calculated by dividing the fall in the channel elevation over the flow distance; the program aims to calculate the slope at as near to a fixed vertical interval as possible following advice of <a href="https://www.researchgate.net/profile/Eric_Kirby2/publication/228740545_Tectonics_from_topography_Procedures_promise_and_pitfalls/links/57d75a4a08ae6399a395aca6.pdf">Wobus et al 2006</a>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">log_A_bin_width</p></td>
@@ -1718,7 +1793,7 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_slope_area_data</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This prints the slope-area analysis to a csv file. It includes the raw data and binned data. It is organised by both source and basin so you analyise different channels. See the section on outputs for full details.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This prints the slope-area analysis to a csv file. It includes the raw data and binned data. It is organised by both source and basin so you analyse different channels. See the section on outputs for full details.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">segment_slope_area_data</p></td>
@@ -1730,13 +1805,13 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 <td class="tableblock halign-left valign-top"><p class="tableblock">slope_area_minimum_segment_length</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Sets the minimum segment lenght of a fitted segment to the S-A data.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets the minimum segment length of a fitted segment to the S-A data.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bootstrap_SA_data</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This bootstraps S-A data by removing a fraction of the data (set below) in each iteration and calculating the regression coefficients. It is used to estimate uncertainty, but it deosn&#8217;t really work since uncertainty in regression coefficients reduces with more samples and S-A datasets have thousands of samples. Left here as a kind of monument to our futile efforts.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This bootstraps S-A data by removing a fraction of the data (set below) in each iteration and calculating the regression coefficients. It is used to estimate uncertainty, but it doesn&#8217;t really work since uncertainty in regression coefficients reduces with more samples and S-A datasets have thousands of samples. Left here as a kind of monument to our futile efforts.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">N_SA_bootstrap_iterations</p></td>
@@ -1754,9 +1829,9 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 </table>
 </div>
 <div class="sect3">
-<h4 id="_parameters_for_segmentation_of_channels">4.3.9. Parameters for segmentation of channels</h4>
+<h4 id="_parameters_for_segmentation_of_channels">4.3.10. Parameters for segmentation of channels</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 9. Parameters for calculating the segments of similar chi slope (\(M_{\chi}\)). Details can be found in <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al., JGR-ES 2014</a>.</caption>
+<caption class="title">Table 10. Parameters for calculating the segments of similar chi slope (\(M_{\chi}\)). Details can be found in <a href="http://onlinelibrary.wiley.com/doi/10.1002/2013JF002981/abstract">Mudd et al., JGR-ES 2014</a>.</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -1812,12 +1887,12 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 </table>
 </div>
 <div class="sect3">
-<h4 id="_printing_of_simple_chi_maps">4.3.10. Printing of simple chi maps</h4>
+<h4 id="_printing_of_simple_chi_maps">4.3.11. Printing of simple chi maps</h4>
 <div class="paragraph">
 <p>For most of our visualisation routines, the key printing option to set to <strong>true</strong> is <code>print_chi_data_maps</code>.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 10. Options for printing simple chi maps</caption>
+<caption class="title">Table 11. Options for printing simple chi maps</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -1855,9 +1930,9 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 </table>
 </div>
 <div class="sect3">
-<h4 id="_chi_maps_with_segmentation_and_basin_and_channel_selection">4.3.11. Chi maps with segmentation and basin and channel selection</h4>
+<h4 id="_chi_maps_with_segmentation_and_basin_and_channel_selection">4.3.12. Chi maps with segmentation and basin and channel selection</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 11. Options for chi maps and secondary data files that split channels and basins</caption>
+<caption class="title">Table 12. Options for chi maps and secondary data files that split channels and basins</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -1919,18 +1994,18 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_baselevel_keys</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file that prints the location of all the channel nodes with each of their baselelevel keys. The baselevel keys are just the index into the baselevel node (i.e., it tells you to which basin each node is connected).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, prints a csv file that prints the location of all the channel nodes with each of their baselevel keys. The baselevel keys are just the index into the baselevel node (i.e., it tells you to which basin each node is connected).</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="sect3">
-<h4 id="_parameters_for_dealing_with_discharge_rather_than_drainage_area">4.3.12. Parameters for dealing with discharge rather than drainage area</h4>
+<h4 id="_parameters_for_dealing_with_discharge_rather_than_drainage_area">4.3.13. Parameters for dealing with discharge rather than drainage area</h4>
 <div class="paragraph">
 <p>These allow the user to drive chi with discharge rather than drainage area. It is somewhat rudimentary at the moment in that it  assumes the rainfall rate in length per time is translated into some constant discharge. This is not a hydrological model! It simply accumulates precipitation through a channel network with no regard to hydrological processes, infiltration and evaporation, or the timing of storms.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 12. Parameters for dealing with precipitation and discharge.</caption>
+<caption class="title">Table 13. Parameters for dealing with precipitation and discharge.</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -2036,7 +2111,7 @@ ENVI bil should not be mistaken for ESRI bil. Make sure you are using ENVI bil f
 <div class="sect3">
 <h4 id="_raster_output">4.6.1. Raster output</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 13. These are basic rasters that don&#8217;t require chi analysis.</caption>
+<caption class="title">Table 14. These are basic rasters that don&#8217;t require chi analysis.</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
@@ -2068,12 +2143,12 @@ ENVI bil should not be mistaken for ESRI bil. Make sure you are using ENVI bil f
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_basin_raster: true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_AllBasins.bil</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This prints the a basin raster raster. Each basin gets an integer value that is keyed to the baselevel. These correspond to the <code>baselevel_key</code> that appears in csv data files.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This prints a basin raster. Each basin gets an integer value that is keyed to the baselevel. These correspond to the <code>baselevel_key</code> that appears in csv data files.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_chi_coordinate_raster: true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_chi_coord.bil</strong> or <strong>_chi_coordQ.bil</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This prints the chi coordinate. It uses the <em>A<sub>0</sub></em> and <em>m/n</em> values set by the <code>A_0</code> and <code>m_over_n</code> flags in the parameter file (defaults are 1 m<sup>2</sup> and 0.5, respectively). The raster will caculated chi using drainage area, which results in the <strong>_chi_coord.bil</strong> file, unless the switch <code>use_precipitation_raster_for_chi</code> is set to true, in which case a discharge will be calculated from a precipitation raster and this discharge will be used to calculate chi, resulting in a <strong>_chi_coordQ.bil</strong> file.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This prints the chi coordinate. It uses the <em>A<sub>0</sub></em> and <em>m/n</em> values set by the <code>A_0</code> and <code>m_over_n</code> flags in the parameter file (defaults are 1 m<sup>2</sup> and 0.5, respectively). The raster will calculated chi using drainage area, which results in the <strong>_chi_coord.bil</strong> file, unless the switch <code>use_precipitation_raster_for_chi</code> is set to true, in which case a discharge will be calculated from a precipitation raster and this discharge will be used to calculate chi, resulting in a <strong>_chi_coordQ.bil</strong> file.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_discharge_raster: true</p></td>
@@ -2084,6 +2159,12 @@ ENVI bil should not be mistaken for ESRI bil. Make sure you are using ENVI bil f
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_chi_no_discharge: true</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_chi_coord.bil</strong></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Used only if you have set <code>use_precipitation_raster_for_chi</code> and <code>print_chi_coordinate_raster</code> to true, and you want a chi coordinate raster that is based on drainage area in addition to one based on discharge. Used for comparison purposes, so you can see how big of a change spatially heterogeneous precipitation causes to the chi coordinate.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_litho_info: true
+</p><p class="tableblock"><strong>Follow intructions on <a href="#_integrating_lithologic_information">Integrating lithologic information</a></strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>_LITHRAST.bil</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Automated generation of a clipped lithologic raster to simplify plotting routines.</p></td>
 </tr>
 </tbody>
 </table>
@@ -2106,7 +2187,7 @@ If the <code>convert_csv_to_geojson</code> flag is set to <code>true</code> then
 </table>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 14. Point data avaiable in csv or geojson format. Switch to true to turn on.</caption>
+<caption class="title">Table 15. Point data available in csv or geojson format. Switch to true to turn on.</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
@@ -2218,6 +2299,13 @@ If the <code>convert_csv_to_geojson</code> flag is set to <code>true</code> then
 <td class="tableblock halign-left valign-top"><p class="tableblock"><em>reference_source_key,test_source_key,MLE,RMSE</em>
 </p><p class="tableblock">The <em>reference_source_key</em> is key of the channel that serves as a reference, against which goodness of fit will be measured. The <em>test_source_key</em> is the source key of the tributary which is being compared to the reference channel. The <em>MLE</em> is the maximum likelihood estimator, where better goodness of fit results in higher numbers, and the <em>RMSE</em> is the root mean square error, where smaller numbers indicate a better fit.</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">print_litho_info: true
+</p><p class="tableblock"><strong>_SBASLITH.csv</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This simple statistics about the geological content of each of the selected basins, percentages and count of each lithologies.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><em>method,basin_key,one column per geology,total</em>
+</p><p class="tableblock">The <em>method</em> is raw count or percentages. The <em>basin_key</em> is the indices into the selected basins. One column per geology codes are then generated and the correspondance between the geology code and your shapefile is explain in the annex <strong>TO ADD</strong>.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -2246,7 +2334,7 @@ This chapter is a brief overview of ways to visualise these datasets. We go thro
 <p>To load csv files into a GIS, you will need to import them. Here are instructions <a href="http://www.qgistutorials.com/en/docs/importing_spreadsheets_csv.html">for QGIS</a> and for <a href="http://support.esri.com/technical-article/000012745">ArcMap</a>. In both cases you will need to tell your GIS what coordinate system the data is in. <strong>LSDTopoTools</strong> writes latitude and longitude to our csv files in the <a href="http://spatialreference.org/ref/epsg/wgs-84/">WGS84</a> geographic coordinate system.</p>
 </li>
 <li>
-<p>Geojson files are <strong>huge</strong> compared to csv files but they can be used for web mapping (e.g., <a href="https://d3js.org/">D3.js</a> or <a href="http://leafletjs.com/">leaflet</a>), and they are georeferences socan be loaded directly into a GIS using the "add vector data" functionality.</p>
+<p>Geojson files are <strong>huge</strong> compared to csv files but they can be used for web mapping (e.g., <a href="https://d3js.org/">D3.js</a> or <a href="http://leafletjs.com/">leaflet</a>), and they are georeferences so can be loaded directly into a GIS using the "add vector data" functionality.</p>
 </li>
 </ul>
 </div>
@@ -2279,6 +2367,65 @@ Do not set up python in a vagrant server. Instead do it in your host operating s
 <div class="olist arabic">
 <ol class="arabic">
 <li>
+<p>Download and install <a href="http://conda.pydata.org/miniconda.html">miniconda</a> on your host machine.</p>
+</li>
+<li>
+<p>Open a command prompt (use the start menu to search for <strong>cmd.exe</strong>)</p>
+</li>
+<li>
+<p>Get our  <a href="https://raw.githubusercontent.com/LSDtopotools/LSDMappingTools/a1e4bd94911afc25a10ed2482553736bc2ce8894/environment.yml">environment file</a>.</p>
+</li>
+<li>
+<p>Create the environment from that file with:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">&gt; conda env create -f environment.yml</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I&#8217;m afraid this will take a little while.</p>
+</div>
+</li>
+<li>
+<p>Activate the environment:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-console" data-lang="console">&gt; activate LSDTT</code></pre>
+</div>
+</div>
+</li>
+</ol>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This environment does not include <strong>spyder</strong>, you can install it with <code>conda install -n LSDTT spyder</code>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_doing_this_without_the_code_environment_yml_code_file">5.2.2. Doing this without the <code>environment.yml</code> file</h4>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This is an alternative to the previous section!
+</td>
+</tr>
+</table>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
 <p>The best way to install python is <a href="http://conda.pydata.org/miniconda.html">miniconda</a>. Currently everything we use is tested on <strong>Python 2.7</strong>, so use the Python 2.7 installer. However, we have attempted to maintain compatibility to python 3.x. If you use that, it should be okay, but please report any bugs on the github page.</p>
 <div class="admonitionblock warning">
 <table>
@@ -2287,7 +2434,7 @@ Do not set up python in a vagrant server. Instead do it in your host operating s
 <i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-Our visualisation routines involve some computation, and dealing with geospatial data. This means that there are a numer of packages to install. This might take some time. If you are already using python for something critical you may consider setting up a <a href="https://realpython.com/blog/python/python-virtual-environments-a-primer/">virtual</a> <a href="http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/">environment</a> to ensure all of these new packages don&#8217;t break what you&#8217;ve already got.
+Our visualisation routines involve some computation, and dealing with geospatial data. This means that there are a number of packages to install. This might take some time. If you are already using python for something critical you may consider setting up a <a href="https://realpython.com/blog/python/python-virtual-environments-a-primer/">virtual</a> <a href="http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/">environment</a> to ensure all of these new packages don&#8217;t break what you&#8217;ve already got.
 </td>
 </tr>
 </table>
@@ -2297,7 +2444,7 @@ Our visualisation routines involve some computation, and dealing with geospatial
 <p>Once you have installed  <a href="http://conda.pydata.org/miniconda.html">miniconda</a>, you can go into a command prompt (windows) or terminal (MacOS and Linux) and get the other stuff you need. To get the command prompt in windows look for the <strong>cmd.exe</strong> program.</p>
 </li>
 <li>
-<p>You sould create a python environment for <strong>LSDTopoTools</strong>. Read about <a href="https://conda.io/docs/user-guide/tasks/manage-environments.html">conda python environemts here</a>:</p>
+<p>You should create a python environment for <strong>LSDTopoTools</strong>. Read about <a href="https://conda.io/docs/user-guide/tasks/manage-environments.html">conda python environments here</a>:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-console" data-lang="console">&gt; conda config --add channels conda-forge
@@ -2350,65 +2497,6 @@ It is entirely possible that we have forgotten some package, but if you run one 
 </div>
 </div>
 <div class="sect3">
-<h4 id="_setting_up_python_using_a_conda_virtual_environment">5.2.2. Setting up python using a conda virtual environment</h4>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-This is an alternative to the previous section!
-</td>
-</tr>
-</table>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Download and install <a href="http://conda.pydata.org/miniconda.html">miniconda</a> on your host machine.</p>
-</li>
-<li>
-<p>Open a command prompt (use the start menu to search for <strong>cmd.exe</strong>)</p>
-</li>
-<li>
-<p>Get our  <a href="https://raw.githubusercontent.com/LSDtopotools/LSDMappingTools/a1e4bd94911afc25a10ed2482553736bc2ce8894/environment.yml">environment file</a>.</p>
-</li>
-<li>
-<p>Create the environment from that file with:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-console" data-lang="console">&gt; conda env create -f environment.yml</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>I&#8217;m afraid this will take a little while.</p>
-</div>
-</li>
-<li>
-<p>Activate the environment:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-console" data-lang="console">&gt; activate LSDTT</code></pre>
-</div>
-</div>
-</li>
-</ol>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-This environment does not include <strong>spyder</strong>, you can install it with <code>conda install -n LSDTT spyder</code>
-</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect3">
 <h4 id="_using_spyder">5.2.3. Using Spyder</h4>
 <div class="paragraph">
 <p>Once you have installed python, you can use it from the command line (i.e. from a powershell or terminal window). However, you might prefer using a nice development environment that checks your code and has pretty colours and reassuring windows. When we are not using text editors (see our section <a href="#_text_editors_for_modifying_files">Text editors for modifying files</a>) we tend to use Spyder, which has an editor that can give you help with python packages and highlight your mistakes. You should have already installed it with <code>conda install spyder</code>, so to get it running go into a powershell or terminal window and just type:</p>
@@ -2454,7 +2542,7 @@ At the moment <a href="https://github.com/LSDtopotools/LSDMappingTools">LSDMappi
 </div>
 </li>
 <li>
-<p>If you don&#8217;t want to install <a href="https://git-scm.com/">git</a> on your host operating system, you can clone the repository from your vagrant machine. Becase of the clever way vagrant works you will be able to use these files in you host operating system.</p>
+<p>If you don&#8217;t want to install <a href="https://git-scm.com/">git</a> on your host operating system, you can clone the repository from your vagrant machine. Because of the clever way vagrant works you will be able to use these files in you host operating system.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-console" data-lang="console">$ cd /LSDTopoTools/Git_projects
@@ -2503,7 +2591,7 @@ In your host operating system these files will not be in <code>/LSDTopoTools/Git
 <h2 id="_examples_of_chi_analysis">6. Examples of chi analysis</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>We will now run some examples of chi analysis using the the <strong>chi mapping tool</strong>.</p>
+<p>We will now run some examples of chi analysis using the <strong>chi mapping tool</strong>.</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -2590,7 +2678,7 @@ $ git clone https://github.com/LSDtopotools/LSDTT_chi_examples.git</code></pre>
 <div class="ulist">
 <ul>
 <li>
-<p><code>find_complete_basins_in_window</code>: This goes through several refining steps. If first checks every basin in the raster and selects basins within a size window between <code>minimum_basin_size_pixels</code> and <code>maximum_basin_size_pixels</code>. It then takes the resulting list of basins and removes any that are influenced by the edge of the DEM (to ensure drainage area of the basin is correct). Finally, it removes nested basins, so that in the end you have basins of approxamaitely the same size, not influenced by the edge of the DEM, and with no nested basins.</p>
+<p><code>find_complete_basins_in_window</code>: This goes through several refining steps. If first checks every basin in the raster and selects basins within a size window between <code>minimum_basin_size_pixels</code> and <code>maximum_basin_size_pixels</code>. It then takes the resulting list of basins and removes any that are influenced by the edge of the DEM (to ensure drainage area of the basin is correct). Finally, it removes nested basins, so that in the end you have basins of approximately the same size, not influenced by the edge of the DEM, and with no nested basins.</p>
 </li>
 <li>
 <p><code>find_largest_complete_basins</code>: This is a somewhat old version that takes all basins draining to edge and works upstream from their outlets to find the largest subbasin that is not influenced by the edge. To get this to work you <strong>MUST ALSO</strong> set <code>find_complete_basins_in_window: false</code>.</p>
@@ -2608,7 +2696,7 @@ $ git clone https://github.com/LSDtopotools/LSDTT_chi_examples.git</code></pre>
 <div class="sect2">
 <h3 id="_using_our_example_scripts">6.3. Using our example scripts</h3>
 <div class="paragraph">
-<p>Okay, lets look at some of the results. I would suggest opening <strong>Spyder</strong> in your host operating system for this.</p>
+<p>Okay, why don&#8217;t we look at some of the results. I would suggest opening <strong>Spyder</strong> in your host operating system for this.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -2626,7 +2714,7 @@ $ git clone https://github.com/LSDtopotools/LSDTT_chi_examples.git</code></pre>
 <p>In MacOS it will be wherever you put the VagrantBoxes folder and then in <code>/LSDTopoTools/Git_projects/LSDMappingTools</code>.</p>
 </li>
 <li>
-<p>You can run these scripts in your vagrant machine, but you will have to do the full python install there, and in addtion you won&#8217;t be able to use any graphical interface (like <strong>spyder</strong>) so our recomendation is for you to run visualisation scripts in your host operating system.</p>
+<p>You can run these scripts in your vagrant machine, but you will have to do the full python install there, and in addition you won&#8217;t be able to use any graphical interface (like <strong>spyder</strong>) so our recommendation is for you to run visualisation scripts in your host operating system.</p>
 <div class="paragraph">
 <p>+ In python, any lines between two blocks of <code>"""</code> symbols is a comment. In our program we put notes between these symbols. Don&#8217;t change them. For example:</p>
 </div>
@@ -2649,7 +2737,7 @@ $ git clone https://github.com/LSDtopotools/LSDTT_chi_examples.git</code></pre>
 </div>
 </li>
 <li>
-<p>In python, you can also make a line a comment with the <code><mark></code> symbol. In these excercises you can uncomment lines by deleteing the <code></mark></code> symbol, and adding it back in again. Initially all but the first part of the first example is turned off:</p>
+<p>In python, you can also make a line a comment with the <code><mark></code> symbol. In these exercises you can uncomment lines by deleting the <code></mark></code> symbol, and adding it back in again. Initially all but the first part of the first example is turned off:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-python" data-lang="python">    CME.ExampleOne_PartOne_SimpleHillshade(DataDirectory,Base_file)
@@ -2725,7 +2813,7 @@ $ git clone https://github.com/LSDtopotools/LSDTT_chi_examples.git</code></pre>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Figuring out the basin numbers using a colourbar is inconvineint. If you turn on the third part of the example you will see text labels for each basin:</p>
+<p>Figuring out the basin numbers using a colourbar is inconvenient. If you turn on the third part of the example you will see text labels for each basin:</p>
 <div class="imageblock">
 <div class="content">
 <img src="images/Xian_basin_keys.png" alt="Numbered basins around Mount_Hua">
@@ -2753,10 +2841,10 @@ $ git clone https://github.com/LSDtopotools/LSDTT_chi_examples.git</code></pre>
 <h2 id="_calculating_concavity">7. Calculating concavity</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>In this section you will find instructions on using the <strong>chi mapping tool</strong> to calculate channel concavity. What is channel concavity? If you look at typical channels, you will find steep headwaters but as you move downstream the channels will become gentler. Authors in the middle of the twentieth century began to calculate channel slope as one moved downstream and found sysematic relasionships between drainage area, <em>A</em> and channel slope, <em>S</em>, finding that the relasionship could be described with \(S = k_s A^{-\theta}\). This relasionship is often called Flint&#8217;s law, after a 1975 paper. The exponent, \(\theta\), is called the concavity because it describes how concave the channel is: if the channel profile has little variation in slope downstream the channel has a low concavity.</p>
+<p>In this section you will find instructions on using the <strong>chi mapping tool</strong> to calculate channel concavity. What is channel concavity? If you look at typical channels, you will find steep headwaters but as you move downstream the channels will become gentler. Authors in the middle of the twentieth century began to calculate channel slope as one moved downstream and found systematic relationships between drainage area, <em>A</em> and channel slope, <em>S</em>, finding that the relasionship could be described with \(S = k_s A^{-\theta}\). This relationship is often called Flint&#8217;s law, after a 1975 paper. The exponent, \(\theta\), is called the concavity because it describes how concave the channel is: if the channel profile has little variation in slope downstream the channel has a low concavity.</p>
 </div>
 <div class="paragraph">
-<p>A number of models have been proposed for channel incision into bedrock, and a number of these models describe erosion as some funciton of slope and drainage area, and in the simplist version of these family of models, called stream power models, the concavity is related to the slope and area exponents, where erosion rate is modelled as \(E = k A^m S^n\) and if uplift is balanced by erosion the predicted topographic outcome is \(\theta = m/n\). There is much debate about the appropriateness of these simple models but it is probably not controversial to say that most geomorphologists believe the concavity refelcts the transport and erosion processes taking place within upland river.</p>
+<p>A number of models have been proposed for channel incision into bedrock, and a number of these models describe erosion as some function of slope and drainage area, and in the simplest version of these family of models, called stream power models, the concavity is related to the slope and area exponents, where erosion rate is modelled as \(E = k A^m S^n\) and if uplift is balanced by erosion the predicted topographic outcome is \(\theta = m/n\). There is much debate about the appropriateness of these simple models but it is probably not controversial to say that most geomorphologists believe the concavity reflects the transport and erosion processes taking place within upland rivers.</p>
 </div>
 <div class="paragraph">
 <p>In addition, a number of authors have used channel steepness to infer either erosion and uplift rates across river networks, and these calculations often involve computing the channel concavity. This can be done in a number of ways. We at <strong>LSDTopoTools</strong> have included a number of methods, both traditional and newly developed, for the purpose of computing the channel concavity in river networks. In this section you will find instructions for using our tools.</p>
@@ -2768,7 +2856,7 @@ $ git clone https://github.com/LSDtopotools/LSDTT_chi_examples.git</code></pre>
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-In this documentation, you will find references to <em>concavity</em> or \(\theta\) and the \(m/n\) ratio. The concavity, \(\theta\), is a purely geometric relasionship between channel slope and drainage area. On the other hand \(m/n\) is derived from stream power and therefore includes some assumptions about the incision model. Because chi (\(\chi\)) can be calculated by assuing an \(m/n\) ratio using topographic data, it also describes slope-area relasionships, but chi analysis is more closely linked to incision models than concavity. Because most of our methods use chi analysis, we use typicaly state that our methods search for the most likely \(m/n\) ratio rather than the most likeley concavity.
+In this documentation, you will find references to <em>concavity</em> or \(\theta\) and the \(m/n\) ratio. The concavity, \(\theta\), is a purely geometric relationship between channel slope and drainage area. On the other hand \(m/n\) is derived from stream power and therefore includes some assumptions about the incision model. Because chi (\(\chi\)) can be calculated by assuming an \(m/n\) ratio using topographic data, it also describes slope-area relationships, but chi analysis is more closely linked to incision models than concavity. Because most of our methods use chi analysis, we use typically state that our methods search for the most likely \(m/n\) ratio rather than the most likely concavity.
 </td>
 </tr>
 </table>
@@ -2794,7 +2882,7 @@ However, there are a few more options that are important in generating sensible 
 <div class="sect3">
 <h4 id="_some_key_options">7.2.1. Some key options</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 15. Main options for performing a concavity or <em>m/n</em> analysis</caption>
+<caption class="title">Table 16. Main options for performing a concavity or <em>m/n</em> analysis</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -2820,7 +2908,7 @@ However, there are a few more options that are important in generating sensible 
 <td class="tableblock halign-left valign-top"><p class="tableblock">collinearity_MLE_sigma</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This is a scaling factor for our maximum likelihood estimator (MLE). In our paper we demonstrate how this is simply a constant that can be removed from MLE calculations, so supervifically its value doesn&#8217;t matter. However, if this value is low, then the MLE values will be zero and you will not get reliable results. If you are getting estimates of <em>m/n</em> that are very low, it might be because sigma is too low. If this is the case you should increase sigma until the best fit values of <em>m/n</em> do not change. <strong>In most cases you can use the default but if you have very large networks you may need to increase this parameter</strong>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This is a scaling factor for our maximum likelihood estimator (MLE). In our paper we demonstrate how this is simply a constant that can be removed from MLE calculations, so superficially its value doesn&#8217;t matter. However, if this value is low, then the MLE values will be zero and you will not get reliable results. If you are getting estimates of <em>m/n</em> that are very low, it might be because sigma is too low. If this is the case you should increase sigma until the best fit values of <em>m/n</em> do not change. <strong>In most cases you can use the default but if you have very large networks you may need to increase this parameter</strong>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">threshold_contributing_pixels</p></td>
@@ -2881,7 +2969,7 @@ segment_slope_area_data: true</code></pre>
 <div class="sect2">
 <h3 id="_running_the_em_m_n_em_analysis">7.3. Running the <em>m/n</em> analysis</h3>
 <div class="paragraph">
-<p>As with all of our tools, we suggest you keep your data and the source code seperate. We will assume the standard directory struture descrbed in the section: <a href="#_installing_the_code_and_setting_up_directories">Installing the code and setting up directories</a>.</p>
+<p>As with all of our tools, we suggest you keep your data and the source code separate. We will assume the standard directory structure described in the section: <a href="#_installing_the_code_and_setting_up_directories">Installing the code and setting up directories</a>.</p>
 </div>
 <div class="paragraph">
 <p>We will assume your data is in the folder <code>/LSDTopoTools/Topographic_projects/LSDTT_chi_examples</code>, which you can clone from github.</p>
@@ -2897,7 +2985,7 @@ segment_slope_area_data: true</code></pre>
 # https://lsdtopotools.github.io/LSDTopoTools_ChiMudd2014/
 
 # These are parameters for the file i/o
-# IMPORTANT: You MUST make the write directory: the code will not work if it doens't exist.
+# IMPORTANT: You MUST make the write directory: the code will not work if it doesn't exist.
 read path: /LSDTopoTools/Topographic_projects/LSDTT_chi_examples
 write path: /LSDTopoTools/Topographic_projects/LSDTT_chi_examples
 read fname: Xian
@@ -2919,7 +3007,7 @@ estimate_best_fit_movern: true</code></pre>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>All you need to do is run ths file using the <strong>chi_mapping_tool</strong>. If you followed instructions for installing the software, this tool will be in the directory <code>/LSDTopoTools/Git_projects/LSDTopoTools_</code>. Navigate to that folder:</p>
+<p>All you need to do is run this file using the <strong>chi_mapping_tool</strong>. If you followed instructions for installing the software, this tool will be in the directory <code>/LSDTopoTools/Git_projects/LSDTopoTools_</code>. Navigate to that folder:</p>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-console" data-lang="console">$ cd /LSDTopoTools/Git_projects/LSDTopoTool_ChiMudd2014/driver_functions_MuddChi2014/</code></pre>
@@ -2935,7 +3023,7 @@ estimate_best_fit_movern: true</code></pre>
 </div>
 </li>
 <li>
-<p>Congratulations! You have set your first movern analysis running. It might take a little while to work its way though all the analyses so sit back, relax, and catch up on some <a href="http://www.bbc.co.uk/football/hibernianfc/">important news</a>. When it finishes you will be ready to visualise your data.</p>
+<p>Congratulations! You have set your first movern (<em>m/n</em>) analysis running. It might take a little while to work its way though all the analyses so sit back, relax, and catch up on some <a href="http://www.bbc.co.uk/football/hibernianfc/">important news</a>. When it finishes you will be ready to visualise your data.</p>
 </li>
 </ol>
 </div>
@@ -3037,7 +3125,7 @@ You need to run the analysis before any of this will work!
 <div class="title">Figure 4. The extracted basins for the <em>m/n</em> analysis</div>
 </div>
 <div class="paragraph">
-<p>It also contains images of the most likeley <em>m/n</em> ratio following three methods: slope-area analysis, collinearity analysis of chi profiles using all channel points, and collinearity using chi points at random intervals iterated upon using a Monte-Carlo scheme. Our extensive testing against numerical models under ideal conditions suggest the least trustworthy of these extracted <em>m/n</em> ratios is the slope-area data, whereas the most trustworthy are the data derived from the Monte Carlo chi approach. It is not possible to know which of these methods is "true" but if all methods agree you can have high confidence in the <em>m/n</em> ratio and if they disagree our guidance is to use the Monte Carlo chi method.</p>
+<p>It also contains images of the most likely <em>m/n</em> ratio following three methods: slope-area analysis, collinearity analysis of chi profiles using all channel points, and collinearity using chi points at random intervals iterated upon using a Monte-Carlo scheme. Our extensive testing against numerical models under ideal conditions suggest the least trustworthy of these extracted <em>m/n</em> ratios is the slope-area data, whereas the most trustworthy are the data derived from the Monte Carlo chi approach. It is not possible to know which of these methods is "true" but if all methods agree you can have high confidence in the <em>m/n</em> ratio and if they disagree our guidance is to use the Monte Carlo chi method.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -3087,7 +3175,7 @@ You need to run the analysis before any of this will work!
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>A plot showing the best fit <em>m/n</em> as a function of basin key that inclde the various chi methods and the slope-area method using a regression through all the data.</p>
+<p>A plot showing the best fit <em>m/n</em> as a function of basin key that includes the various chi methods and the slope-area method using a regression through all the data.</p>
 <div class="imageblock">
 <div class="content">
 <img src="images/movern_Xian_movern_summary.png" alt="Summary _m/n_ plot">
@@ -3096,7 +3184,7 @@ You need to run the analysis before any of this will work!
 </div>
 </li>
 <li>
-<p>A plot showing the best fit <em>m/n</em> as a function of basin key that inclde the various chi methods and the slope-area method using a regression through all segments and tributaries. These S-A data tend to have very high varibility, as reflected in the uncertainty bands.</p>
+<p>A plot showing the best fit <em>m/n</em> as a function of basin key that includes the various chi methods and the slope-area method using a regression through all segments and tributaries. These S-A data tend to have very high variability, as reflected in the uncertainty bands.</p>
 </li>
 <li>
 <p>A plot showing the probability of different <em>m/n</em> values of each of the different methods plotted as a <a href="http://blog.revolutionanalytics.com/2017/07/joyplots.html">joyplot</a>.</p>
@@ -3129,13 +3217,13 @@ You need to run the analysis before any of this will work!
 <p>We have performed a number of simulations where uplift (and thus erosion) rates vary in time, where the <em>n</em> exponent varies between model runs, and where both uplift and erodibility vary in space. The latter two violate assumption of the chi method but in real landscapes many of these assumptions will be violated and we wanted to know if one could still extract reasonable approximations of the <em>m/n</em> ratio.</p>
 </div>
 <div class="paragraph">
-<p>What we found was that slope area analysis performs the worst when reconstructing <em>m/n</em> values, whereas our monte carlo points method performs the best: even in highly perturbed landscapes the true <em>m/n</em> ratio fell within the error bounds of the compute <em>m/n</em> ratio. For full reporting of these results please see our upcoming ESURF paper (as of 14-September we are not finished but we hope to submit in October).</p>
+<p>What we found was that slope area analysis performs the worst when reconstructing <em>m/n</em> values, whereas our Monte Carlo points method performs the best: even in highly perturbed landscapes the true <em>m/n</em> ratio fell within the error bounds of the compute <em>m/n</em> ratio. For full reporting of these results please see our upcoming ESURF paper (as of 14-September we are not finished but we hope to submit in October).</p>
 </div>
 <div class="paragraph">
-<p><strong>For slope-area analysis</strong>, we tried to estimate uncertainty initially by getting the uncertainties on the regression coefficients of log S-log A data (we did this with bootstrapping and looking standard uncertainties of regression coefficients found in typical statistical packages). The problem with this is that there are very large numbers of data points and these uncertainty metrics are reduced (i.e. lower uncertanty) as more data is added. So the regression coefficents, according to these metrics, are very certain, but compared to model runs the coefficients are wrong! Our appraoch has been to estimate the <em>m/n</em> ratio for all tributaries, and for segments of the channel network, as well as for all data and for the truck channel, and report all the values. These have very high ranges of values in most landscapes. Overall our reccomendation is that if slope area data agrees with chi-based metrics that one can have high confidence in the estimated <em>m/n</em> values but otherwise slope area data should be treated with caution.</p>
+<p><strong>For slope-area analysis</strong>, we tried to estimate uncertainty initially by getting the uncertainties on the regression coefficients of log <em>S</em>-log <em>A</em> data (we did this with bootstrapping and looking standard uncertainties of regression coefficients found in typical statistical packages). The problem with this is that there are very large numbers of data points and these uncertainty metrics are reduced (i.e. lower uncertainty) as more data is added. So the regression coefficients, according to these metrics, are very certain, but compared to model runs the coefficients are wrong! Our approach has been to estimate the <em>m/n</em> ratio for all tributaries, and for segments of the channel network, as well as for all data and for the truck channel, and report all the values. These have very high ranges of values in most landscapes. Overall our recommendation is that if slope area data agrees with chi-based metrics that one can have high confidence in the estimated <em>m/n</em> values but otherwise slope area data should be treated with caution.</p>
 </div>
 <div class="paragraph">
-<p><strong>For chi-based analyses</strong>, we tried several methods. Firstly, we compare the fit between all tributary data and the trunk channel. Since all data is used, there are no measures of uncertainty. This is quite unstatisfying so the second method we used was to randomly select a fixed number of points at fixed locations upstream of the tributary junction, calculate the likelyhood based on these points, and iterate using this method several hundred or even thousand times. This allows is to calculate a range of maximum likelihood estimators (MLE) for each <em>m/n</em> ratio, and we then can calculate the uncertainty bands. We do this by using the minimum MLE value for the most likely <em>m/n</em> and then seeing where this is equal to the maximum value of MLE for other <em>m/n</em> ratios.</p>
+<p><strong>For chi-based analyses</strong>, we tried several methods. Firstly, we compare the fit between all tributary data and the trunk channel. Since all data is used, there are no measures of uncertainty. This is quite unsatisfying so the second method we used was to randomly select a fixed number of points at fixed locations upstream of the tributary junction, calculate the likelihood based on these points, and iterate using this method several hundred or even thousand times. This allows is to calculate a range of maximum likelihood estimators (MLE) for each <em>m/n</em> ratio, and we then can calculate the uncertainty bands. We do this by using the minimum MLE value for the most likely <em>m/n</em> and then seeing where this is equal to the maximum value of MLE for other <em>m/n</em> ratios.</p>
 </div>
 </div>
 <div class="sect3">
@@ -3146,10 +3234,10 @@ You need to run the analysis before any of this will work!
 <div class="ulist">
 <ul>
 <li>
-<p>Basin selection is quite important, especially for chi methods. Our chi methods compare the chi-elevation profiles of tributaries to the trunk channel. This means that if your basin has no or few tributaries you will not get particulary robust results. This is also the case if all of your tributaries are quite short. You can increase the number and lenght of tributaries by either increasing the basin size (so increasing <code>minimum_basin_size_pixels</code> and <code>minimum_basin_size_pixels</code>) or by reducing the threshold contributing area to initiate a channel (<code>threshold_contributing_pixels</code>).</p>
+<p>Basin selection is quite important, especially for chi methods. Our chi methods compare the chi-elevation profiles of tributaries to the trunk channel. This means that if your basin has no or few tributaries you will not get particularly robust results. This is also the case if all of your tributaries are quite short. You can increase the number and length of tributaries by either increasing the basin size (so increasing <code>minimum_basin_size_pixels</code> and <code>minimum_basin_size_pixels</code>) or by reducing the threshold contributing area to initiate a channel (<code>threshold_contributing_pixels</code>).</p>
 </li>
 <li>
-<p>Avoiding fan surfaces or alluvial surfaces: Our tools are mainly designed for mountain landscapes. Alluvial fans and alluvial channel have different concavities than bedrock channels. In addiiton, these tend to be low relief surfaces so slope values are very sensitive to topographic errors. By turning <code>remove_seas: true</code> and setting the <code>minimum_elevation</code> to a value that is the approximate elevation of your mountain front.</p>
+<p>Avoiding fan surfaces or alluvial surfaces: Our tools are mainly designed for mountain landscapes. Alluvial fans and alluvial channel have different concavities than bedrock channels. In addition, these tend to be low relief surfaces so slope values are very sensitive to topographic errors. By turning <code>remove_seas: true</code> and setting the <code>minimum_elevation</code> to a value that is the approximate elevation of your mountain front.</p>
 </li>
 <li>
 <p>The <code>collinearity_MLE_sigma</code> should be increased if you are finding that most of your <em>m/n</em> ratios are coming out as the same, very low value. Sometimes channels have low concavity! But sometimes the MLEs in a basin are all zero and in this case the code defaults to the lowest <em>m/n</em> value given (<code>start_movern</code>). You can tell if channels are actually low concavity by looking at the chi plots.</p>
@@ -3161,10 +3249,10 @@ You need to run the analysis before any of this will work!
 <div class="sect2">
 <h3 id="_files_output_by_the_m_n_analysis">7.6. Files output by the m/n analysis</h3>
 <div class="paragraph">
-<p>The \(m/n\) analysis will produce a number of new files in both raster and comma seperated value formats. You can also tell the code to print csv files to geojson files if you want to directly load them into your favourite GIS.</p>
+<p>The \(m/n\) analysis will produce a number of new files in both raster and comma separated value formats. You can also tell the code to print csv files to geojson files if you want to directly load them into your favourite GIS.</p>
 </div>
 <div class="paragraph">
-<p>We expect most users will go straight to the figures generated by our python script, which should be publication quality. However, we list here the file outputs so you can inspect the data outputs ith which you can create your own plotting routines, if you so wish. We believe data should be transparent and reproducible, so all our python plots make figures from data that has been printed to file: you will always be able to see the data behind the figures. Please do not abuse our willingness to do this by taking our data an publishing horrible figures created in excel.</p>
+<p>We expect most users will go straight to the figures generated by our python script, which should be publication quality. However, we list here the file outputs so you can inspect the data outputs ith which you can create your own plotting routines, if you so wish. We believe data should be transparent and reproducible, so all our python plots make figures from data that has been printed to file: you will always be able to see the data behind the figures. Please do not abuse our willingness to do this by taking our data and publishing horrible figures created in excel.</p>
 </div>
 <div class="sect3">
 <h4 id="_files_created_by_the_strong_chi_mapping_tool_strong">7.6.1. Files created by the <strong>chi mapping tool</strong></h4>
@@ -3172,7 +3260,7 @@ You need to run the analysis before any of this will work!
 <p>These files will be created by the <strong>chi mapping tool</strong> and will be located in the directory designated by the <code>read path</code> parameter in the parameter file.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 16. Raster files</caption>
+<caption class="title">Table 17. Raster files</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
@@ -3199,7 +3287,7 @@ You need to run the analysis before any of this will work!
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 17. Files used for plotting channels, basins and profiles</caption>
+<caption class="title">Table 18. Files used for plotting channels, basins and profiles</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
@@ -3221,7 +3309,7 @@ You need to run the analysis before any of this will work!
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">_chi_data_map</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">csv</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This contains data for the channel pixels that is used to plot channels, such as location of the pixels (in lat-long WGS1984), elevation, flow distance, drainage area, and information about the basin and source key (the latter being a key to identify individual tributaries). Chi is also reporte in this file, it is defaulted to <em>m/n</em> = 0.5. To look at profiles with differen <em>m/n</em> values use <code>_movern</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This contains data for the channel pixels that is used to plot channels, such as location of the pixels (in lat-long WGS1984), elevation, flow distance, drainage area, and information about the basin and source key (the latter being a key to identify individual tributaries). Chi is also reported in this file, it is defaulted to <em>m/n</em> = 0.5. To look at profiles with different <em>m/n</em> values use <code>_movern</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">_movern</p></td>
@@ -3231,7 +3319,7 @@ You need to run the analysis before any of this will work!
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 18. Files containing statistics from chi-based methods</caption>
+<caption class="title">Table 19. Files containing statistics from chi-based methods</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
@@ -3258,22 +3346,22 @@ You need to run the analysis before any of this will work!
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">_MCpoint_XX_pointsMC</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">csv</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This reports on the results from the Monte-Carlo points approach. For each <em>m/n</em> value, it samples points for <code>N</code> iterations (determined by the <code>MC_point_iterations</code> flag) and then caluculates summary statistics for each basin. These include minimum, first quartile, median, third quartile and maximum MLE values. Each <em>m/n</em> ratio gets its own file, so if <em>m/n</em> = 1 the file is called <code>_MCpoint_0.1_pointsMC.csv</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This reports on the results from the Monte-Carlo points approach. For each <em>m/n</em> value, it samples points for <code>N</code> iterations (determined by the <code>MC_point_iterations</code> flag) and then calculates summary statistics for each basin. These include minimum, first quartile, median, third quartile and maximum MLE values. Each <em>m/n</em> ratio gets its own file, so if <em>m/n</em> = 1 the file is called <code>_MCpoint_0.1_pointsMC.csv</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">_MCpoint_points_MC_basinstats</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">csv</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This reports on the results from the Monte-Carlo points approach, compiling data from the <code><em>MCpoint_XX_pointsMC.csv</code>. The file reports on each basin, with the first quartial, median and third quartial reported for every _m/n</em> analysed. Note that now that I have gone through the trouble of writing this documentation it is unlikeley these idiotic filenames will change. I take full responsiblity. Mi dispiache. SMM</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This reports on the results from the Monte-Carlo points approach, compiling data from the <code><em>MCpoint_XX_pointsMC.csv</code>. The file reports on each basin, with the first quartile, median and third quartile reported for every _m/n</em> analysed. Note that now that I have gone through the trouble of writing this documentation it is unlikely these idiotic filenames will change. I take full responsiblity. Mi dispiache. SMM</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">_movern_residuals_median</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">csv</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This reports the median value of all the residuals of the full chi dataset between tributaries and the trunk stream. The idea here was that the best fit <em>m/n</em> value might correspond to where residuals were evenly distributed above and below the main stem channel. After testing this, however, we found that this always overestimated <em>m/n</em>, so we do not include it in the summary plots. Retained here for completeness. The first and thrird quartile of residuals are also reported in thier own files (<code>_movern_residuals_Q1</code> and <code>_movern_residuals_Q3</code>).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This reports the median value of all the residuals of the full chi dataset between tributaries and the trunk stream. The idea here was that the best fit <em>m/n</em> value might correspond to where residuals were evenly distributed above and below the main stem channel. After testing this, however, we found that this always overestimated <em>m/n</em>, so we do not include it in the summary plots. Retained here for completeness. The first and third quartile of residuals are also reported in their own files (<code>_movern_residuals_Q1</code> and <code>_movern_residuals_Q3</code>).</p></td>
 </tr>
 </tbody>
 </table>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 19. Files associated with slope-area analysis</caption>
+<caption class="title">Table 20. Files associated with slope-area analysis</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
@@ -3311,7 +3399,7 @@ You need to run the analysis before any of this will work!
 <p>These files will be created by <strong>PlotMoverNAnalysis.py * and will be in the *summary_plots</strong> directory.</p>
 </div>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 20. Summary files</caption>
+<caption class="title">Table 21. Summary files</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
@@ -3328,7 +3416,7 @@ You need to run the analysis before any of this will work!
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">_movern_summary</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">csv</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This contains summary data on the most likely <em>m/n</em> ratio using a number of different methods. The methods are labeled in the column headers.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This contains summary data on the most likely <em>m/n</em> ratio using a number of different methods. The methods are labelled in the column headers.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">_SA_segment_summary</p></td>
@@ -3347,7 +3435,7 @@ You need to run the analysis before any of this will work!
 <div class="sect3">
 <h4 id="_parameters_for_exploring_the_em_m_n_em_ratio_with_chi_analysis_2">7.7.1. Parameters for exploring the <em>m/n</em> ratio with chi analysis</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 21. Parameters for trying to constrain the <em>m/n</em> ratio using chi analysis</caption>
+<caption class="title">Table 22. Parameters for trying to constrain the <em>m/n</em> ratio using chi analysis</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -3397,19 +3485,19 @@ You need to run the analysis before any of this will work!
 <td class="tableblock halign-left valign-top"><p class="tableblock">calculate_MLE_collinearity_with_points</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. It uses specific points on tributaries to conpare the the mainstem. These are located at fixed chi distances upstream of the lower junction of the tributary. The effect is to ensure that all tributaries are weighted similarly in calculating <em>m/n</em>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. It uses specific points on tributaries to compare to the mainstem. These are located at fixed chi distances upstream of the lower junction of the tributary. The effect is to ensure that all tributaries are weighted similarly in calculating <em>m/n</em>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">calculate_MLE_collinearity_with_points_MC</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. It uses specific points on tributaries to conpare the the mainstem. The location of these points is selected at random and this process is reapeated a number of times (the default is 1000) to quantify uncertanty in the best fit <em>m/n</em> ration.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true loops though every <em>m/n</em> value and calculates the goodness of fit between tributaries and the main stem. It reports back both MLE and RMSE values. Used to determine <em>m/n</em> ratios. It uses specific points on tributaries to compare to the mainstem. The location of these points is selected at random and this process is reapeated a number of times (the default is 1000) to quantify uncertanty in the best fit <em>m/n</em> ration.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">collinearity_MLE_sigma</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">A value that scales MLE. It does not afffect which <em>m/n</em> value is the most likeley. However it affects the absolute value of MLE. If it is set too low, MLE values for poorly fit segments will be zero. We have performed sensitivity and found that once all channels have nonzero MLE values the most likely channel does not change. So this should be set high enough to ensure there are nonzero MLE values for all tributaries. Set this too high, however, and all MLE values will be very close to 1 so plotting becomes difficult as the difference between MLE are at many significant digits (e.g., 0.9999997 vs 0.9999996). We have found that a value of 1000 works in most situations.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">A value that scales MLE. It does not affect which <em>m/n</em> value is the most likely. However it affects the absolute value of MLE. If it is set too low, MLE values for poorly fit segments will be zero. We have performed sensitivity and found that once all channels have nonzero MLE values the most likely channel does not change. So this should be set high enough to ensure there are nonzero MLE values for all tributaries. Set this too high, however, and all MLE values will be very close to 1 so plotting becomes difficult as the difference between MLE are at many significant digits (e.g., 0.9999997 vs 0.9999996). We have found that a value of 1000 works in most situations.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">MC_point_fractions</p></td>
@@ -3427,7 +3515,7 @@ You need to run the analysis before any of this will work!
 <td class="tableblock halign-left valign-top"><p class="tableblock">max_MC_point_fraction</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.5</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The maximum fraction of the length, in chi, of the main stem that points will be measured over the tributary. For example, if the main stem has a chi lenght of 2 metres, then points on tributaries up to 1 metres from the conluence with the main stem will be tested by the <code>calculate_MLE_collinearity_with_points_MC</code> routine.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The maximum fraction of the length, in chi, of the main stem that points will be measured over the tributary. For example, if the main stem has a chi length of 2 metres, then points on tributaries up to 1 metres from the confluence with the main stem will be tested by the <code>calculate_MLE_collinearity_with_points_MC</code> routine.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">movern_residuals_test</p></td>
@@ -3445,7 +3533,7 @@ You need to run the analysis before any of this will work!
 <td class="tableblock halign-left valign-top"><p class="tableblock">MCMC_movern_analysis</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true, runs a Monte Carlo Markov Chain analysis of the best fit <em>m/n</em>. First attempts to tune the sigma value for the profuiles to get an MCMC acceptance rate of 25%, then runs a chain to contrain uncertainties. At the moment the tuning doesn&#8217;t seem to be working properly!! This is also extremely computationally expensive, for a, say, 10Mb DEM analysis might last several days on a single CPU core. If you want uncertainty values for the <em>m/n</em> ratio you should use the <code>calculate_MLE_collinearity_with_points_MC</code> routine.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, runs a Monte Carlo Markov Chain analysis of the best fit <em>m/n</em>. First attempts to tune the sigma value for the profiles to get an MCMC acceptance rate of 25%, then runs a chain to constrain uncertainties. At the moment the tuning doesn&#8217;t seem to be working properly!! This is also extremely computationally expensive, for a, say, 10Mb DEM analysis might last several days on a single CPU core. If you want uncertainty values for the <em>m/n</em> ratio you should use the <code>calculate_MLE_collinearity_with_points_MC</code> routine.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">MCMC_chain_links</p></td>
@@ -3471,7 +3559,7 @@ You need to run the analysis before any of this will work!
 <div class="sect3">
 <h4 id="_parameters_for_exploring_the_em_m_n_em_ratio_with_slope_area_analysis_2">7.7.2. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</h4>
 <table class="tableblock frame-all grid-all spread">
-<caption class="title">Table 22. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</caption>
+<caption class="title">Table 23. Parameters for exploring the <em>m/n</em> ratio with slope-area analysis</caption>
 <colgroup>
 <col style="width: 20%;">
 <col style="width: 20%;">
@@ -3491,13 +3579,13 @@ You need to run the analysis before any of this will work!
 <td class="tableblock halign-left valign-top"><p class="tableblock">SA_vertical_interval</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">20</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This parameter is used for slope-area analysis. Each channel is traced downslope. A slope (or gradient) is calculated by dividing the fall in the channel elevation over the flow distance; the program aims to calculate the slope at as near to a fixed vertical interval as possible following advice of Wobus et al 2006.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This parameter is used for slope-area analysis. Each channel is traced downslope. A slope (or gradient) is calculated by dividing the fall in the channel elevation over the flow distance; the program aims to calculate the slope at as near to a fixed vertical interval as possible following advice of <a href="https://www.researchgate.net/profile/Eric_Kirby2/publication/228740545_Tectonics_from_topography_Procedures_promise_and_pitfalls/links/57d75a4a08ae6399a395aca6.pdf">Wobus et al 2006</a>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">log_A_bin_width</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">float</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">0.1</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This is for slope-area analysis. The raw slope-area data is always a horrendous mess. To get something that is remotely sensible you must bin the data. We bin the data in bins of the logarithm of the Area in metres^2. This is the log bin width.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This is for slope-area analysis. The raw slope-area data is always a horrendous mess. To get something that is remotely sensible you must bin the data. We bin the data in bins of the logarithm of the Area in metres<sup>2</sup>. This is the log bin width.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_slope_area_data</p></td>
@@ -3515,13 +3603,13 @@ You need to run the analysis before any of this will work!
 <td class="tableblock halign-left valign-top"><p class="tableblock">slope_area_minimum_segment_length</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">int</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Sets the minimum segment lenght of a fitted segment to the S-A data.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets the minimum segment length of a fitted segment to the S-A data.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bootstrap_SA_data</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">This bootstraps S-A data by removing a fraction of the data (set below) in each iteration and calculating the regression coefficients. It is used to estimate uncertainty, but it deosn&#8217;t really work since uncertainty in regression coefficients reduces with more samples and S-A datasets have thousands of samples. Left here as a kind of monument to our futile efforts.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">This bootstraps S-A data by removing a fraction of the data (set below) in each iteration and calculating the regression coefficients. It is used to estimate uncertainty, but it doesn&#8217;t really work since uncertainty in regression coefficients reduces with more samples and S-A datasets have thousands of samples. Left here as a kind of monument to our futile efforts.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">N_SA_bootstrap_iterations</p></td>
