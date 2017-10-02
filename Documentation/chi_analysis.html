@@ -560,7 +560,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 </ul>
 </li>
-<li><a href="#_annexes">8. Annexes</a></li>
+<li><a href="#_annexes">8. Annexes</a>
+<ul class="sectlevel2">
+<li><a href="#_a_getting_your_lithologic_data_ready">8.1. A: Getting your lithologic data ready</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -1579,7 +1583,7 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 <div class="sect3">
 <h4 id="_integrating_lithologic_information">4.3.7. Integrating lithologic information</h4>
 <div class="paragraph">
-<p>In some circumstances you might want to integrate lithologic, structural or tectonic information. This include burning this information onto your data of the channel network and generate some statistics about the lithologic content of each of the basins selected for analysis. This routine is an adaptation of the raster burning optimised specifically for geologic data. Outputs are formatted to be ready to use by the <a href="https://github.com/LSDtopotools/LSDMappingTools">LSDMappingTools</a> lithologic-related plotting routines. You can find an automated way to prepare your data from a shapefile in the annexes: <a href="#A: Getting your lithologic data ready">[A: Getting your lithologic data ready]</a>.</p>
+<p>In some circumstances you might want to integrate lithologic, structural or tectonic information. This include burning this information onto your data of the channel network and generate some statistics about the lithologic content of each of the basins selected for analysis. This routine is an adaptation of the raster burning optimised specifically for geologic data. Outputs are formatted to be ready to use by the <a href="https://github.com/LSDtopotools/LSDMappingTools">LSDMappingTools</a> lithologic-related plotting routines. You can find an automated way to prepare your data from a shapefile in the annexes: <a href="#_a_getting_your_lithologic_data_ready">A: Getting your lithologic data ready</a>.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -3638,8 +3642,90 @@ You need to run the analysis before any of this will work!
 <div class="paragraph">
 <p>This section holds helps about diverse installation or data preparation.</p>
 </div>
+<div class="sect2">
+<h3 id="_a_getting_your_lithologic_data_ready">8.1. A: Getting your lithologic data ready</h3>
 <div class="paragraph">
-<p>Unresolved directive in book/08-annexes/annexes.asc - include::getting_shapefile.asc[]</p>
+<p>Lithologic datasets need to be formatted to be understable by LSDTopoTools. LSDTopoTools can indeed only ingest rasters for the moment, and thus numerical data rather than letters and words. Most of the time your geological will be in a shapefile format that need to be then rasterize. Basically, the analysis just need a raster with areas containing different numerical values and a csv file containing the signification of these. The code will then format the raster with the right extent to <code>_LITHRAST.bil</code>. Your lithokey file needs to have a name finishing with <code>_lithokey.csv</code> and needs to have the following headers: <code>ID</code>, containing the data string, and <code>rocktype</code>, containing the corresponding value in the raster. For instance:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>_beverley_lithokeys.csv_
+ID,rocktype
+sandstone,4
+granite,2
+basalt,1</code></pre>
+</div>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Generating these files can be made manually or with any major GIS, but formatting errors can easily be made. We propose there a method to generate automatically all these file with the right format from a shapefile containing the geological information. You will need Python to use the generating script, you can refer to the <a href="#Using Python">[Using Python]</a> section for instruction about installation.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The Python script that automate this process is present in the LSDMappingTools plotting library developped in parallel of LSDTopoTools. You can refer to the section <a href="#_getting_our_plotting_tools">Getting our plotting tools</a> to download the needed repository. The script we are going to use is called <code>Rasterization.py</code> and can be executed without modifying the code, only using the command line.</p>
+</div>
+<div class="paragraph">
+<p>The first step is to open a terminal and to navigate with <code>cd</code> until your LSDMappingTools folder.
+You can then obtain the documentation of this script by running the command <code>python Rasterization.py -h</code> displaying the following results:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>-h, --help            show this help message and exit
+  -dir DIRECTORY, --directory DIRECTORY
+                        The base directory with the shapefile. If this isn't
+                        defined I'll assume it's the same as the current
+                        directory.
+  -fn FNAME_PREFIX, --fname_prefix FNAME_PREFIX
+                        The name of your shapefile without extention (no .shp
+                        at the end)
+  -fd FIELD_NAME, --field_name FIELD_NAME
+                        The name of the field that will give the value to the
+                        raster
+  -rast RASTERIZATION, --rasterization RASTERIZATION
+                        Rasterize your file into a tif raster and produce a
+                        lithokey csv file containing the keys for the
+                        numerisation of the data.
+  -rn RENAME, --rename RENAME
+                        rename your raster after rasterization, optional.
+  -UTM UTM_CODE, --UTM_CODE UTM_CODE
+                        Give the UTM UTM_CODE of your zone to automate the
+                        conversion of the raster into an LSDTopoTools
+                        compatible raster.
+  -S SOUTH, --SOUTH SOUTH
+                        Turn to True if your UTM zone is in the southern
+                        hemisphere. A quick way to check that is to go on
+                        field and to observe how flow the water in a
+  -res RESOLUTION, --resolution RESOLUTION
+                        Precise this argument if you want to change the raster
+                        resolution, default 30</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The script need at least the following option to run: the directory where your shapefile is, the prefix of the shapefile and the name of the field containing the information you want to digitalise. You can launch the following command to produce a basic rasterization.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>python Rasterization.py -dir /home/PhilCollins/DataStore/GIS/US/ -fn beverly_litho -fd geology</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>this would create a raster and a csv file. However, the output raster will be in WGS94 geographic system. You would need to translate it in UTM to make it usable by LSDTopoTools. You can either use <em>GDAL</em>, your favorite GIS or adding the following options to the python script: <code>-UTM</code>, followed byt the UTM zone of your area, with <code>-S True</code> if your area is in the southern hemisphere. Finaly, you can add at any point the <code>-res X</code> option to set a resolution different than 30 meters and <code>-rn X</code> if you want to specifiy a new name for the raster. A complete command would then be:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>python Rasterization.py -dir /home/PhilCollins/DataStore/GIS/Africa/ -fn Tanzania_litho -fd LITH -UTM 33 -SOUTH True -rn GeoRast -res 12</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Your raster is then ready to be ingested by LSDTopoTools.</p>
+</div>
 </div>
 </div>
 </div>
