@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.6.1">
-<meta name="author" content="Simon M. Mudd and Fiona J. Clubb, School of GeoSciences, University of Edinburgh">
+<meta name="author" content="Simon M. Mudd, Fiona J. Clubb, and Boris Gailleton, School of GeoSciences, University of Edinburgh">
 <title>User guide to chi analysis</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
@@ -431,7 +431,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>User guide to chi analysis</h1>
 <div class="details">
-<span id="author" class="author">Simon M. Mudd and Fiona J. Clubb, School of GeoSciences, University of Edinburgh</span><br>
+<span id="author" class="author">Simon M. Mudd, Fiona J. Clubb, and Boris Gailleton, School of GeoSciences, University of Edinburgh</span><br>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -560,9 +560,15 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 </ul>
 </li>
-<li><a href="#_annexes">8. Annexes</a>
+<li><a href="#_appendix_preparing_lithologic_data">Appendix A: Appendix: preparing lithologic data</a>
 <ul class="sectlevel2">
-<li><a href="#_a_getting_your_lithologic_data_ready">8.1. A: Getting your lithologic data ready</a></li>
+<li><a href="#_getting_your_lithologic_data_ready">A.1. Getting your lithologic data ready</a>
+<ul class="sectlevel3">
+<li><a href="#_the_code_rasterization_py_code_script">A.1.1. The <code>Rasterization.py</code> script</a></li>
+<li><a href="#_code_rasterization_py_code_basic_usage">A.1.2. <code>Rasterization.py</code> basic usage</a></li>
+<li><a href="#_code_rasterization_py_code_to_output_into_utm_coordinates">A.1.3. <code>Rasterization.py</code> to output into UTM coordinates</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -1583,7 +1589,7 @@ At the moment the burning function only works for the <code>print_chi_data_maps<
 <div class="sect3">
 <h4 id="_integrating_lithologic_information">4.3.7. Integrating lithologic information</h4>
 <div class="paragraph">
-<p>In some circumstances you might want to integrate lithologic, structural or tectonic information. This include burning this information onto your data of the channel network and generate some statistics about the lithologic content of each of the basins selected for analysis. This routine is an adaptation of the raster burning optimised specifically for geologic data. Outputs are formatted to be ready to use by the <a href="https://github.com/LSDtopotools/LSDMappingTools">LSDMappingTools</a> lithologic-related plotting routines. You can find an automated way to prepare your data from a shapefile in the annexes: <a href="#_a_getting_your_lithologic_data_ready">A: Getting your lithologic data ready</a>.</p>
+<p>In some circumstances you might want to integrate lithologic, structural or tectonic information. For example, you might want to append lithologic data to your channel data in order to explore how channel properties vary by lithology. We call the process of appending data from a raster to channel data (that is in csv of json format) "burning": we take raster data and "burn" it onto csv or json data. Our burning routines work for any raster but we have, in addition, a number of routines that are optimised specifically for geologic data. Outputs are formatted to be ready to use by the <a href="https://github.com/LSDtopotools/LSDMappingTools">LSDMappingTools</a> lithologic-related plotting routines. You can find an automated way to prepare your data from a shapefile in the annexes: <a href="#A: Getting your lithologic data ready">[A: Getting your lithologic data ready]</a>.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -1618,13 +1624,13 @@ These option are undergoing active development. New options will be regularly ad
 <td class="tableblock halign-left valign-top"><p class="tableblock">print_litho_info</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">bool</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">false</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If true, takes a lithologic raster data and appends it to csv data of channel points. It also generates some simple statistic in a csv file called <em>fname_SBASLITH.csv</em>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, takes a lithologic raster data and appends it to csv data of channel points. It also generates some simple statistic in a csv file called <em>fname_SBASLITH.csv</em>. The routine will also produce a clipped lithology raster with extension <code>_LITHRAST.bil</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">litho_raster</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">NULL</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The prefix of the raster (without the <code>bil</code> extension) that contains the geological dataset. Does not include the directory path. The raster <strong>MUST</strong> be in the same directory as your input DEM. An earlier step is required to generate this file described on another part.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The prefix of the raster (without the <code>bil</code> extension) that contains the geological dataset. Does not include the directory path. The raster <strong>MUST</strong> be in the same directory as your input DEM. An earlier step is required to generate this file described on another part. The <strong>lithology raster</strong> <strong>DOES NOT</strong> need to be the same size as your topographic data. The routine will clip the raster to your topographic raster; this resulting clipped raster will have a filename that contains <code>_LITHRAST.bil</code>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1635,7 +1641,7 @@ These option are undergoing active development. New options will be regularly ad
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Once you have launched this analysis, a clipped version of your lithologic raster will be generated to the extent of your base raster for plotting purposes called <code>fname_LITHRAST.bil</code>. If your lithologic raster is significantly larger than your topographic raster it can result in long loading times, so after the first call to the <code>print_litho_info</code> routine you can replace the <code>litho_raster</code> with <code>fname_LITHRAST</code> (fname will be the name of your DEM) to save computational time.
+If your lithologic raster is significantly larger than your topographic raster it can result in long loading times, so after the first call to the <code>print_litho_info</code> routine you can replace the <code>litho_raster</code> with <code>fname_LITHRAST</code> (fname will be the name of your DEM) to save computational time.
 </td>
 </tr>
 </table>
@@ -3637,19 +3643,19 @@ You need to run the analysis before any of this will work!
 </div>
 </div>
 <div class="sect1">
-<h2 id="_annexes">8. Annexes</h2>
+<h2 id="_appendix_preparing_lithologic_data">Appendix A: Appendix: preparing lithologic data</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This section holds helps about diverse installation or data preparation.</p>
+<p>This appendix explains how to use our python routines to prepare lithology shapefiles for use in <strong>LSDTopoTools</strong>.</p>
 </div>
 <div class="sect2">
-<h3 id="_a_getting_your_lithologic_data_ready">8.1. A: Getting your lithologic data ready</h3>
+<h3 id="_getting_your_lithologic_data_ready">A.1. Getting your lithologic data ready</h3>
 <div class="paragraph">
-<p>Lithologic datasets need to be formatted to be understable by LSDTopoTools. LSDTopoTools can indeed only ingest rasters for the moment, and thus numerical data rather than letters and words. Most of the time your geological will be in a shapefile format that need to be then rasterize. Basically, the analysis just need a raster with areas containing different numerical values and a csv file containing the signification of these. The code will then format the raster with the right extent to <code>_LITHRAST.bil</code>. Your lithokey file needs to have a name finishing with <code>_lithokey.csv</code> and needs to have the following headers: <code>ID</code>, containing the data string, and <code>rocktype</code>, containing the corresponding value in the raster. For instance:</p>
+<p>Lithologic datasets need to be formatted prior to ingestion by <strong>LSDTopoTools</strong>. At the moment, <strong>LSDTopoTools</strong> is only to ingest this data in raster format, whereas most lithologic data is provided in shapefiles. We have created a number of python scripts for converting shapefile data into rasters that can be used by <strong>LSDTopoTools</strong>. Our lithologic routines in <strong>LSDTopoTools</strong> use an integer key for each rock type, so our python routines manage the conversion of rock types, usually presented as stings, into integer rock types. It will also creae csv keys that allow you to convert back to rock types in plotting routines (e.g., "granite" instead of "7"). The code will then format the raster with the right extent to <code>_LITHRAST.bil</code>. Your lithokey file needs to have a name finishing with <code>_lithokey.csv</code> and needs to have the following headers: <code>ID</code>, containing the data string, and <code>rocktype</code>, containing the corresponding value in the raster. For instance:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code>_beverley_lithokeys.csv_
+<pre class="highlight"><code class="language-paramfile" data-lang="paramfile">_beverley_lithokeys.csv_
 ID,rocktype
 sandstone,4
 granite,2
@@ -3663,21 +3669,23 @@ basalt,1</code></pre>
 <i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-Generating these files can be made manually or with any major GIS, but formatting errors can easily be made. We propose there a method to generate automatically all these file with the right format from a shapefile containing the geological information. You will need Python to use the generating script, you can refer to the <a href="#_using_python">Using python</a> section for instruction about installation.
+You can geenrate these lithologic keys manually, but formatting errors can easily be made. We propose there a method to generate automatically all these file with the right format from a shapefile containing the geological information. Here we present python scripts for manageing this process. You will need Python to use the generating script, you can refer to the <a href="#_using_python">Using python</a> section for instruction about installation.
 </td>
 </tr>
 </table>
 </div>
+<div class="sect3">
+<h4 id="_the_code_rasterization_py_code_script">A.1.1. The <code>Rasterization.py</code> script</h4>
 <div class="paragraph">
-<p>The Python script that automate this process is present in the LSDMappingTools plotting library developped in parallel of LSDTopoTools. You can refer to the section <a href="#_getting_our_plotting_tools">Getting our plotting tools</a> to download the needed repository. The script we are going to use is called <code>Rasterization.py</code> and can be executed without modifying the code, only using the command line.</p>
+<p>The Python script that automates this process is present in the LSDMappingTools plotting library developped in parallel of LSDTopoTools. You can refer to the section <a href="#_getting_our_plotting_tools">Getting our plotting tools</a> to download the needed repository. The script is <code>Rasterization.py</code> and can be executed using the command line (you do not need to edit the code).</p>
 </div>
 <div class="paragraph">
-<p>The first step is to open a terminal and to navigate with <code>cd</code> until your LSDMappingTools folder.
+<p>The first step is to open a terminal and to navigate with <code>cd</code> until your *LSDMappingTools folder.
 You can then obtain the documentation of this script by running the command <code>python Rasterization.py -h</code> displaying the following results:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code>-h, --help            show this help message and exit
+<pre class="highlight"><code class="language-console" data-lang="console">-h, --help            show this help message and exit
   -dir DIRECTORY, --directory DIRECTORY
                         The base directory with the shapefile. If this isn't
                         defined I'll assume it's the same as the current
@@ -3707,24 +3715,50 @@ You can then obtain the documentation of this script by running the command <cod
                         resolution, default 30</code></pre>
 </div>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_code_rasterization_py_code_basic_usage">A.1.2. <code>Rasterization.py</code> basic usage</h4>
 <div class="paragraph">
-<p>The script need at least the following option to run: the directory where your shapefile is, the prefix of the shapefile and the name of the field containing the information you want to digitalise. You can launch the following command to produce a basic rasterization.</p>
+<p>The script needs, at minimum, the following options:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The directory where your shapefile is.</p>
+</li>
+<li>
+<p>The prefix of the shapefile.</p>
+</li>
+<li>
+<p>The name of the field containing the information you want to digitise. <strong>Almost every geological survey has a different naming convention for rock type</strong>. You will need to look at the lithologic data in a GIS and determine the name of the field where the rock type is located. <strong>This is case sensitive</strong>. This step is easy to break since the field name needs to <strong>exactly</strong> match the field name in the shapefile.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You can launch the following command to produce a basic rasterization.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code>python Rasterization.py -dir /home/PhilCollins/DataStore/GIS/US/ -fn beverly_litho -fd geology</code></pre>
+<pre class="highlight"><code class="language-console" data-lang="console">$ python Rasterization.py -dir /home/PhilCollins/DataStore/GIS/US/ -fn beverly_litho -fd geology</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>this would create a raster and a csv file. However, the output raster will be in WGS94 geographic system. You would need to translate it in UTM to make it usable by LSDTopoTools. You can either use <em>GDAL</em>, your favorite GIS or adding the following options to the python script: <code>-UTM</code>, followed byt the UTM zone of your area, with <code>-S True</code> if your area is in the southern hemisphere. Finaly, you can add at any point the <code>-res X</code> option to set a resolution different than 30 meters and <code>-rn X</code> if you want to specifiy a new name for the raster. A complete command would then be:</p>
+<p>This command creates a raster and a csv file. However, the output raster will be in WGS94 geographic system.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_code_rasterization_py_code_to_output_into_utm_coordinates">A.1.3. <code>Rasterization.py</code> to output into UTM coordinates</h4>
+<div class="paragraph">
+<p>You would need to translate it in UTM to make it usable by <strong>LSDTopoTools</strong>. You can either use <em>GDAL</em>, your favorite GIS or adding the following options to the python script: <code>-UTM</code>, followed byt the UTM zone of your area, with <code>-S True</code> if your area is in the southern hemisphere. Finaly, you can add at any point the <code>-res X</code> option to set a resolution different than 30 meters and <code>-rn X</code> if you want to specifiy a new name for the raster. A complete command would then be:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code>python Rasterization.py -dir /home/PhilCollins/DataStore/GIS/Africa/ -fn Tanzania_litho -fd LITH -UTM 33 -SOUTH True -rn GeoRast -res 12</code></pre>
+<pre class="highlight"><code class="language-console" data-lang="console">python Rasterization.py -dir /home/PhilCollins/DataStore/GIS/Africa/ -fn Tanzania_litho -fd LITH -UTM 33 -SOUTH True -rn GeoRast -res 12</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Your raster is then ready to be ingested by LSDTopoTools.</p>
+<p>Your raster is then ready to be ingested by <strong>LSDTopoTools</strong>.</p>
+</div>
 </div>
 </div>
 </div>
@@ -3732,7 +3766,7 @@ You can then obtain the documentation of this script by running the command <cod
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-10-04 07:12:48 UTC
+Last updated 2017-10-04 09:42:55 UTC
 </div>
 </div>
 <script type="text/x-mathjax-config">
