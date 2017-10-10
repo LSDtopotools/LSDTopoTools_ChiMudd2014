@@ -6,6 +6,7 @@ gem 'asciidoctor'
 gem 'json'
 gem 'awesome_print'
 
+gem 'asciidoctor-mathematical'
 gem 'asciidoctor-epub3'
 gem 'asciidoctor-pdf'
 
