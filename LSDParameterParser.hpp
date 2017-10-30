@@ -213,6 +213,18 @@ class LSDParameterParser
     /// @return the float parameters
     map<string,string> get_string_parameters() const     { return string_parameters; }
 
+    /// @brief set the read_fname parameter with a string
+    /// @param new_read_fname string containing the new read filename
+    ///@author MDH
+    ///@date 13/10/2017
+    void set_read_fname(string new_read_fname) { read_fname = new_read_fname; }
+    
+    /// @brief set the read_fname parameter with a string
+    /// @param new_read_fname string containing the new read filename
+    ///@author MDH
+    ///@date 13/10/2017
+    void set_write_fname(string new_write_fname) { write_fname = new_write_fname; }
+    
     /// @brief This checks to see if boundary condtions have been assigned and
     /// if not defaults to no flux boundaries
     /// @author SMM

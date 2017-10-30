@@ -1491,6 +1491,30 @@ LSDIndexRaster LSDIndexRaster::clip_to_smaller_raster(LSDRaster& smaller_raster)
 }
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// THis copy the Nodata region from another raster WITH THE SAME DIMENSION AND RESOLUTION. 
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+void LSDIndexRaster::NoData_from_another_raster(LSDRaster& other_raster)
+{
+  
+
+  //Array2D<int> NewData(NRows,NCols, NoDataValue);
+  //Array2D<float> other_raster_data = other_raster.get_RasterData();
+
+  for(int row = 0; row< NRows; row++)
+  {
+    for(int col = 0; col<NCols; col++)
+    {
+      if(other_raster.get_data_element(row,col) == NoDataValue)
+      {
+        RasterData[row][col] = NoDataValue;
+      }
+    }
+  }
+
+
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // Method which takes a new xmin and ymax value and modifys the GeoReferencingStrings
 // map_info line to contain these new values. Intended for use in the rastertrimmer
 // methods and is called from within these methods.

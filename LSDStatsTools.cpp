@@ -2579,6 +2579,9 @@ void combinations (vector<int> v, int start, int n, int k, int maxk)
   if (int(v.size()) <= maxk)
   {
     cout << "FATAL ERROR your vector is too small for combinations (LSDStatsTools)" << endl;
+    cout << "This error can come from numerous parameters, there is probably an error within your river network detection, where I cannot find valid river/basins" << endl;
+    cout << "Check for instance if your threshold_pixel is significantly lower than your minimum_basin_size, but also that your minimum, is significantly lower than the maximum_basin_size" << endl;
+    cout << "I am now exiting, sorry." << endl;
     exit(EXIT_FAILURE);
   }
 

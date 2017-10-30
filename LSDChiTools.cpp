@@ -1982,10 +1982,18 @@ void LSDChiTools::ksn_knickpoint_detection(LSDFlowInfo& FlowInfo)
       this_M_chi = M_chi_data_map[this_node];
 
       if(this_M_chi < 0 && n>0){this_M_chi = 0;} // getting rid of the negative values because we don't want it, I don't want the n = 0 to avoid detecting fake knickpoint if the first value is actually negative
+      
+      // DEBUG STATEMENT - PLEASE KEEP I USE THIS SOMETIMES
+
+      // cout << "RIVER SOURCE: " << source_keys_map[this_node] << " LAST: " << source_keys_map[last_node] << endl;
+      // cout << "MCHI: " << M_chi_data_map[this_node] << " LAST: " << M_chi_data_map[last_node] << endl;
+      // cout << "MCHI2: " << this_M_chi << " LAST: " << last_M_chi << endl;
+
 
       // If the M_chi has changed I increment the knickpoints, I also check if the two point are on the same channel to avoid stange unrelated knickpoints
-      if (this_M_chi != last_M_chi && key_to_source_map[this_node] == key_to_source_map[last_node])
+      if (this_M_chi != last_M_chi && source_keys_map[this_node] == source_keys_map[last_node])
       {
+        //cout << "THIS LAST SAVED" << endl << endl << endl;
         if(this_M_chi == 0)
         {
           ratio_mchi = -9999; // correspond to +infinite
@@ -2005,9 +2013,9 @@ void LSDChiTools::ksn_knickpoint_detection(LSDFlowInfo& FlowInfo)
         n_knp ++;
 
         // reinitialise the parameters for next loop turn
-        last_M_chi = this_M_chi;
+        
       }
-
+    last_M_chi = this_M_chi;
     }
 
   }
@@ -2037,7 +2045,7 @@ void LSDChiTools::print_knickpoint_to_csv(LSDFlowInfo& FlowInfo, string filename
   // open the data file
   ofstream  chi_data_out;
   chi_data_out.open(filename.c_str());
-  chi_data_out << "latitude,longitude,elevation,flow_distance,drainage_area,diff,ratio,sign,source_key,basin_key";
+  chi_data_out << "latitude,longitude,elevation,flow_distance,chi,drainage_area,diff,ratio,sign,source_key,basin_key";
 
   chi_data_out << endl;
 
@@ -2063,6 +2071,7 @@ void LSDChiTools::print_knickpoint_to_csv(LSDFlowInfo& FlowInfo, string filename
         chi_data_out.precision(5);
         chi_data_out << elev_data_map[this_node] << ","
                      << flow_distance_data_map[this_node] << ","
+                     << chi_data_map[this_node] << ","
                      << drainage_area_data_map[this_node] << ","
                      << kns_diff_knickpoint_map[this_node] << ","
                      << kns_ratio_knickpoint_map[this_node] << ","

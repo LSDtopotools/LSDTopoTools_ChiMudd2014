@@ -610,6 +610,13 @@ class LSDIndexRaster
   /// @date 17/09/17
   void detect_unique_values();
 
+  /// @brief Function to copy NoData Region from another raster
+  /// @param LSDRaster OtherRaster
+  /// @return Nothing, change directly the value of the raster
+  /// @author BG
+  /// @date 20/09/2017 
+  void NoData_from_another_raster(LSDRaster& other_raster);
+
   protected:
   ///Number of rows.
   int NRows;

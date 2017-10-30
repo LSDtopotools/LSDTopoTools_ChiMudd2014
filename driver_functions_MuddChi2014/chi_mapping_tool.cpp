@@ -84,6 +84,12 @@ int main (int nNumberofArgs,char *argv[])
     cout << "In linux:" << endl;
     cout << "./chi_mapping_tool.exe /LSDTopoTools/Topographic_projects/LSDTT_chi_examples/ Xian_example1.driver" << endl;
     cout << "=========================================================" << endl;
+    cout << "If you want to visualise basins and channels you should set " << endl;
+    cout << "print_basin_raster: true" << endl;
+    cout << "print_chi_data_maps: true" << endl;
+    cout << "See documentation for information. " << endl;
+    cout << "Visualisation scripts found here: https://github.com/LSDtopotools/LSDMappingTools" << endl;
+    cout << "=========================================================" << endl;
     cout << "For more documentation on the parameter file, " << endl;
     cout << " see readme and online documentation." << endl;
     cout << " https://lsdtopotools.github.io/LSDTopoTools_ChiMudd2014/" << endl;
@@ -371,34 +377,6 @@ int main (int nNumberofArgs,char *argv[])
     // check to see if the raster exists
   LSDRasterInfo RI((DATA_DIR+DEM_ID), raster_ext);
 
-  //============================================================================
-  // check to see if the raster for burning exists
-  LSDRaster BurnRaster;
-  bool burn_raster_exists = false;
-  string burn_raster_header = DATA_DIR+this_string_map["burn_raster_prefix"]+".hdr";
-  if (this_bool_map["burn_raster_to_csv"])
-  {
-    cout << "I am going to burn a raster to all your csv files. The header name for this raster is: " << endl;
-    cout <<  burn_raster_header << endl;
-  }
-  ifstream burn_head_in;
-  burn_head_in.open(burn_raster_header.c_str());
-  if( not burn_head_in.fail() )
-  {
-    burn_raster_exists = true;
-    string burn_fname = DATA_DIR+this_string_map["burn_raster_prefix"];
-    cout << "The burn raster exists. It has a prefix of: " << endl;
-    cout <<  burn_fname << endl;
-    LSDRaster TempRaster(burn_fname,raster_ext);
-    BurnRaster = TempRaster;
-  }
-  else
-  {
-    cout << "The burn raster doesn't exist! I am turning off the  burn flag" << endl;
-    this_bool_map["burn_raster_to_csv"] = false;
-  }
-  //============================================================================
-
   // check the threshold pixels for chi
   if (this_int_map["threshold_pixels_for_chi"] > this_int_map["threshold_contributing_pixels"])
   {
@@ -461,6 +439,93 @@ int main (int nNumberofArgs,char *argv[])
     cout << "the parameters to file and am now exiting." << endl;
     exit(0);
   }
+
+
+  // Checking the burning stuffs
+
+  //Loading the lithologic raster - This need to be done now to adjust some burning parameters
+  LSDIndexRaster geolithomap;
+  if(this_bool_map["print_litho_info"])
+  {
+      //LOADING THE LITHO RASTER
+      // check to see if the raster for burning exists - lithologic/geologic map
+      
+      string geolithomap_header = DATA_DIR+this_string_map["litho_raster"]+".hdr";
+      cout << "Your lithologic map is: " << endl;
+      cout <<  geolithomap_header << endl;
+
+      ifstream burn_head_in;
+      burn_head_in.open(geolithomap_header.c_str());
+      string burn_fname = DATA_DIR+this_string_map["litho_raster"];
+      if( not burn_head_in.fail() )
+      {
+        cout << "The lithologic raster exists. It has a prefix of: " << endl;
+        cout <<  burn_fname << endl;
+        LSDIndexRaster TempRaster(burn_fname,raster_ext);
+
+        geolithomap = TempRaster.clip_to_smaller_raster(topography_raster);
+        geolithomap.NoData_from_another_raster(topography_raster);
+
+        cout << "I am now writing a lithologic raster clipped to the extent of your topographic raster to make the plotting easier" << endl;
+        string lithrastname = OUT_DIR+OUT_ID+"_LITHRAST";
+        geolithomap.write_raster(OUT_DIR+OUT_ID+"_LITHRAST",raster_ext);
+        cout << lithrastname << endl;
+
+      }
+      else
+      {
+        cout << "No lithology raster. Please check the prefix is correctly spelled and without the extention" << endl;
+        cout << "The file you tried to give me is: " << burn_fname << endl << "But it does not exists" << endl ;
+        exit(EXIT_FAILURE);
+    }
+  }
+
+
+
+  //============================================================================
+  // check to see if the raster for burning exists
+  LSDRaster BurnRaster;
+  bool burn_raster_exists = false;
+  string burn_raster_header;
+  string burn_prefix;
+  // If you're burning lithologic info I am replacing your raster by the preprocessed lithologic raster
+  if(this_bool_map["print_litho_info"])
+  {
+    burn_raster_header = DATA_DIR+OUT_ID+"_LITHRAST"+".hdr";
+    burn_prefix = DATA_DIR+OUT_ID+"_LITHRAST";
+  }
+  else
+  {
+    burn_raster_header = DATA_DIR+this_string_map["burn_raster_prefix"]+".hdr";
+    burn_prefix = DATA_DIR+this_string_map["burn_raster_prefix"];
+  }
+  
+  if (this_bool_map["burn_raster_to_csv"])
+  {
+    cout << "I am going to burn a raster to all your csv files. The header name for this raster is: " << endl;
+    cout <<  burn_raster_header << endl;
+  }
+  ifstream burn_head_in2;
+  burn_head_in2.open(burn_raster_header.c_str());
+  if( not burn_head_in2.fail() )
+  {
+    burn_raster_exists = true;
+    string burn_fname = burn_prefix;
+    cout << "The burn raster exists. It has a prefix of: " << endl;
+    cout <<  burn_fname << endl;
+    LSDRaster TempRaster(burn_fname,raster_ext);
+    BurnRaster = TempRaster;
+  }
+  else
+  {
+    cout << "The burn raster doesn't exist! I am turning off the  burn flag" << endl;
+    this_bool_map["burn_raster_to_csv"] = false;
+  }
+  //============================================================================
+
+
+
+
 
   //============================================================================
   // Start gathering necessary rasters
@@ -874,7 +939,7 @@ int main (int nNumberofArgs,char *argv[])
 
   //============================================================================
   // Print a basin raster if you want it.
-  if(this_bool_map["print_basin_raster"] || this_bool_map["print_litho_info"])
+  if(this_bool_map["print_basin_raster"] || this_bool_map["print_litho_info"] || this_bool_map["ksn_knickpoint_analysis"] )
   {
     cout << "I am going to print the basins for you. " << endl;
     LSDChiTools ChiTool_basins(FlowInfo);
@@ -886,42 +951,14 @@ int main (int nNumberofArgs,char *argv[])
     
     if(this_bool_map["print_litho_info"])
     {
-      //LOADING THE LITHO RASTER
-      // check to see if the raster for burning exists - lithologic/geologic map
-      LSDIndexRaster geolithomap;
-      string geolithomap_header = DATA_DIR+this_string_map["litho_raster"]+".hdr";
-      cout << "Your lithologic map is: " << endl;
-      cout <<  geolithomap_header << endl;
-
-      ifstream burn_head_in;
-      burn_head_in.open(geolithomap_header.c_str());
-      string burn_fname = DATA_DIR+this_string_map["litho_raster"];
-      if( not burn_head_in.fail() )
-      {
-        cout << "The lithologic raster exists. It has a prefix of: " << endl;
-        cout <<  burn_fname << endl;
-        LSDIndexRaster TempRaster(burn_fname,raster_ext);
-
-        geolithomap = TempRaster.clip_to_smaller_raster(topography_raster);
-
-        cout << "I am now writing a lithologic raster clipped to the extent of your topographic raster to make the plotting easier" << endl;
-        string lithrastname = OUT_DIR+OUT_ID+"_LITHRAST";
-        geolithomap.write_raster(OUT_DIR+OUT_ID+"_LITHRAST",raster_ext);
-        cout << lithrastname << endl;
-
-      }
-      else
-      {
-        cout << "No lithology raster. Please check the prefix is correctly spelled and without the extention" << endl;
-        cout << "The file you tried to give me is: " << burn_fname << endl << "But it does not exists" << endl ;
-        exit(EXIT_FAILURE);
-      }
+      
       // loading finished
       // now getting the basins informations
       map<int,map<int,int> > basin_litho_count = ChiTool_basins.get_basin_lithocount(FlowInfo, JunctionNetwork, geolithomap, BaseLevelJunctions);
       //geolithomap.detect_unique_values();
       string csv_slbc_fname = OUT_DIR+OUT_ID+"_SBASLITH.csv";
       ChiTool_basins.extended_litho_basin_to_csv(FlowInfo, csv_slbc_fname, basin_litho_count);
+      
     }
   }
 
@@ -1055,14 +1092,24 @@ int main (int nNumberofArgs,char *argv[])
         cout << "You asked me to burn a raster to the csv" << endl;
         if(burn_raster_exists)
         {
-          cout << "I am burning the raster into the column header " << this_string_map["burn_data_csv_column_header"] << endl;
+          string header_for_burn_data;
+          if(this_bool_map["print_litho_info"])
+          {
+            header_for_burn_data = OUT_ID + "_geol";
+          }
+          else
+          {
+            header_for_burn_data = this_string_map["burn_data_csv_column_header"];
+          }
+
+          cout << "I am burning the raster into the column header " << header_for_burn_data << endl;
           string full_csv_name = chiQ_data_maps_string;
           LSDSpatialCSVReader CSVFile(RI,full_csv_name);
 
           cout << "I am burning the raster to the csv file." << endl;
-          CSVFile.burn_raster_data_to_csv(BurnRaster,this_string_map["burn_data_csv_column_header"]);
+          CSVFile.burn_raster_data_to_csv(BurnRaster,header_for_burn_data);
 
-          string full_burned_csv_name = OUT_DIR+DEM_ID+"_chiQ_data_map_burned.csv";
+          string full_burned_csv_name = OUT_DIR+OUT_ID+"_chiQ_data_map_burned.csv";
           cout << "Now I'll print the data to a new file" << endl;
           CSVFile.print_data_to_csv(full_burned_csv_name);
 
@@ -1100,14 +1147,24 @@ int main (int nNumberofArgs,char *argv[])
         cout << "You asked me to burn a raster to the csv" << endl;
         if(burn_raster_exists)
         {
-          cout << "I am burning the raster into the column header " << this_string_map["burn_data_csv_column_header"] << endl;
+          string header_for_burn_data;
+          if(this_bool_map["print_litho_info"])
+          {
+            header_for_burn_data = OUT_ID + "_geol";
+          }
+          else
+          {
+            header_for_burn_data = this_string_map["burn_data_csv_column_header"];
+          }
+
+          cout << "I am burning the raster into the column header " << header_for_burn_data << endl;
           string full_csv_name = chi_data_maps_string;
           LSDSpatialCSVReader CSVFile(RI,full_csv_name);
 
           cout << "I am burning the raster to the csv file." << endl;
-          CSVFile.burn_raster_data_to_csv(BurnRaster,this_string_map["burn_data_csv_column_header"]);
+          CSVFile.burn_raster_data_to_csv(BurnRaster,header_for_burn_data);
 
-          string full_burned_csv_name = OUT_DIR+DEM_ID+"_chi_data_map_burned.csv";
+          string full_burned_csv_name = OUT_DIR+OUT_ID+"_chi_data_map_burned.csv";
           cout << "Now I'll print the data to a new file" << endl;
           CSVFile.print_data_to_csv(full_burned_csv_name);
 
@@ -1382,6 +1439,7 @@ int main (int nNumberofArgs,char *argv[])
       cout << "Using a discharge raster to calculate m over n." << endl;
       if(this_bool_map["burn_raster_to_csv"])
       {
+        cout << "I am using a burned raster for plotting the profiles. " << endl;
         string movern_name = OUT_DIR+OUT_ID+"_burned_movernQ.csv";
         ChiTool_movern.print_profiles_as_fxn_movern_with_discharge_and_burned_raster(FlowInfo, movern_name,
                                   this_float_map["start_movern"],
@@ -1392,6 +1450,7 @@ int main (int nNumberofArgs,char *argv[])
       }
       else
       {
+        cout << "I am plotting the profiles. " << endl;
         string movern_name = OUT_DIR+OUT_ID+"_movernQ.csv";
         ChiTool_movern.print_profiles_as_fxn_movern_with_discharge(FlowInfo, movern_name,
                                   this_float_map["start_movern"],
@@ -1405,6 +1464,7 @@ int main (int nNumberofArgs,char *argv[])
 
       if(this_bool_map["burn_raster_to_csv"])
       {
+        cout << "I am using a burned raster for plotting the profiles. " << endl;
         string movern_name = OUT_DIR+OUT_ID+"_burned_movern.csv";
         ChiTool_movern.print_profiles_as_fxn_movern_with_burned_raster(FlowInfo, movern_name,
                                   this_float_map["start_movern"],
@@ -1412,9 +1472,15 @@ int main (int nNumberofArgs,char *argv[])
                                   this_int_map["n_movern"],
                                   BurnRaster,
                                   this_string_map["burn_data_csv_column_header"]);
+                                  
+        //cout << "TEST I will print the burn raster" << endl;
+        // BurnRaster.write_raster(OUT_DIR+OUT_ID+"_theburnYOYO","bil");
+        // exit(EXIT_FAILURE);
+        
       }
       else
       {
+        cout << "I am plotting the profiles. " << endl;
         string movern_name = OUT_DIR+OUT_ID+"_movern.csv";
         ChiTool_movern.print_profiles_as_fxn_movern(FlowInfo, movern_name,
                                   this_float_map["start_movern"],
@@ -1541,6 +1607,10 @@ int main (int nNumberofArgs,char *argv[])
     ChiTool.ksn_knickpoint_detection(FlowInfo);
     string csv_full_fname_knockpoint = OUT_DIR+OUT_ID+"_KsnKn.csv";
     ChiTool.print_knickpoint_to_csv(FlowInfo,csv_full_fname_knockpoint);
+    // Testing something
+    string csv_full_fname = OUT_DIR+OUT_ID+"_MChiSegmented_TESTKNICKPOINT.csv";
+    cout << "Let me print A Test File " << csv_full_fname << endl;
+    ChiTool.print_data_maps_to_file_full(FlowInfo, csv_full_fname);
   }
 
 

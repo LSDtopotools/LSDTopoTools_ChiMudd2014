@@ -871,7 +871,6 @@ void LSDParameterParser::replace_and_print_parameter_file(string parameter_fname
       params_out << these_keys[i] << ": " << defaults_used_map[these_keys[i]]  << endl;
     }
   }
-
 }
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
