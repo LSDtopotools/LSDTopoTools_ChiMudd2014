@@ -1,4 +1,50 @@
-
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//
+// LSDBasin
+// Land Surface Dynamics Basin
+//
+// An object within the University
+//  of Edinburgh Land Surface Dynamics group topographic toolbox
+//  for manipulating
+//  and analysing basins
+//
+// Developed by:
+//  Stuart W.D. Grieve
+//  Simon M. Mudd
+//  Fiona Clubb
+//
+// Copyright (C) 2017 Simon M. Mudd 2017
+//
+// Developer can be contacted by simon.m.mudd _at_ ed.ac.uk
+//
+//    Simon Mudd
+//    University of Edinburgh
+//    School of GeoSciences
+//    Drummond Street
+//    Edinburgh, EH8 9XP
+//    Scotland
+//    United Kingdom
+//
+// This program is free software;
+// you can redistribute it and/or modify it under the terms of the
+// GNU General Public License as published by the Free Software Foundation;
+// either version 2 of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY;
+// without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+//
+// You should have received a copy of the
+// GNU General Public License along with this program;
+// if not, write to:
+// Free Software Foundation, Inc.,
+// 51 Franklin Street, Fifth Floor,
+// Boston, MA 02110-1301
+// USA
+//
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 #ifndef LSDBasin_CPP
 #define LSDBasin_CPP
@@ -57,6 +103,7 @@ void LSDBasin::create()
   BedrockFraction = NoDataValue;
   Biomass = NoDataValue;
   AlternativeIndex=int(NoDataValue);
+  DD_preprocessed = false;
 
   //finished creating empty variables
 
@@ -163,6 +210,8 @@ void LSDBasin::create(int JunctionNumber, LSDFlowInfo& FlowInfo, LSDJunctionNetw
   BedrockFraction = NoDataValue;
   Biomass = NoDataValue;
   AlternativeIndex=int(NoDataValue);
+
+  DD_preprocessed = false;
   //finished creating empty variables
 
 }
@@ -728,6 +777,7 @@ void LSDBasin::set_Perimeter(LSDFlowInfo& FlowInfo)
   Perimeter_j = J;
   Perimeter_nodes = B;
 
+
 }
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -755,12 +805,334 @@ void LSDBasin::print_perimeter_to_csv(LSDFlowInfo& FlowInfo, string perimeter_fn
   int n_nodes = int(Perimeter_nodes.size());
   for(int i = 0; i< n_nodes; i++)
   {
-    FlowInfo.get_x_and_y_from_current_node(Perimeter_nodes[i], curr_x, curr_x);
+    FlowInfo.get_x_and_y_from_current_node(Perimeter_nodes[i], curr_x, curr_y);
     FlowInfo.get_lat_and_long_from_current_node(Perimeter_nodes[i], curr_lat, curr_long,converter);
     perim_out << Perimeter_nodes[i] << "," << curr_x << "," << curr_y <<"," << curr_lat << "," << curr_long << endl;
   }
   perim_out.close();
 
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// This prints the perimeter to csv. It can then be ingested to find
+// concave hull of the basin (or the basin outline)
+// Also prints the elevations so can investigate the perimeter hypsometry
+// FJC 10/01/18
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+void LSDBasin::print_perimeter_hypsometry_to_csv(LSDFlowInfo& FlowInfo, string perimeter_fname, LSDRaster& ElevationRaster)
+{
+
+  set_Perimeter(FlowInfo);
+  //  open the file
+  ofstream perim_out;
+  perim_out.open(perimeter_fname.c_str());
+  perim_out << "node_key,node,elevation,x,y,latitude,longitude,dist_from_outlet_node" << endl;
+  perim_out.precision(9);
+
+  double curr_lat,curr_long;
+
+  LSDCoordinateConverterLLandUTM converter;
+  int n_nodes = int(Perimeter_nodes.size());
+  cout << "N perimeter nodes: " << n_nodes << endl;
+
+  int outlet_node = get_Outlet_node();
+
+  // clean perimeter
+  //clean_perimeter(FlowInfo);
+  //print_perimeter_to_csv(FlowInfo, perimeter_fname);
+
+  // sort perimeter nodes
+  vector<int> Reordered_nodes = order_perimeter_nodes(FlowInfo);
+
+  // sanity checks
+
+  cout << "n unordered nodes: " << n_nodes << " n sorted nodes: " << Reordered_nodes.size() << endl;
+
+  for(int i = 0; i< int(Reordered_nodes.size()); i++)
+  {
+    // get this elevation
+    int this_row, this_col;
+    FlowInfo.retrieve_current_row_and_col(Reordered_nodes[i], this_row, this_col);
+    float this_elev = ElevationRaster.get_data_element(this_row, this_col);
+
+    // get the x and y from this node
+    float curr_x, curr_y;
+    FlowInfo.get_x_and_y_from_current_node(Reordered_nodes[i], curr_x, curr_y);
+
+    // get the coordinates
+    FlowInfo.get_lat_and_long_from_current_node(Reordered_nodes[i], curr_lat, curr_long,converter);
+
+    // get the euclidian distance from the outlet junction
+    float dist = FlowInfo.get_Euclidian_distance(outlet_node, Reordered_nodes[i]);
+
+    // write to csv
+    perim_out << i << "," << Reordered_nodes[i] << "," << this_elev << "," << curr_x << "," << curr_y <<"," << curr_lat << "," << curr_long << "," << dist << endl;
+  }
+
+  perim_out.close();
+
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// Order perimeter nodes from the outlet
+// FJC 16/01/18
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+vector<int> LSDBasin::order_perimeter_nodes(LSDFlowInfo& FlowInfo)
+{
+  cout << "Ordering the perimeter nodes..." << endl;
+  vector<int> sorted_nodes;
+  Array2D<int> PerimeterNodes(NRows,NCols,0);
+  Array2D<int> VisitedBefore(NRows,NCols,0);
+
+  // first get the outlet node
+  int outlet_node = get_Outlet_node();
+  int outlet_row, outlet_col;
+  FlowInfo.retrieve_current_row_and_col(outlet_node, outlet_row, outlet_col);
+  Outlet_i = outlet_row;
+  Outlet_j = outlet_col;
+  cout << "The outlet node is: " << outlet_node << endl;
+
+  // get an array of perimeter nodes
+  for (int i = 0; i < int(Perimeter_nodes.size()); i++)
+  {
+    int this_row, this_col;
+    FlowInfo.retrieve_current_row_and_col(Perimeter_nodes[i], this_row, this_col);
+    PerimeterNodes[this_row][this_col] = 1;
+  }
+  cout << "Got the array of perimeter nodes" << endl;
+
+  //find the nearest perimeter to the outlet node
+  VisitedBefore[Outlet_i][Outlet_j] = 1;
+  // push back the outlet node, node 0
+  sorted_nodes.push_back(outlet_node);
+  int next_i, next_j;
+
+  // N, S, E, and W will always be the shortest distances, so do these first
+  if (PerimeterNodes[Outlet_i][Outlet_j-1] == 1) // West
+  {
+    next_i = Outlet_i;
+    next_j = Outlet_j-1;
+    cout << "The closest node is to the west" << endl;
+  }
+  else if (PerimeterNodes[Outlet_i-1][Outlet_j] == 1) // North
+  {
+    next_i = Outlet_i-1;
+    next_j = Outlet_j;
+    cout << "The closest node is to the north" << endl;
+  }
+  else if (PerimeterNodes[Outlet_i][Outlet_j+1] == 1)  // east
+  {
+    next_i = Outlet_i;
+    next_j = Outlet_j+1;
+    cout << "The closest node is to the east" << endl;
+  }
+  else if (PerimeterNodes[Outlet_i+1][Outlet_j] == 1)  // south
+  {
+    next_i = Outlet_i+1;
+    next_j = Outlet_j;
+    cout << "The closest node is to the south" << endl;
+  }
+  else if (PerimeterNodes[Outlet_i-1][Outlet_j-1] == 1) // northwest
+  {
+    next_i = Outlet_i-1;
+    next_j = Outlet_j-1;
+    cout << "The closest node is to the NW" << endl;
+  }
+  else if (PerimeterNodes[Outlet_i-1][Outlet_j+1] == 1) // northeast
+  {
+    next_i = Outlet_i-1;
+    next_j = Outlet_j+1;
+    cout << "The closest node is to the NE" << endl;
+  }
+  else if (PerimeterNodes[Outlet_i+1][Outlet_j+1] == 1) // southeast
+  {
+    next_i = Outlet_i+1;
+    next_j = Outlet_j+1;
+    cout << "The closest node is to the SE" << endl;
+  }
+  else if (PerimeterNodes[Outlet_i-1][Outlet_j+1] == 1) // southwest
+  {
+    next_i = Outlet_i-1;
+    next_j = Outlet_j+1;
+    cout << "The closest node is to the SW" << endl;
+  }
+  else
+  {
+    cout << "None of these were perimeter nodes, oops" << endl;
+  }
+
+  // push back the next node to the sorted node vector
+  int next_node = FlowInfo.retrieve_node_from_row_and_column(next_i, next_j);
+  sorted_nodes.push_back(next_node);
+
+  bool reached_outlet = false;
+  int this_i, this_j;
+  int last_i, last_j;
+  bool evil_node = false;
+  // now start at the outlet node and find the nearest perimeter node.
+  while (reached_outlet == false)
+  {
+    // keep track of the last node so you can go back if you need to
+    last_i = this_i;
+    last_j = this_j;
+    // start at the next node and find the one with the closest distance that
+    // hasn't already been visited
+    this_i = next_i;
+    this_j = next_j;
+
+    // check if you've already been to this node.
+    if (VisitedBefore[this_i][this_j] == 1)
+    {
+      //cout << "Wait, you've been to this node before! Is it an evil node?" << endl;
+      if (evil_node = false)
+      {
+        break;
+      }
+    }
+    else
+    {
+      VisitedBefore[this_i][this_j] = 1;
+    }
+
+    vector<float> Distances(8, 100); // distances to each node in the order N, NE, E, SE, S, SW, W, NW
+
+    if (PerimeterNodes[this_i-1][this_j] == 1) // north
+    {
+      if (VisitedBefore[this_i-1][this_j] == 0)
+      {
+        // get the distance
+        Distances[0] = DataResolution;
+      }
+    }
+    if (PerimeterNodes[this_i-1][this_j+1] == 1) // northeast
+    {
+      if (VisitedBefore[this_i-1][this_j+1] == 0)
+      {
+        // get the distance
+        Distances[1] = sqrt(DataResolution*DataResolution+DataResolution*DataResolution);
+      }
+    }
+    if (PerimeterNodes[this_i][this_j+1] == 1) // east
+    {
+      if (VisitedBefore[this_i][this_j+1] == 0)
+      {
+        // get the distance
+        Distances[2] = DataResolution;
+      }
+    }
+    if (PerimeterNodes[this_i+1][this_j+1] == 1) // southeast
+    {
+      if (VisitedBefore[this_i+1][this_j+1] == 0)
+      {
+        // get the distance
+        Distances[3] = sqrt(DataResolution*DataResolution+DataResolution*DataResolution);
+      }
+    }
+    if (PerimeterNodes[this_i+1][this_j] == 1) //south
+    {
+      if (VisitedBefore[this_i+1][this_j] == 0)
+      {
+        // get the distance
+        Distances[4] = DataResolution;
+      }
+    }
+    if (PerimeterNodes[this_i+1][this_j-1] == 1) // southwest
+    {
+      if (VisitedBefore[this_i+1][this_j-1] == 0)
+      {
+        // get the distance
+        Distances[5] = sqrt(DataResolution*DataResolution+DataResolution*DataResolution);
+      }
+    }
+    if (PerimeterNodes[this_i][this_j-1] == 1) // west
+    {
+      if (VisitedBefore[this_i][this_j-1] == 0)
+      {
+        // get the distance
+        Distances[6] = DataResolution;
+      }
+    }
+    if (PerimeterNodes[this_i-1][this_j-1] == 1) // northwest
+    {
+      if (VisitedBefore[this_i-1][this_j-1] == 0)
+      {
+        // get the distance
+        Distances[7] = sqrt(DataResolution*DataResolution+DataResolution*DataResolution);
+      }
+    }
+    //cout << "Finding the closest perimeter node..." << endl;
+
+    // now search the vector of distances for the one with the smallest distance.
+    int min_idx = distance(Distances.begin(), min_element(Distances.begin(), Distances.end()));
+    //cout << "Min IDX is: " << min_idx << " Distance is: " << *min_element(Distances.begin(), Distances.end()) << endl;
+    if ( min_idx == 0 )
+    {
+      next_i = this_i-1;
+      next_j = this_j;
+    }
+    else if ( min_idx == 1 )
+    {
+      next_i = this_i-1;
+      next_j = this_j+1;
+    }
+    else if ( min_idx == 2 )
+    {
+      next_i = this_i;
+      next_j = this_j+1;
+    }
+    else if ( min_idx == 3 )
+    {
+      next_i = this_i+1;
+      next_j = this_j+1;
+    }
+    else if ( min_idx == 4 )
+    {
+      next_i = this_i+1;
+      next_j = this_j;
+    }
+    else if ( min_idx == 5 )
+    {
+      next_i = this_i+1;
+      next_j = this_j-1;
+    }
+    else if ( min_idx == 6 )
+    {
+      next_i = this_i;
+      next_j = this_j-1;
+    }
+    else if ( min_idx == 7 )
+    {
+      next_i = this_i-1;
+      next_j = this_j-1;
+    }
+    // push back the node to the sorted vector
+
+    next_node = FlowInfo.retrieve_node_from_row_and_column(next_i, next_j);
+    //cout << "The next node is: " << next_node << endl;
+    //cout << "This i: " << this_i << " this j: " << this_j << " next i: " << next_i << " next j" << next_j << endl;
+    if (next_i == Outlet_i && next_j == Outlet_j)
+    {
+      reached_outlet = true;
+      cout << "You've reached the outlet, wooohooo" << endl;
+    }
+    else if ( Distances[min_idx] == 100)
+    {
+      //out << "I can't find a neighbouring perimeter node that you haven't been to." << endl;
+      //reached_outlet = true;
+      //cout << "I'll remove this node and go back one" << endl;
+      VisitedBefore[next_i][next_j] = 1;
+      next_i = last_i;
+      next_j = last_j;
+      evil_node = true;
+    }
+    else
+    {
+      int this_node = FlowInfo.retrieve_node_from_row_and_column(this_i, this_j);
+      sorted_nodes.push_back(this_node);
+    }
+  }
+
+  return sorted_nodes;
 }
 
 
@@ -962,7 +1334,7 @@ LSDIndexRaster LSDBasin::write_raster_data_to_LSDIndexRaster(LSDIndexRaster Data
 int LSDBasin::is_node_in_basin(int test_node)
 {
   int node_checker = 0;
-  for (int i =0; i < int(BasinNodes.size()); i++)
+  for (int i =0; i < int(BasinNodes.size()) && node_checker == 0; i++)
   {
     if (test_node == BasinNodes[i])
     {
@@ -1346,7 +1718,7 @@ map<int,int> LSDBasin::count_unique_values_from_litho_raster(LSDIndexRaster& lit
     //cout << values[i] << endl;
 
   }
-  
+
   // Initializing the NoData as well
   // map initialized with all the values of lithology present on the map
 
@@ -1398,7 +1770,7 @@ bool LSDBasin::is_adjacent(LSDBasin& DifferentBasin, LSDFlowInfo& flowpy)
   // Perimeter nodes of the other basin + proceeding to a test if the other basin's perimeter has been calculated
   vector<int> DB_perimeter_nodes = DifferentBasin.get_Perimeter_nodes();
   if(DB_perimeter_nodes.size() == 1){DifferentBasin.set_Perimeter(flowpy); DB_perimeter_nodes =  DifferentBasin.get_Perimeter_nodes();}
-  // 
+  //
 
   // cout << Perimeter_nodes.size() << "|||||" << DB_perimeter_nodes.size() << endl;
   bool adjacenty = false;
@@ -1422,7 +1794,7 @@ bool LSDBasin::is_adjacent(LSDBasin& DifferentBasin, LSDFlowInfo& flowpy)
         }
     }
 
-  }  
+  }
   return adjacenty;
 }
 
@@ -1446,14 +1818,14 @@ vector<int> LSDBasin::merge_perimeter_nodes_adjacent_basins(vector<LSDBasin> bud
   int tested_node = 0;
 
 
-  for(int basilisk = 0; basilisk<budgerigar.size();basilisk++)
+  for(int basilisk = 0; basilisk< int(budgerigar.size());basilisk++)
   {
     // Getting and checking the existence of the perimeter node
     first_perimeter = budgerigar[basilisk].get_Perimeter_nodes();
     if(first_perimeter.size() == 1){budgerigar[basilisk].set_Perimeter(flowpy);first_perimeter = budgerigar[basilisk].get_Perimeter_nodes();}
 
     // now check the nodes around each perimeter nodes to see if it is adjacent to the other perimiter (diagonal excluded) and select it if not
-    for(int itb = 0; itb<budgerigar.size();itb++)
+    for(int itb = 0; itb< int(budgerigar.size());itb++)
     {
       if(itb != basilisk)
       {
@@ -1473,7 +1845,7 @@ vector<int> LSDBasin::merge_perimeter_nodes_adjacent_basins(vector<LSDBasin> bud
             tested_node = flowpy.retrieve_node_from_row_and_column(this_row-1,this_col);
             if(find(temp_perimeter.begin(), temp_perimeter.end(), tested_node) != temp_perimeter.end()){adjacenty=true;}
           }
-          
+
           if(!adjacenty){out_perimeter.push_back(temp_perimeter[flude]);}
           adjacenty = false;
         }
@@ -1499,20 +1871,24 @@ vector<int> LSDBasin::get_source_node_from_perimeter(vector<int> perimeter, LSDF
   //First, creating a square-shaped mangoose vector (vector that host the pixel window parameter to loop through)
   vector<int> mangoose;
   mangoose.push_back(0);
-  for(size_t coati = 1; coati<pixel_window; coati++){mangoose.push_back(coati);mangoose.push_back(-coati);}
+  for(size_t coati = 1; coati<size_t(pixel_window); coati++)
+  {
+    mangoose.push_back(coati);
+    mangoose.push_back(-coati);
+  }
   // mangoose is ready
 
   //get all the sources
   vector<int> all_sources = junky.get_SourcesVector();
 
-  // creating an empty output vector 
+  // creating an empty output vector
   vector<int> selected_sources_nodes;
 
   //creating the temp variables
   int that_row = 0;
   int that_col = 0;
   int tested_node = 0;
-  
+
   //loop through the perimeter and neighbooring nodes in the window
   for(size_t coati = 0; coati<perimeter.size();coati++)
   {
@@ -1526,7 +1902,7 @@ vector<int> LSDBasin::get_source_node_from_perimeter(vector<int> perimeter, LSDF
           tested_node = flowpy.retrieve_node_from_row_and_column(that_row+mangoose[hogger],that_col+mangoose[hoggest]);
           if(find(all_sources.begin(), all_sources.end(), tested_node) != all_sources.end()){selected_sources_nodes.push_back(tested_node);}
         }
-        
+
 
       }
     }
@@ -1535,17 +1911,596 @@ vector<int> LSDBasin::get_source_node_from_perimeter(vector<int> perimeter, LSDF
   // now selecting the unique values
 
   sort( selected_sources_nodes.begin(), selected_sources_nodes.end() );
-  selected_sources_nodes.erase( unique( selected_sources_nodes.begin(), selected_sources_nodes.end() ), selected_sources_nodes.end() ); 
+  selected_sources_nodes.erase( unique( selected_sources_nodes.begin(), selected_sources_nodes.end() ), selected_sources_nodes.end() );
 
   // it should work
   return selected_sources_nodes;
-} 
+}
+
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// THis compile some metrics for each side of a drainage divide across a serie of nodes: min,max,mean,median,std dev ...
+// You just have to feed it with a vector of nodes and a template raster. This last can be elevation, slope, a normalized swath and so on
+// return a map where the key is a string like "min_in" or ",min_out" as well as "n_node_in"... Ill list it when it will be done.
+map<string,float> LSDBasin::get_metrics_both_side_divide(LSDRaster& rasterTemplate, LSDFlowInfo& flowpy, vector<int>& nodes_to_test, map<int,bool>& raster_node_basin)
+{
+
+  map<string,float> mapout;
+  vector<int> nodes_in, nodes_out;
+  vector<float> nodes_in_v, nodes_out_v, nodes_to_test_v;
+  int n_nodes_in =0, n_nodes_out = 0,row = 0, col = 0, nnd =0;
+
+
+  // Now testing which nodes are in  and out of the basin
+  for(vector<int>::iterator pudu_deer = nodes_to_test.begin(); pudu_deer != nodes_to_test.end(); pudu_deer++)
+  {
+    //cout << *pudu_deer << " - metrics calcnode" << endl;
+    // get row/col
+    if(*pudu_deer != NoDataValue && raster_node_basin[*pudu_deer] != NoDataValue)
+    {
+      flowpy.retrieve_current_row_and_col(*pudu_deer,row,col);
+      if(rasterTemplate.get_data_element(row,col) != NoDataValue )
+      {
+
+        if(raster_node_basin[*pudu_deer])
+        {
+          nodes_in.push_back(*pudu_deer);
+          nodes_in_v.push_back(rasterTemplate.get_data_element(row,col));
+          n_nodes_in++;
+        }
+        else
+        {
+          nodes_out.push_back(*pudu_deer);
+          nodes_out_v.push_back(rasterTemplate.get_data_element(row,col));
+          n_nodes_out++;
+        }
+        nodes_to_test_v.push_back(rasterTemplate.get_data_element(row,col));
+      }
+      else
+      {
+        nnd++;
+      }
+    }
+    else
+    {
+      nnd++;
+    }
+  }
+  // cout << "in: " << n_nodes_in << " out: " << n_nodes_out << " nodata: " << nnd << "/" << nodes_to_test.size() << endl;
+  mapout["n_nodes_in"] =  (float)n_nodes_in;
+  mapout["n_no_data"] = (float)nnd;
+  mapout["n_nodes_out"] = (float)n_nodes_out;
+  // done
+
+  // compiling the stat using stat_tools
+  mapout["mean"] = get_mean_ignore_ndv(nodes_to_test_v, (float)NoDataValue);
+  mapout["mean_in"] = get_mean_ignore_ndv(nodes_in_v, (float)NoDataValue);
+  mapout["mean_out"] = get_mean_ignore_ndv(nodes_out_v, (float)NoDataValue);
+  mapout["median"] = get_median(nodes_to_test_v, (float)NoDataValue);
+  mapout["median_in"] = get_median(nodes_in_v, (float)NoDataValue);
+  mapout["median_out"] = get_median(nodes_out_v, (float)NoDataValue);
+  mapout["max"] = Get_Maximum(nodes_to_test_v, (float)NoDataValue);
+  mapout["max_in"] = Get_Maximum(nodes_in_v, (float)NoDataValue);
+  mapout["max_out"] = Get_Maximum(nodes_out_v, (float)NoDataValue);
+  mapout["min"] = Get_Minimum(nodes_to_test_v, (float)NoDataValue);
+  mapout["min_in"] = Get_Minimum(nodes_in_v, (float)NoDataValue);
+  mapout["min_out"] = Get_Minimum(nodes_out_v, (float)NoDataValue);
+  mapout["StdDev"] = get_standard_deviation(nodes_to_test_v, mapout["mean"], (float)NoDataValue);
+  mapout["StdDev_in"] = get_standard_deviation(nodes_in_v, mapout["mean_in"], (float)NoDataValue);
+  mapout["StdDev_out"] = get_standard_deviation(nodes_out_v, mapout["mean_out"], (float)NoDataValue);
+
+  return mapout;
+
+
+}
+
+
+// This move a square window along the drainage divide and compute the statistics in and out of the basin. Used to compare
+// the slope/elevetion/lithology/...
+// I'll code a non square version at some point!
+// BG - work in progress (on this topic, not on myself, or maybe, what does that even mean?)
+
+void LSDBasin::square_window_stat_drainage_divide(LSDRaster& rasterTemplate, LSDFlowInfo& flowpy, int size_window)
+{
+  if(DD_preprocessed == false)
+  {
+    cout << "You need to use the function preprocess_DD_metrics(LSDFlowInfo FlowInfoCorrespondingToThisBasin) before being able to use this function" << endl;
+    exit(EXIT_FAILURE);
+  }
+
+  // If you call this function, you want to reinitialize the potentially previously calculated map
+  stats_around_perimeter_window.clear();
+
+
+  int row = 0, col = 0,perimeter_index = 0, this_node = 0;
+  vector<int> nodes_to_test;
+  map<int, bool> raster_node_basin;
+
+  for(int i = 0; i<rasterTemplate.get_NRows();i++)
+  //for(map<int,vector<float> >::iterator claus = BasinNodesMapOfXY.begin(); claus != BasinNodesMapOfXY.end(); claus ++)
+  {
+    for(int j = 0; j<rasterTemplate.get_NCols();j++)
+    {
+      raster_node_basin[flowpy.retrieve_node_from_row_and_column(i,j)] = false;
+    }
+   //raster_node_basin[flowpy.get_node_index_of_coordinate_point(claus->second[0],claus->second[1])] = false;
+  }
+
+  for(map<int,vector<float> >::iterator oisture = BasinNodesMapOfXY.begin(); oisture != BasinNodesMapOfXY.end();oisture++)
+  {
+    this_node = flowpy.get_node_index_of_coordinate_point(oisture->second[0],oisture->second[1]);
+    raster_node_basin[this_node] = true;
+  }
+
+  // cout << "basination done" << endl;
+
+
+  // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- Not working after that
+
+
+
+
+  // loop through the perimeter
+  for(map<int,vector<float> >::iterator noodle = DD_map.begin(); noodle != DD_map.end(); noodle++)
+  {
+    // cout << "processing node " << noodle -> first << endl;
+    // get the row/col info
+    this_node = flowpy.get_node_index_of_coordinate_point(noodle->second[0],noodle->second[1]);
+    flowpy.retrieve_current_row_and_col(this_node,row,col);
+    // cout << row << "¬¬" << col << endl;
+    //loop through the window to gather the wanted node index
+    for(int i = row - size_window ; i< row + size_window; i++)
+    {
+      for(int j = col - size_window ; j< col + size_window; j++)
+      {
+        // check if the row/col are within the raster
+        if(i<rasterTemplate.get_NRows() && j<rasterTemplate.get_NCols() && i >= 0 && j >= 0 )
+        {
+          nodes_to_test.push_back(flowpy.retrieve_node_from_row_and_column(i,j));
+        }
+      }
+    }
+    // ok now I have the number of node to test, I'll just compute the stats
+    // cout<< "metrics " << endl;
+    if(nodes_to_test.size()>0)
+    {
+      map<string, float>  temp_map = get_metrics_both_side_divide(rasterTemplate,flowpy, nodes_to_test, raster_node_basin);
+
+      // cout << "done"<< endl;
+      temp_map["ID"] = perimeter_index; // I am adding an unique index to then sort the data in python by this index
+      temp_map["value_at_DD"] = rasterTemplate.get_data_element(row,col);
+      stats_around_perimeter_window[this_node] = temp_map;
+      // clearing the vector and start again
+    }
+    nodes_to_test.clear();
+    perimeter_index++;
+  }
+
+  // now just processing the distance map
+  float dist = 0, last_x = 0 , last_y = 0, this_x = 0, this_y = 0;
+  for(vector<int>::iterator titan = Perimeter_nodes.begin(); titan!= Perimeter_nodes.end(); titan ++)
+  {
+    flowpy.retrieve_current_row_and_col(*titan,row,col);
+    flowpy.get_x_and_y_locations(row, col, this_x, this_y);
+    if(titan == Perimeter_nodes.begin())
+    {
+      dist = 0;
+    }
+    else
+    {
+      dist = dist + sqrt(pow((this_x-last_x),2)+pow((this_y-last_y),2));
+    }
+    map_of_dist_perim[*titan] = dist;
+    last_x = this_x;
+    last_y = this_y;
+
+  }
+
+// Done
+  cout << "I have computed statistics around a square window for this basin" << endl;
+
+}
+
+
+void LSDBasin::write_windowed_stats_around_drainage_divide_csv(string filename, LSDFlowInfo& flowpy)
+{
+  // these are for extracting element-wise data from the channel profiles.
+  cout << "I am now writing your DD stat windowed file:" << endl;
+  int this_node, row,col;
+  double latitude,longitude, this_x, this_y,last_x,last_y;
+  float dist = 0;
+  map<string,float> this_map;
+  LSDCoordinateConverterLLandUTM Converter;
+
+
+
+  // open the data file
+  ofstream  data_out;
+  data_out.open(filename.c_str());
+  data_out << "X,Y,latitude,longitude,distance,value_at_DD,mean,mean_in,mean_out,median,median_in,median_out,StdDev,StdDev_in,StdDev_out,min,min_in,min_out,max,max_in,max_out";
+  data_out << endl;
+
+
+  map<int,map<string,float> >::iterator iter;
+
+  for (iter = stats_around_perimeter_window.begin(); iter != stats_around_perimeter_window.end(); iter++)
+  {
+    if(iter != stats_around_perimeter_window.begin())
+    {
+      last_x = this_x;
+      last_y = this_y;
+    }
+    this_node = iter->first;
+    this_map = iter->second;
+    flowpy.retrieve_current_row_and_col(this_node,row,col);
+    flowpy.get_lat_and_long_locations(row, col, latitude, longitude, Converter);
+    flowpy.get_x_and_y_locations(row, col, this_x, this_y);
+
+      data_out.precision(9);
+      data_out << this_x << ","
+                   << this_y << ","
+                   << latitude << ","
+                   << longitude << ",";
+      data_out.precision(5);
+      data_out << map_of_dist_perim[iter->first] << ","
+               << this_map["value_at_DD"] << ","
+               << this_map["mean"] << ","
+               << this_map["mean_in"] << ","
+               << this_map["mean_out"] << ","
+               << this_map["median"] << ","
+               << this_map["median_in"] << ","
+               << this_map["median_out"] << ","
+               << this_map["StdDev"] << ","
+               << this_map["StdDev_in"] << ","
+               << this_map["StdDev_out"] << ","
+               << this_map["min"] << ","
+               << this_map["min_in"] << ","
+               << this_map["min_out"] << ","
+               << this_map["max"] << ","
+               << this_map["max_in"] << ","
+               << this_map["max_out"]
+               << endl;
+    }
+    data_out.close();
+    //"X,Y,latitude,longitude,distance,value_at_DD,mean,mean_in,mean_out,median,median_in,median_out,
+    //StdDev,StdDev_in,StdDev_out,min,min_in,min_out,max,max_in,max_out"
+
+}
+
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// This preprocess Drainage Divide metrics to make sure everything is ready to be used for this basin:
+// setting the perimeter and calculating various info about it:
+// at the moment: x/y coordinates, to deal with later different rasters
+// TODO: find a way to sort the perimeter in a vector: each nodes should follow each other
+// BG - 26/12/2017 - "hon hon hon" (French Santa, unpublished)
+void LSDBasin::preprocess_DD_metrics(LSDFlowInfo flowpy)
+{
+
+  // First setting the perimeter
+  set_Perimeter(flowpy);
+  clean_perimeter(flowpy);
+
+  //organise_perimeter(flowpy);
+
+  // implementing a global map containing vector of info for each nodes atm <x,y> later on distance from origin
+  int this_node = 0;
+  float this_x = 0, this_y = 0;
+  vector<float> info_DD;
+  vector<int>::iterator Santa;
+
+  for(Santa = Perimeter_nodes.begin();Santa!=Perimeter_nodes.end();Santa++)
+  {
+    this_node = *Santa;
+    flowpy.get_x_and_y_from_current_node(this_node,this_x,this_y);
+    info_DD.push_back(this_x);
+    info_DD.push_back(this_y);
+    // add some stuffs later
+
+    DD_map[this_node] = info_DD;
+    info_DD.clear();
+  }
+
+  // Setting a map [nodes_of_basins] = vector[x,y] to make an easier comparison with other raster
+  for(Santa = BasinNodes.begin();Santa!=BasinNodes.end();Santa++)
+  {
+    this_node = *Santa;
+    flowpy.get_x_and_y_from_current_node(this_node,this_x,this_y);
+    info_DD.push_back(this_x);
+    info_DD.push_back(this_y);
+    BasinNodesMapOfXY[this_node] = info_DD;
+    info_DD.clear();
+  }
+
+  // Setting the preprocess checker
+  DD_preprocessed = true;
+  // done
+
+}
+
+void LSDBasin::organise_perimeter(LSDFlowInfo& flowpy)
+{
+  // Careful!!! This is a test function, I am definitely trying things here but it might not be ready yet
+  vector<int>::iterator YOP = Perimeter_nodes.begin();
+  vector<int> row_nodes_to_test, col_nodes_to_test;
+  // ### This array will simplify the looping through the perimeter
+  static const int arr[] = {-1,0,1};
+  vector<int> tester (arr, arr + sizeof(arr) / sizeof(arr[0]) );
+
+  map<int,int> is_done; // check if a node has been processed or not
+  int row = 0, col = 0,id = 0, node = 0, n_adj = 0, this_row,this_col;
+  float x1 =0 ,x2 = 0, y1 = 0, y2 = 0, last_dist = 0;
+  bool ting = true;
+
+  // preprocessing stage to get rid of some points
+  print_perimeter_to_csv(flowpy, "/home/boris/Desktop/LSD/capture/sorbas/peritest.csv");
+
+
+  // Any perimeter nodes should only have 2 neightboors now
+
+  // first, let me indentify the outlet (???), aka the lowest point of the ridge
+  node = Perimeter_nodes[0];
+  flowpy.retrieve_current_row_and_col(node,row,col);
+  is_done[node] = 1;
+  map_of_dist_perim[node] = 0;
+  Perimeter_nodes_sorted_id[node] = id;
+  Perimeter_nodes_sorted.push_back(node);
+  // cout << is_done[5260475] << " " << node << " " << 5260475 << endl;
+  // exit(EXIT_SUCCESS);
+
+
+  while(Perimeter_nodes_sorted.size() != 736)
+  {
+
+    id++;
+    for(vector<int>::iterator YOPL = tester.begin();YOPL!= tester.end() && ting == true ; YOPL++)
+    {
+
+      for(vector<int>::iterator LPOY = tester.begin();LPOY != tester.end() && ting == true; LPOY++)
+      {
+        this_row = row + *YOPL;
+        this_col = col + *LPOY;
+
+        if(this_row<flowpy.get_NRows() && this_col<flowpy.get_NCols() && this_row>=0 && this_col >= 0)
+        {
+          flowpy.get_x_and_y_from_current_node(node,x2,y2);
+          // cout << Perimeter_nodes_sorted.size() << endl;
+          // cout << node << endl;
+          //cout << x2 << " " <<y2 <<endl;
+
+          node = flowpy.retrieve_node_from_row_and_column(this_row,this_col);
+          // cout << Perimeter_nodes_map.count(node) << " || " << is_done.count(node) << " || " << x2 << " || " << y2  <<  endl;
+          if(Perimeter_nodes_map.count(node) > 0 && is_done.count(node) == 0 && node != NoDataValue && node != -9999 )
+          {
+            ting = false;
+            Perimeter_nodes_sorted.push_back(node);
+            is_done[node] = 1;
+            Perimeter_nodes_sorted_id[node] = id;
+            // distance stuffs
+            flowpy.get_x_and_y_from_current_node(Perimeter_nodes_sorted[Perimeter_nodes_sorted.size()-2],x1,y1);
+            flowpy.get_x_and_y_from_current_node(node,x2,y2);
+            map_of_dist_perim[node] = last_dist + sqrt(pow((x2-x1),2) + pow((y2-y1),2));
+            last_dist = map_of_dist_perim[node];
+            // cout << map_of_dist_perim[node] << endl;
+
+
+            flowpy.retrieve_current_row_and_col(node,row,col);
+
+
+            // debugf
+            flowpy.get_x_and_y_from_current_node(node,x2,y2);
+            cout << row << " || " << col << endl;
+            cout << x2 << " " <<y2 <<endl;
+            cout << Perimeter_nodes_sorted.size() << endl;
+
+          }
+        }
+      }
+
+    }
+
+    ting = true;
+
+  }
+  cout << "fupal" << endl;
+
+  // TESTING FUNCTION, DELETE IT AFTERWARDS BORIS!!!!
+  Perimeter_nodes = Perimeter_nodes_sorted;
+    print_perimeter_to_csv(flowpy, "/home/boris/Desktop/LSD/capture/sorbas/peritest_AFTER.csv");
+
+
+
+
+  // // Now looping from this point while my perimeter_nodes_sorted is not full
+  // while(Perimeter_nodes.size()!=Perimeter_nodes_sorted.size())
+  // {
+  //   // checking all the adjacent nodes (no diagonals on this perimeter)
+  //   for(int i = -1; i <=1; i++)
+  //   {
+  //     for (int j = -1; j<=1;j++)
+  //     {
+  //       // check the validity of the pointand if were not testing this specific point
+  //       if(i<flowpy.get_NRows() && j<flowpy.get_NCols() && i>=0 && j >= 0 && (i !=0 && j!=0))
+  //       {
+  //         if(is_done[flowpy.get_NodeIndex_from_row_col(row+i,col+j)] != 1)
+  //         {
+  //           n_adj++;
+  //           row_nodes_to_test.push_back(row+i);
+  //           col_nodes_to_test.push_back(col+j);
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   // Now we have the number of neighboors
+
+  //   if(n_adj == 1) // easy case
+  //   {
+  //     node = flowpy.get_NodeIndex_from_row_col(row_nodes_to_test[0],col_nodes_to_test[0]);
+  //     is_done[node] = 1;
+  //     Perimeter_nodes_sorted.push_back(node);
+  //     // distance cauculqtion
+  //     flowpy.get_x_and_y_from_current_node(Perimeter_nodes_sorted[Perimeter_nodes_sorted.size()-2],x1,y1);
+  //     flowpy.get_x_and_y_from_current_node(node,x2,y2);
+  //     map_of_dist_perim[node] = sqrt(pow((x2-x1),2) + pow((y2-y1),2));
+  //   }
+  //   else if(n_adj>1)
+  //   {
+  //     vector<int> minindex = Get_Index_Minimum(row_nodes_to_test);
+  //     if(minindex.size() == 1)
+  //     {
+  //       node = flowpy.get_NodeIndex_from_row_col(row_nodes_to_test[minindex[0]],col_nodes_to_test[minindex[0]]);
+  //       is_done[node] = 1;
+  //       Perimeter_nodes_sorted.push_back(node);
+  //       // distance cauculqtion
+  //       flowpy.get_x_and_y_from_current_node(Perimeter_nodes_sorted[Perimeter_nodes_sorted.size()-2],x1,y1);
+  //       flowpy.get_x_and_y_from_current_node(node,x2,y2);
+  //       map_of_dist_perim[node] = sqrt(pow((x2-x1),2) + pow((y2-y1),2));
+  //     }
+
+  //   }
+
+
+  //   // reinitialise everything
+  //   flowpy.retrieve_current_row_and_col(node,row,col);
+  //   row_nodes_to_test.clear();
+  //   col_nodes_to_test.clear();
+  //   n_adj = 0;
+  // }
+
+}
+
+void LSDBasin::clean_perimeter(LSDFlowInfo& flowpy)
+{
+
+  vector<int> light_perimeter;
+  nodes_of_basins;
+  int row = 0, col = 0, cptndd = 0, cptndd_tot = 0, this_row = 0, this_col = 0, this_node = 0;
+  vector<int> tester;
+  tester.push_back(-1);
+  tester.push_back(1);
+
+
+  // filling a map of basin nodes to check the nobasin around each node
+  for(vector<int>::iterator yo = BasinNodes.begin(); yo!= BasinNodes.end(); yo++)
+  {
+    nodes_of_basins[*yo] = 1;
+  }
+
+  for(vector<int>::iterator uh = Perimeter_nodes.begin();uh != Perimeter_nodes.end(); uh++)
+  {
+    flowpy.retrieve_current_row_and_col(*uh,row,col);
+    for(int i = 0; i < 2; i++)
+    {
+      this_row = row+tester[i];
+      this_col = col;
+      if(this_row>=0 && this_row<get_NRows())
+      {
+        this_node = flowpy.retrieve_node_from_row_and_column(this_row,this_col);
+        if(nodes_of_basins[this_node] !=1)
+        {
+          cptndd++;
+          cptndd_tot++;
+        }
+      }
+
+
+    }
+    for(int i = 0; i < 2; i++)
+    {
+      this_row = row;
+      this_col = col+tester[i];
+      if(this_col>=0 && this_col<get_NCols())
+      {
+        this_node = flowpy.retrieve_node_from_row_and_column(this_row,this_col);
+        if(nodes_of_basins[this_node] !=1)
+        {
+          cptndd++;
+          cptndd_tot++;
+        }
+      }
+
+    }
+
+    for(int i = 0; i<2;i++)
+    {
+      for(int j =0; j<2 ; j++)
+      {
+        this_row = row+tester[i];
+        this_col = col+tester[j];
+        if(this_col>=0 && this_col<get_NCols())
+        {
+          this_node = flowpy.retrieve_node_from_row_and_column(this_row,this_col);
+          if(nodes_of_basins[this_node] !=1)
+          {
+            cptndd_tot++;
+          }
+        }
+      }
+    }
+
+
+    if(cptndd>0 && cptndd_tot < 6)
+    {
+      int truc = flowpy.retrieve_node_from_row_and_column(row,col);
+      light_perimeter.push_back(truc);
+      Perimeter_nodes_map[truc] = 1;
+    }
+
+    cptndd = 0;
+    cptndd_tot = 0;
+  }
+
+  Perimeter_nodes = light_perimeter;
+
+
+}
 
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Added lines to separate with LSDCosmoBasin =-=-=-=-=-=-=-=-=-
+// I got lost each time I try to find it =-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 //  +++++++++++++++++

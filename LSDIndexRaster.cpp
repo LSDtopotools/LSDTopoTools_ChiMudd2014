@@ -1477,6 +1477,7 @@ LSDIndexRaster LSDIndexRaster::clip_to_smaller_raster(LSDRaster& smaller_raster)
   {
     for(int col = 0; col<New_NCols; col++)
     {
+       //cout << row << " ¦¦ " << col << endl;
        NewData[row][col] = RasterData[row+YUL_row][col+XLL_col];
     }
   }

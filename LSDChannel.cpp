@@ -870,7 +870,7 @@ void LSDChannel::find_most_likeley_segments(int minimum_segment_length, float si
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // this function finds the best fit m/n ratio
-//
+// THIS DOES NOT SEEM TO DO ANYTHING SMM 11/2017
 // SMM 2013
 //
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -899,9 +899,10 @@ void LSDChannel::find_best_fit_m_over_n_with_segments(int n_movern, float d_move
   vector<float> best_r2_vec;
   vector<float> best_DW_vec;
   vector<float> best_fitted_y;
-  int best_n_data_nodes;
-  int best_this_n_segments;
-  float best_this_MLE, best_this_AIC, best_this_AICc;
+  //int best_n_data_nodes;
+  //int best_this_n_segments;
+  //float best_this_MLE;
+  //float best_this_AIC, best_this_AICc;
   vector<int> best_these_segment_lengths;
   vector<float> best_chi_thinned;
   vector<float> best_elev_thinned;
@@ -909,7 +910,7 @@ void LSDChannel::find_best_fit_m_over_n_with_segments(int n_movern, float d_move
   vector<int> best_node_ref_thinned;
 
   float min_AICc = 9999;
-  float best_movern = start_movern;
+  //float best_movern = start_movern;
   float m_over_n;
   for(int i = 0; i<n_movern; i++)
   {
@@ -936,14 +937,14 @@ void LSDChannel::find_best_fit_m_over_n_with_segments(int n_movern, float d_move
   best_elev_fitted = elev_fitted;
   best_node_ref_thinned = node_ref_thinned;
   best_these_segment_lengths = these_segment_lengths;
-  best_this_MLE = this_MLE;
-  best_this_n_segments =  this_n_segments;
-  best_n_data_nodes =  n_data_nodes;
-  best_this_AIC = this_AIC;
-  best_this_AICc = this_AICc;
+  //best_this_MLE = this_MLE;
+  //best_this_n_segments =  this_n_segments;
+  //best_n_data_nodes =  n_data_nodes;
+  //best_this_AIC = this_AIC;
+  //best_this_AICc = this_AICc;
 
   min_AICc = this_AICc;
-  best_movern = m_over_n;
+  //best_movern = m_over_n;
 
   //cout << "best AICc: " << this_AICc << " and m_over_n: " << best_movern << endl;
       }

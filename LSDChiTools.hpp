@@ -130,6 +130,13 @@ class LSDChiTools
     /// @date 22/12/2014
     void get_x_and_y_locations(int row, int col, double& x_loc, double& y_loc);
 
+    /// @biref This function write a file similar to the MCHISegmented one slightly different to match with the knickpoint plotting requirements
+    /// @ param LSDFlowInfo A LSDFlowInfo object
+    /// @param string filename the path name and extension of hte required file
+    /// @author BG
+    /// @date 05/12/2017
+    void print_mchisegmented_knickpoint_version(LSDFlowInfo& FlowInfo, string filename);
+
     /// @brief this gets the x and y location of a node at row and column
     /// @param row the row of the node
     /// @param col the column of the node
@@ -154,6 +161,23 @@ class LSDChiTools
     /// @date 24/05/2015
     void get_lat_and_long_locations(int row, int col, double& lat,
                   double& longitude, LSDCoordinateConverterLLandUTM Converter);
+
+
+    /// @brief a function to get the lat and long of a coordinate point in the raster
+    /// @detail Assumes WGS84 ellipsiod - does not correspond necessarly to a node
+    /// @param row the row of the node
+    /// @param col the col of the node
+    /// @param lat the latitude of the node (in decimal degrees, replaced by function)
+    ///  Note: this is a double, because a float does not have sufficient precision
+    ///  relative to a UTM location (which is in metres)
+    /// @param long the longitude of the node (in decimal degrees, replaced by function)
+    ///  Note: this is a double, because a float does not have sufficient precision
+    ///  relative to a UTM location (which is in metres)
+    /// @param Converter a converter object (from LSDShapeTools)
+    /// @author SMM
+    /// @date 24/05/2015
+    void get_lat_and_long_locations_from_coordinate(float X, float Y, double& lat,
+                   double& longitude, LSDCoordinateConverterLLandUTM Converter);
 
     /// @brief this function gets the UTM_zone and a boolean that is true if
     /// the map is in the northern hemisphere
@@ -296,6 +320,12 @@ class LSDChiTools
     /// @author BG
     /// @date 4/02/2017
     void ksn_knickpoint_detection(LSDFlowInfo& FlowInfo);
+
+    /// @brief This function extract the difference,ratio,sign between each segments of the M_segmented_chi analysis
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @author BG
+    /// @date 13/11/2017
+    void knickzone_weighting_completion(map<pair<int,int>, vector<int> > mapofnode);
 
     /// @brief Development function based on segment_counter to help
     ///  knickpoint detection. More description will be added when it will be
@@ -1049,6 +1079,16 @@ class LSDChiTools
     /// @date 06/06/2017
     void print_knickpoint_to_csv(LSDFlowInfo& FlowInfo, string filename);
 
+    /// @brief This prints a csv file with all the knickzones raw data
+    ///  the columns are:
+    ///  latitude,longitude,elevation,flow distance,drainage area,ratio,diff,sign
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param filename The name of the filename to print to (should have full
+    ///   path and the extension .csv
+    /// @author BG
+    /// @date 06/06/2017
+    void print_knickzone_to_csv(LSDFlowInfo& FlowInfo, string filename);
+
     /// @brief This prints a csv file with a subset of the data from the data maps
     ///  the columns are:
     ///  latitude,longitude,m_chi,b_chi
@@ -1070,6 +1110,133 @@ class LSDChiTools
     /// @date 02/06/2016
     void print_data_maps_to_file_basic(LSDFlowInfo& FlowInfo, string filename);
 
+
+    /// @brief fill maps containing information of receiving rivers
+    /// @param FlowInfo: a FlowInfo object
+    /// @author BG
+    /// @date 30/11/2017 
+    void get_previous_mchi_for_all_sources(LSDFlowInfo& Flowinfo);
+
+    /// @brief It should find the ending (aka downstair) node 
+    /// @param FlowInfo: a FlowInfo object
+    /// @author BG
+    /// @date 30/11/2017 
+    int get_ending_node_of_source(LSDFlowInfo& FlowInfo, int source_key);
+
+    /// @brief print a csv file with the receiver of each source and the corresponding source with the m_chi
+    /// That is barely understable, however I have a cold so I am tired as F. Just ask me if you need more info about that
+    /// @param string filename: the path/name.csv of your file
+    /// @author BG
+    /// @date 30/11/2017
+    void print_intersources_mchi_map(string filename);
+
+
+    /// @brief set a map of each source_key with the corresponding vector fo node INCLUDING the first node of the 
+    /// receaving river if this abovementioned one does exist.
+    /// @param Flowinfo, a LSDFlowInfo object
+    /// @param int n_nodlump, the half lumping window
+    /// @author BG
+    /// @date 05/01/2018
+    void set_map_of_source_and_node(LSDFlowInfo& FlowInfo, int n_nodlump);
+
+    /// @brief Main function for the knickpoint analysis that control the call of other function to keep it clear and up to date
+    /// @param FlowiInfo: a LSDFlowInfo object
+    /// @param OUT_DIR: string containing the output directory path
+    /// @param OUT_ID: string containing the output prefix
+    /// @author BG
+    /// @date 05/01/2018
+    void ksn_knickpoint_automator(LSDFlowInfo& FlowInfo, string OUT_DIR, string OUT_ID, float MZS_th, float lambda_TVD);
+
+    void ksn_knickpoint_outlier_automator(LSDFlowInfo& FlowInfo, float MZS_th);
+
+    /// @brief Dealing with composite knickpoints
+    /// @param FlowiInfo: a LSDFlowInfo object
+    /// @author BG
+    /// @date 17/01/2018
+    void ksn_knickpoints_combining(LSDFlowInfo& Flowinfo);
+
+    /// @brief Detection of the knickpoints by looping through the source keys
+    /// @param FlowiInfo: a LSDFlowInfo object
+    /// @param OUT_DIR: string containing the output directory path
+    /// @param OUT_ID: string containing the output prefix
+    /// @author BG
+    /// @date 05/01/2018
+    void ksn_knickpoint_detection_new(LSDFlowInfo& FlowInfo);
+
+    /// @brief increment the knickpoints for one river
+    /// @param SK: the source key
+    /// @param vecnode: a vector of the rive nodes
+    /// @author BG
+    /// @date 05/01/2018
+    void ksn_knickpoint_raw_river(int SK, vector<int> vecnode);
+
+    /// @brief write a file with the raw knickpoint informations
+    /// @param FlowiInfo: a LSDFlowInfo object
+    /// @param filename: string with path+name+.csv
+    /// @author BG
+    /// @date 05/01/2018
+    void print_raw_ksn_knickpoint(LSDFlowInfo& FlowInfo, string filename);
+
+    /// @brief Calculate KDE over the river system using the dksn/dchi map previously calculated through ksn_knickpoint_automator
+    /// @author BG
+    /// @date 05/01/2018
+    void ksn_kp_KDE();
+
+    /// @brief communicate with LSDStatTools to get the KDE oer river, also register the bandwidth automatically calculated
+    /// @param vecnode: a vector of node index containing the data
+    /// @param SK: source key
+    /// @author BG
+    /// @date 05/01/2018
+    void KDE_vec_node_mchi(vector<int> vecnode, int SK);
+
+    /// @brief write a file containing source key and bandwith calculated from the KDE
+    /// @param vecnode: a vector of node index containing the data
+    /// @param SK: source key
+    /// @author BG
+    /// @date 05/01/2018
+    void print_bandwidth_ksn_knickpoint(string filename);
+
+    /// @brief compute basics metrics per source keys: flow length, chi length plus more to come probably
+    /// @param FlowInfo: a LSDFlowInfo Object
+    /// @author BG
+    /// @date 08/01/2018
+    void compute_basic_matrics_per_source_keys(LSDFlowInfo& FlowInfo);
+
+
+    /// @brief lump the m_chi to average the MC noise
+    /// @param n_nodlump: the lumping half_window (number of nodes)
+    /// @author BG
+    /// @date 08/01/2018
+    void lump_my_ksn(int n_nodlump);
+
+
+    /// @brief lump m_chi for a specific vector of node index
+    /// @param this_vec: vector of int containing the node index
+    /// @param n_nodlump: the lumping half_window (number of nodes)
+    /// @author BG
+    /// @date 08/01/2018
+    void lump_this_vec(vector<int> this_vec, int n_nodlump);
+
+    void TVD_on_my_ksn(const float lambda);
+    vector<float> TVD_this_vec(vector<int> this_vec, const float lambda);
+    vector<double> correct_TVD_vec(vector<double> this_val);
+    float get_dksn_from_composite_kp(vector<int> vecnode);
+    float get_kp_sharpness_length(vector<int> vecnode, LSDFlowInfo& Flowinfo);
+    pair<pair<int,float>,pair<float,float> > get_ksn_centroid_coordinates(LSDFlowInfo& Flowinfo, vector<int> vecnode);
+    vector<vector<int> > group_local_kp(vector<int> vecnode_kp, vector<int> vecnode_river,LSDFlowInfo& Flowinfo);
+    vector<vector<int> > old_group_local_kp(vector<int> vecnode_kp, vector<int> vecnode_river,LSDFlowInfo& Flowinfo);
+
+    
+    
+    void print_final_ksn_knickpoint(LSDFlowInfo& FlowInfo, string filename);
+
+
+
+
+
+
+
+
   protected:
     ///Number of rows.
     int NRows;
@@ -1084,6 +1251,9 @@ class LSDChiTools
     float DataResolution;
     ///No data value.
     int NoDataValue;
+
+    /// A general incrementer for knickpoints. It has to be global for some reason
+    int id_kp;
 
     ///A map of strings for holding georeferencing information
     map<string,string> GeoReferencingStrings;
@@ -1113,11 +1283,78 @@ class LSDChiTools
     /// A map that holds knickpoints signs
     map<int,int> segment_length_map;
     /// A map that holds knickpoints ratio
-    map<int,float> kns_ratio_knickpoint_map;
+    map<int,float> ksn_ratio_knickpoint_map;
     /// A map that holds knickpoints difference_between_segments
-    map<int,float> kns_diff_knickpoint_map;
+    map<int,float> ksn_diff_knickpoint_map;
     /// A map that holds knickpoints signs
     map<int,int> ksn_sign_knickpoint_map;
+    /// Map of the knickpoints value in radian
+    map<int,float> ksn_rad_knickpoint_map;
+    /// Map of the knickzone by cumulative variations
+    map<int,float> ksn_cumul_knickpoint_map;
+
+    /// Map of the knickpoint by cumulative variations -  ratio
+    map<int,float> rksn_cumul_knickpoint_map;
+
+    /// Map of the knickpoint by cumulative variations
+    map<int,float> rad_cumul_knickpoint_map;
+
+    /// map of nickzones for ksn variations
+    map<pair<int,int>, float> knickzone_raw_cumul_ksn;
+    /// map of nickzones for rksn variations
+    map<pair<int,int>, float> knickzone_raw_cumul_rksn;
+    /// map of nickzones for rad variations
+    map<pair<int,int>, float> knickzone_raw_cumul_rad;
+    /// map of nickzones for ksn variations WEIGHTED VERSION
+    map<pair<int,int>, float> knickzone_WP_ksn;
+    /// map of nickzones for rksn variations WEIGHTED VERSION
+    map<pair<int,int>, float> knickzone_WP_rksn;
+    /// map of nickzones for rad variations WEIGHTED VERSION
+    map<pair<int,int>, float> knickzone_WP_rad;
+    /// map of knickzone ID to identify all the knickzones from a same base one
+    map<pair<int,int>,int>  knickzone_ID;
+    /// map of source_keys of receiving rivers<source_key_of_river,source_key_of_receiving_river>
+    map<int,int> map_source_key_receiver;
+    /// map of m_chi precedant the source_key <source_key_of_river,previous_m_chi>
+    map<int,float> map_source_key_receiver_mchi;
+
+    /// map of source key and associated vector of nodes
+    map<int,vector<int> > map_node_source_key;
+    /// map of source key and associated vector of nodes containing knickpoints used for the ksnkp calculation
+    map<int,vector<int> > map_node_source_key_kp;
+    /// map of raw changes in ksn, key is node and value is delta ksn from bottom to top
+    map<int,float> raw_ksn_kp_map;
+    /// map of raw derivative for the ksn value calculated per rivers. map[nodeindex] = dksn/dchi
+    map<int,float> raw_dksndchi_kp_map;
+    /// map of raw KDE, calculated using method/binning depending on the parameter file
+    map<int,float> raw_KDE_kp_map;
+    /// map of the automatically calculated bandwidth per source key
+    map<int,float> KDE_bandwidth_per_source_key;
+    /// Map[source_key] = flow_length_of_river (from source to base junction, not baselevel)
+    map<int,float> map_flow_length_source_key;
+    /// Map[source_key] = chi_length_of_river (from source to base junction, not baselevel)
+    map<int,float> map_chi_length_source_key;
+    // Map[node_index] = 0 if not outlier, 1 if outlier according to a simple Modified z score on dksn/dchi
+    map<int,int> map_outlier_MZS_dksndchi;
+    /// Map[node_index] = lumped m_chi
+    map<int,float> lumped_m_chi_map;
+        /// Map[node_index] = TVDed m_chi
+    map<int,float> TVD_m_chi_map;
+    /// Debugging map to check the TVD correctin (deprecated - I'll clean my code when I'll be sure I'll need it)
+    map<int,float>TVD_m_chi_map_non_corrected;
+    /// Grouped and processed knickpoints
+    map<int,float> ksn_kp_map;
+    /// diffusion of a knickpoint, or sharpness of a knickpoint, I cannot decide which worf I prefer
+    map<int,float> sharpness_ksn_length;
+    /// cextent of composite knickpoints
+    map<int,pair<int,int> > ksn_extent;
+    map<int,pair<float,float> > ksn_centroid;
+    map<int,int> ksn_kp_ID;
+    map<int,float> flow_distance_kp_centroid_map;
+    map<int,int> nearest_node_centroid_kp;
+    map<int,int> map_outlier_MZS_combined;
+
+
 
     /// A vector to hold the order of the nodes. Starts from longest channel
     /// and then works through sources in descending order of channel lenght
@@ -1161,6 +1398,7 @@ class LSDChiTools
     /// In this map the key is the basin key and the value is the node of the
     /// baselevel source
     map<int,int> source_node_of_mainstem_map;
+
 
   private:
     void create(LSDRaster& Raster);

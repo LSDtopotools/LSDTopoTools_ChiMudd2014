@@ -62,6 +62,7 @@
 #include <cmath>
 #include <ctime>
 #include <map>
+#include <math.h>
 #include "TNT/tnt.h"
 #include "TNT/jama_lu.h"
 #include "LSDStatsTools.hpp"
@@ -71,6 +72,12 @@ using namespace JAMA;
 
 #ifndef StatsTools_CPP
 #define StatsTools_CPP
+
+// Specific fpor KDE estimation implementation
+#define  min_KDE(a,b) (((a)<(b))?(a):(b))
+#define  max_KDE(a,b) (((a)>(b))?(a):(b))
+#define  P_UL 500
+#define  R 1.0
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 /*********************************************************\
@@ -91,6 +98,8 @@ using namespace JAMA;
 #define FAC (1.0/MBIG)
 
 #define ROUGHLY_PI 4
+
+
 
 float ran3(long *idum)
 {
@@ -190,6 +199,20 @@ vector<string> extract_keys(map<string, string> input_map)
   vector<string> retkey;
 
   map<string, string>::iterator it;
+  string key;
+  for(it = input_map.begin(); it != input_map.end(); it++)
+  {
+    key = it->first;
+    retkey.push_back(key);
+  }
+  return retkey;
+}
+
+vector<string> extract_keys(map<string, double> input_map)
+{
+  vector<string> retkey;
+
+  map<string, double>::iterator it;
   string key;
   for(it = input_map.begin(); it != input_map.end(); it++)
   {
@@ -422,6 +445,39 @@ float get_median(vector<float> y_data)
 
   return dMedian;
 }
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// gets the median, ignore the NoDataValue
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+float get_median(vector<float> y_data, float ndv)
+{
+
+  // First recasting the vector without ndv
+  vector<float> y_data_nndv;
+
+  for(vector<float>::iterator howl = y_data.begin(); howl != y_data.end(); howl ++)
+  {
+    if(*howl != ndv)
+    {
+      y_data_nndv.push_back(*howl);
+    }
+  }
+  int n_data_points = y_data_nndv.size();
+
+  sort(y_data_nndv.begin(),y_data_nndv.end());
+
+  float dMedian = 0.0;
+  if ( (n_data_points % 2) == 0)
+  {
+    dMedian = ( (y_data_nndv[n_data_points/2] + (y_data_nndv[(n_data_points/2) - 1]))/2.0 );
+  }
+  else
+  {
+    dMedian = (y_data_nndv[n_data_points/2]);
+  }
+
+  return dMedian;
+}
+
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // gets the median: uses a pre-sorted vector
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -704,6 +760,71 @@ float Get_Minimum(vector<float>& y_data, float ndv)
 }
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// gets the minimum of a population of data
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+int Get_Minimum(vector<int>& y_data, float ndv)
+{
+  int min = 10000;
+  for (int i =0; i < int(y_data.size()); i++)
+  {
+    if (y_data[i] != ndv)
+    {
+      if (y_data[i] < min)
+      {
+        min = y_data[i];
+      }
+    }
+  }
+  return min;
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// gets the index minimum of a population of data
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+vector<int> Get_Index_Minimum(vector<int>& y_data, float ndv)
+{
+  int min = 10000;
+  vector<int> index;
+  for (int i =0; i < int(y_data.size()); i++)
+  {
+    if (y_data[i] != ndv)
+    {
+      if (y_data[i] < min)
+      {
+        min = y_data[i];
+        index.push_back(i);
+      }
+    }
+  }
+  return index;
+}
+
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// gets the index maximum of a population of data
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+vector<int> Get_Index_Maximum(vector<float>& y_data, float ndv)
+{
+  float max = Get_Maximum(y_data,ndv);
+
+  vector<int> vidx;
+  for(size_t it = 0; it< y_data.size(); it++)
+  {
+    if(y_data[it] != ndv && y_data[it] == max)
+    {
+      vidx.push_back(it);
+    }
+  }
+
+  return vidx;
+
+}
+
+
+
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // gets the maximum of a population of data
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 float Get_Maximum(vector<float>& y_data, float ndv)
@@ -732,6 +853,35 @@ float get_standard_deviation(vector<float>& y_data, float mean)
   for (int i = 0; i< n_data_points; i++)
   {
     total+=(y_data[i]-mean)*(y_data[i]-mean);
+  }
+  return sqrt(total/float(n_data_points));
+}
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// gets the standard deviation from a population of data, ignore no data
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+float get_standard_deviation(vector<float>& y_data, float mean,float ndv)
+{
+  // First recasting the vector without ndv
+  vector<float> y_data_nndv;
+
+  for(vector<float>::iterator howl = y_data.begin(); howl != y_data.end(); howl ++)
+  {
+    if(*howl != ndv)
+    {
+      y_data_nndv.push_back(*howl);
+    }
+  }
+
+
+  int n_data_points = y_data_nndv.size();
+
+
+  float total = 0;
+  for (int i = 0; i< n_data_points; i++)
+  {
+    total+=(y_data_nndv[i]-mean)*(y_data_nndv[i]-mean);
   }
   return sqrt(total/float(n_data_points));
 }
@@ -5555,6 +5705,74 @@ float angle_between_vectors(float x1, float y1, float x2, float y2)
 }
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// Get the angle between the vector between points (x1, y1) and (x2, y2) and a reference vector pointing N in a clockwise direction
+// FJC 11/01/18
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+float clockwise_angle_between_vector_and_north(float x1, float y1, float x2, float y2)
+{
+  float pi = 3.14159265;
+  float angle;
+  float vector_x = x2-x1;
+  float vector_y = y2-y1;
+
+  float len_vector = hypot(vector_x, vector_y);
+
+  // no angle if len_vector = 0
+  if (len_vector == 0) { angle = 0; }
+
+  // normalise vector: v/||v||
+  float normalised_x = vector_x/len_vector;
+  float normalised_y = vector_y/len_vector;
+
+  // reference vector [0,1]
+  float ref_x = 0;
+  float ref_y = 1;
+
+  float dot = normalised_x*ref_x + normalised_y*ref_y;      // dot product
+  float det = normalised_x*ref_y - normalised_y*ref_x;      // determinant
+  angle = atan2(det, dot);
+
+  // counter clockwise, subtract from 2*pi (360 degrees)
+  if (angle < 0)
+  {
+    angle = (2*pi)+angle;
+  }
+
+  return angle;
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// Get the angle between the vector between points (x1, y1) and (x2, y2) and a reference vector pointing N in a clockwise direction
+// FJC 11/01/18
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+float clockwise_angle_between_two_vectors(float x0, float y0, float x1, float y1, float x2, float y2)
+{
+  float pi = 3.14159265;
+  float angle, new_angle;
+
+  float vector1_x = x1-x0;
+  float vector1_y = y1-y0;
+
+  float vector2_x = x2-x0;
+  float vector2_y = y2-y0;
+
+  if (vector1_x == vector2_x && vector1_y == vector2_y) { angle = 0; }
+
+  float dot = vector1_x*vector2_x + vector1_y*vector2_y;      // dot product
+  float det = vector1_x*vector2_y - vector1_y*vector2_x;      // determinant
+  angle = atan2(det, dot);
+
+  // counter clockwise, subtract from 2*pi (360 degrees)
+  if (angle < 0)
+  {
+    new_angle = (2*pi)+angle;
+  }
+
+  return angle;
+}
+
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // Get the angle between two vectors in radians
 // We need to calculate the (x1,y1) and (x2,y2) coordinates by moving
 // the vectors to intercept (0,0)
@@ -7331,6 +7549,922 @@ int PointInPolygon(int VertexCount, float XCoords[], float YCoords[], float XCoo
   }
   return c;
 }
+
+
+// this function vectrize part of a map from a vector of ordered key contained by the map.
+// This sounds fuzzy but it is useful as a map is more efficient to store/find unsorted elements
+// but you want a vector when you need to get element in a certain order
+// Anyway I will use it so well, at least I understand myself.
+// BG - 08/01/2018
+vector<float> get_value_from_map_and_node(vector<int> vecnode, map<int,float>& map_int_float)
+{
+  vector<float> vecout;
+  vector<int>::iterator gorg;
+
+  for(gorg = vecnode.begin(); gorg != vecnode.end() ; gorg ++)
+  {
+    vecout.push_back(map_int_float[*gorg]);
+  }
+  return vecout;
+}
+
+
+// Absolute Deviation - Ignoring NoData
+// The Absolute Deviation is defined as follow for a population X of samples Xi:
+// ADi = |Xi - median(X)|
+// BG - 08/01/2018
+
+vector<float> get_absolute_deviation(vector<float> vecval, float NDV)
+{
+  vector<float>::iterator bubulle;
+  vector<float> vecout;
+  float med = get_median(vecval,NDV), this_val = 0;
+
+  for(bubulle = vecval.begin(); bubulle != vecval.end(); bubulle ++)
+  {
+    this_val = *bubulle;
+    vecout.push_back(abs(this_val - med));
+  }
+
+  return vecout;
+
+}
+
+
+// Median Absolute Deviation - Ignoring nodata
+// The MAD represents the Median Absolute Deviation,
+// parameter often used to detect outliers in a sample population
+// define by: MAD = median(Absolute_deviation) - see get_absolute_devitaion for details
+// BG - 08/01/2018
+float get_MAD(vector<float> vecval, float NDV)
+{
+
+  // first getting the absolute deviation
+  vector<float> vecpre = get_absolute_deviation(vecval, NDV);
+  // then getting the MAD
+  float MAD = get_median(vecpre);
+  // done
+
+  return MAD;
+
+}
+
+// The modified z-score is a parameter used to extract outliers
+// Described in Iglewicz et Hoaglin, 1993
+// define by : Mi = ( 0.645*(Xi - median(X)) ) / MAD(X)
+// BG - 08/01/2018
+vector<float> get_modified_z_score(vector<float> vecval,float NDV)
+{
+  // first get the MAD and the median
+  float MAD = get_MAD(vecval,NDV);
+  float med = get_median(vecval,NDV);
+
+  // then loop through the vector to get the modifeied x score
+  vector<float>::iterator gorg = vecval.begin();
+  vector<float> vecout;
+  float Mi = 0, this_val = 0;
+
+  for(;gorg != vecval.end();gorg ++)
+  {
+    this_val = *gorg;
+    Mi = (0.6745 * (this_val - med)) / MAD;
+    vecout.push_back(Mi);
+  }
+
+  return vecout;
+
+}
+
+
+// Detection of outlier based on the modified-z score
+// Iglewicz et hoaglin, 2013 suggests a threshold around 3.5
+// However, It can vary quite a lot. I am investigating.
+// feed it with a vector of float, it will return 0 if not and 1 if outlier
+// BG - 08/01/2018
+vector<int> is_outlier_MZS(vector<float> vecval, float NDV, float threshold)
+{
+  // first getting the modified z-score M
+  vector<float> MZC = get_modified_z_score(vecval,NDV);
+  // is outlier?
+  vector<float>::iterator malme;
+  vector<int> vecout;
+  float this_val =0;
+
+  for(malme = MZC.begin(); malme != MZC.end() ; malme++)
+  {
+    this_val = *malme;
+
+    if(this_val > threshold or this_val < -1 * threshold)
+    {
+      vecout.push_back(1);
+    }
+    else
+    {
+      vecout.push_back(0);
+    }
+  }
+
+  // DEBUG
+  // for(size_t u =0 ; u < MZC.size(); u++ )
+  // {
+  //   cout << vecval[u] << " ---> " << MZC[u] << " : " << vecout[u] << endl;
+  // }
+
+  return vecout;
+}
+
+
+
+
+
+
+
+
+// Implementation of the Kernel Density estimation method from a vector of float
+// I am using this review paper about it for the implementation:
+// Sheather 2004 - DOI 10.1214/088342304000000297
+// I may try to find a recent one but this last is quite well cited and post 2000 and clear ( I don't want to be a SHEATER ahah, I am not sure if this can be consider as a joke but I am laugthing)
+//
+// This is the fully automated version, an attempt to provide a non parametric KDE estimation
+//
+// Work in progress, like a lot
+// BG - 04/01/2018  - Bonne annee
+
+pair<float,vector<float> > auto_KDE(vector<float> vpoint)
+{
+
+
+  if(vpoint.size() == 0)
+  {
+    cout<< endl << "FATAL ERROR LSDStatstools::autoKDE empty vector" << endl;
+    exit(EXIT_FAILURE);
+  }
+
+  // first deal with the bandwith  - probably using the sheather-Jones plugin method
+  // TODO :: This method
+  // However, let's try a more efficient method first
+  // Terrel (1990) - a rule of the thumb first estimation
+  float mean = get_mean(vpoint);
+  float S =  get_standard_deviation(vpoint,mean);
+  int n = vpoint.size();
+  float h = 1.144 * S * pow(n, -0.2); // Terrel(1990) detailed and extracted Sheater (2004) section 3.1
+
+  // then calling the KDE function
+  vector<float> vout = gaussian_KDE(vpoint,h);
+
+  pair<float,vector<float> > gat = make_pair(h,vout);
+
+  return gat;
+
+}
+
+
+// KDE calculation for a vector of float using a gaussian kernel with a bandwith h
+//
+// BG - 04/01/2018
+vector<float> gaussian_KDE(vector<float> vpoint, float h)
+{
+  vector<float> vout;
+  // get N
+  int n = vpoint.size();
+
+  // Calculate the sum
+  // ### This precision for PI should be acceptable
+  float sum = 0, X = 0, Xi = 0, PI = 3.14159;
+  vector<float>::iterator antidisestablishmentarianism, tuvalu; // Antidisestablishmentarianism is the longest word in English that is non-coined and non-technical. Also, this is a terible name for a variable.
+  for(antidisestablishmentarianism = vpoint.begin(); antidisestablishmentarianism != vpoint.end(); antidisestablishmentarianism++)
+  {
+    // Setting the sample for this run of the loop
+    X = *antidisestablishmentarianism; // this sample
+    sum = 0; // reinitializing the sum for each sample
+    // summing the elements
+    for(tuvalu = vpoint.begin(); tuvalu != vpoint.end(); tuvalu++)
+    {
+      // setting the testing for this run for this sum
+      Xi = *tuvalu;
+      float y = 0;
+      y = (X-Xi/h);
+      // incrementing the sum: using a gaussian kernel for each X - Xi
+      sum += 1/(sqrt(2*PI)) * exp(-pow(y,2)/2);
+    }
+
+    // saving the KDE
+    vout.push_back((1/(n*h)) * sum);
+  }
+  // Done, not that complicated after all
+  return vout;
+
+}
+
+
+// Detection of outlier based on the First Minimum on the KDE pdf
+// Testing it right now
+// feed it with a vector of float, it will a vector of int with 0 if not and 1 if outlier
+// BG - 08/01/2018
+// vector<int> is_outlier_FMKDE(vector<float>& veKDE, vector<float>& vedkdc, float ndv)
+// {
+//   // preparing an integer iterator
+//   size_t gorg = 0;
+
+
+
+
+// }
+
+
+// This function takes one vector of float that you wanna sort and sort in the same order all the other vector of float you give to him
+// can be useful and efficient for multivariate vector stuffs
+// BG - 09/01/2018
+vector<vector<float> > sort_vectors_from_one(vector<float> to_sort, vector<vector<float> > follow_the_sort)
+{
+  // first step is to create a vector of pair<value,idx>
+  vector<pair<float,int> > voult;
+  pair<float,int> this_pair;
+
+
+  for(size_t bagel = 0 ; bagel < to_sort.size() ; bagel++)
+  {
+    this_pair = make_pair(to_sort[bagel] , bagel);
+    voult.push_back(this_pair);
+  }
+
+  // Second step: sorting the vector
+  sort(voult.begin(), voult.end());
+  vector<pair<float,int> > sorted = voult;
+
+  // Third step: extracting the vector of int
+  vector<int> new_idx;
+  vector<float> new_val;
+  for(vector<pair<float,int> >::iterator kik = sorted.begin(); kik!= sorted.end() ; kik++)
+  {
+    this_pair = *kik;
+    new_idx.push_back(this_pair.second);
+
+  }
+
+  // Fourth step: sorting the other vector in the same way
+  vector<vector<float> >::iterator gorg;
+  vector<vector<float> > vout;
+  vector<float> this_vec;
+  vout.push_back(new_val);
+  for(gorg = follow_the_sort.begin(); gorg!= follow_the_sort.end(); gorg++)
+  {
+    this_vec = *gorg;
+    vout.push_back(reorganize_vector_from_new_idx(this_vec,new_idx));
+  }
+
+  // return a vector of vector allsorted on the model of the first vector in the vector of vector
+  // It is a kind of vectorsception
+
+  return vout;
+
+
+}
+
+
+// Reorganize a vector from a vector of ordered old idx
+vector<float> reorganize_vector_from_new_idx(vector<float> vecval, vector<int> vecid)
+{
+  vector<int>::iterator poisson_rouge;
+  vector<float> vecout;
+
+  for(poisson_rouge = vecid.begin(); poisson_rouge != vecid.end() ; poisson_rouge++)
+  {
+    int thisid = *poisson_rouge;
+    vecout.push_back(vecval[thisid]);
+
+  }
+
+  return vecout;
+}
+
+// #########################################################################################
+// ############# The following functions are adapted from Raykar et al., 2006 ##############
+// ############# DOI: CS-TR-4774/UMIACS-TR-2005-73 #########################################
+// ############# Code available here: ######################################################
+// # http://www.umiacs.umd.edu/labs/cvl/pirl/vikas/Software/optimal_bw/optimal_bw_code.htm #
+// #########################################################################################
+// #########################################################################################
+//-------------------------------------------------------------------
+// The original code was written by Vikas C. Raykar
+// and is copyrighted under the Lesser GPL:
+//
+// Copyright (C) 2006 Vikas C. Raykar
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as
+// published by the Free Software Foundation; version 2.1 or later.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Lesser General Public License for more details.
+// You should have received a copy of the GNU Lesser General Public
+// License along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+// MA 02111-1307, USA.
+//
+// The author may be contacted via email at: vikas(at)cs(.)umd(.)edu
+//-------------------------------------------------------------------
+
+//-------------------------------------------------------------
+// File    : UnivariateDensityDerivative.cpp
+// Purpose : Implementation for for UnivariateDensityDerivative
+// Author  : Vikas C. Raykar (vikas@cs.umd.edu)
+// Date    : September 17, 2005
+//-------------------------------------------------------------
+
+//-------------------------------------------------------------
+// Implemented inside LSDTT by Boris Gailleton
+// Date: Januray 2018
+//-------------------------------------------------------------
+
+
+//-------------------------------------------------------------------
+// Constructor.
+//
+// PURPOSE
+// -------
+// Initialize the class.
+// Read the parameters.
+// Choose the parameter for the algorithm.
+// Space subdivision.
+// Compute the constant a.
+// Compute B or all the clusters.
+//
+// PARAMETERS
+// ----------
+// NSources         --> number of sources, N.
+// MTargets         --> number of targets, M.
+// pSources         --> pointer to sources, px(N).
+// pTargets           --> pointer to the targets, py(M).
+// Bandwidth      --> the source bandwidth, h.
+// Order              --> order of the derivative, r.
+// epsilon            --> desired error, eps.
+// pDensityDerivative --> pointer the the evaluated Density
+//-------------------------------------------------------------------
+
+
+UnivariateDensityDerivative::UnivariateDensityDerivative(int NSources,
+      int MTargets,
+      double *pSources,
+      double *pTargets,
+      double Bandwidth,
+        int Order,
+      double epsilon,
+      double *pDensityDerivative)
+{
+  // Read the arguments.
+
+  N=NSources;
+  M=MTargets;
+  px=pSources;
+  h=Bandwidth;
+  r=Order;
+  py=pTargets;
+  pD=pDensityDerivative;
+  eps=epsilon;
+
+
+  h_square=h*h;
+  two_h_square=2*h_square;
+
+  pi=3.14159265358979;
+  q=(pow(-1,r))/(sqrt(2*pi)*N*(pow(h,(r+1))));
+  //printf("q=%f \n",q);
+
+
+  // Choose the parameters for the algorithm.
+
+  choose_parameters();
+
+  // Space sub-division
+
+  space_sub_division();
+
+  // Compute the constant a
+
+  compute_a();
+
+  // Compute the constant B
+
+  compute_B();
+
+
+}
+
+//-------------------------------------------------------------------
+// Destructor.
+//-------------------------------------------------------------------
+
+UnivariateDensityDerivative::~UnivariateDensityDerivative()
+{
+  delete []a_terms;
+  delete []B_terms;
+}
+
+
+
+
+//-------------------------------------------------------------------
+// Compute the factorial.
+//-------------------------------------------------------------------
+
+int
+UnivariateDensityDerivative::factorial(int n){
+
+  int fact=1;
+
+  for ( int i = 1; i <= n; i++){
+    fact=fact*i;
+  }
+
+  return fact;
+}
+
+//-------------------------------------------------------------------
+// Choose the parameters
+// 1. rx --> interval length.
+// 2. K  --> number of intervals.
+// 3. rr --> cutoff radius.
+// 4. ry --> cluster cutoff radius.
+// 5. p  --> truncation number.
+//-------------------------------------------------------------------
+
+void
+UnivariateDensityDerivative::choose_parameters(){
+
+  // 1. rx --> interval length.
+
+  rx=h/2;
+
+  // 2. K  --> number of intervals.
+
+  K=(int)ceil(1.0/rx);
+  rx=1.0/K;
+  double rx_square=rx*rx;
+
+  // 3. rr --> cutoff radius.
+
+    //double r_term=pow(2.0,r/2)*sqrt((double)factorial(r));
+  double r_term=sqrt((double)factorial(r));
+
+  rr=min_KDE(R,2*h*sqrt(log(r_term/eps)));
+
+  // 4. ry --> cluster cutoff radius.
+  ry=rx+rr;
+
+  // 5. p  --> truncation number.
+
+  p=0;
+  double error=1;
+  double temp=1;
+  double comp_eps=eps/r_term;
+
+  while((error > comp_eps) & (p <= P_UL)){
+    p++;
+    double b=min_KDE(((rx+sqrt((rx_square)+(8*p*h_square)))/2),ry);
+    double c=rx-b;
+    temp=temp*(((rx*b)/h_square)/p);
+    error=temp*(exp(-(c*c)/2*two_h_square));
+  }
+  p=p+1;
+
+
+
+  //printf("h=%f r=%d eps=%f K=%d rx=%f rr=%f ry=%f p=%d\n",h,r,eps,K,rx,rr,ry,p);
+
+}
+
+
+//-------------------------------------------------------------------
+// Space subdivision
+//-------------------------------------------------------------------
+
+void
+UnivariateDensityDerivative::space_sub_division(){
+
+  // 1. Cluster Centers
+
+  pClusterCenter=new double[K];
+  for(int i=0; i<K; i++){
+    pClusterCenter[i]=(i*rx)+(rx/2);
+    //printf("%f\n",pClusterCenter[i]);
+  }
+
+  //2. Allocate each source to the corresponding interval
+
+    pClusterIndex=new int[N];
+  for(int i=0; i<N; i++){
+    pClusterIndex[i]=min_KDE((int)floor(px[i]/rx),K-1);
+    //printf("x=%f Cluster=%d\n",px[i],pClusterIndex[i]);
+  }
+
+}
+
+//-------------------------------------------------------------------
+// Compute the contant term a_{lm}.
+// l=0...floor(r/2)
+// m=0...r-2l
+//-------------------------------------------------------------------
+
+void
+UnivariateDensityDerivative::compute_a(){
+
+  double r_factorial=(double)factorial(r);
+  //printf("%f \n",r_factorial);
+
+    double *l_constant;
+  l_constant=new double[((int)floor((double)r/2))+1];
+  l_constant[0]=1;
+  for(int l=1; l <= (int)floor((double)r/2); l++){
+    l_constant[l]=l_constant[l-1]*(-1.0/(2*l));
+    //printf("%f \n",l_constant[l]);
+  }
+
+  double *m_constant;
+  m_constant=new double[r+1];
+  m_constant[0]=1;
+  for(int m=1; m <= r; m++){
+    m_constant[m]=m_constant[m-1]*(-1.0/m);
+    //printf("%f \n",m_constant[m]);
+  }
+
+  num_of_a_terms=0;
+  for(int l=0; l <= (int)floor((double)r/2); l++){
+    for(int m=0; m <= r-(2*l); m++){
+      num_of_a_terms++;
+    }
+  }
+
+  //printf("r=%d num_of_a_terms=%d\n",r,num_of_a_terms);
+
+  a_terms=new double[num_of_a_terms];
+  int k=0;
+  for(int l=0; l <= (int)floor((double)r/2); l++){
+    for(int m=0; m <= r-(2*l); m++){
+      a_terms[k]=(l_constant[l]*m_constant[m]*r_factorial)/((double)factorial(r-(2*l)-m));
+      //printf("%f \n",a_terms[k]);
+      k++;
+    }
+  }
+  delete []l_constant;
+  delete []m_constant;
+
+}
+
+//-------------------------------------------------------------------
+// Compute the contant term B^{n}_{km} for all the clusters.
+// n=0...K-1
+// k=0...p-1
+// m=0...r
+//-------------------------------------------------------------------
+
+void
+UnivariateDensityDerivative::compute_B(){
+
+  num_of_B_terms=K*p*(r+1);
+
+  //printf("K=%d p=%d r=%d num_of_B_terms=%d\n",K,p,r,num_of_B_terms);
+
+  B_terms=new double[num_of_B_terms];
+
+  double *k_factorial;
+  k_factorial=new double[p];
+
+  k_factorial[0]=1;
+  for(int i=1; i<p ;i++){
+    k_factorial[i]=k_factorial[i-1]/i;
+    //printf("%f \n",k_factorial[i]);
+  }
+
+  double *temp3;
+  temp3=new double[p+r];
+
+  for(int n=0; n<K; n++){
+    //printf("Cluster %d ",n);
+    for(int k=0; k<p; k++){
+      for(int m=0; m< r+1; m++){
+        B_terms[(n*p*(r+1))+((r+1)*k)+m]=0.0;;
+        //printf("%f ",B_terms[(n*p*(r+1))+((r+1)*k)+m]);
+      }
+    }
+    //printf("\n");
+  }
+
+  for(int i=0; i<N; i++){
+    int cluster_number=pClusterIndex[i];
+    double temp1=(px[i]-pClusterCenter[cluster_number])/h;
+    double temp2=exp(-temp1*temp1/2);
+    temp3[0]=1;
+    for(int k=1; k<p+r; k++){
+      temp3[k]=temp3[k-1]*temp1;
+    }
+
+    for(int k=0; k<p; k++){
+      for(int m=0; m< r+1; m++){
+        B_terms[(cluster_number*p*(r+1))+((r+1)*k)+m]+=(temp2*temp3[k+m]);
+      }
+    }
+  }
+
+  for(int n=0; n<K; n++){
+    //printf("Cluster %d ",n);
+    for(int k=0; k<p; k++){
+      for(int m=0; m< r+1; m++){
+        B_terms[(n*p*(r+1))+((r+1)*k)+m]*=(k_factorial[k]*q);
+        //printf("%f ",B_terms[(n*p*(r+1))+((r+1)*k)+m]);
+      }
+    }
+    //printf("\n");
+  }
+
+
+  delete []k_factorial;
+  delete []temp3;
+
+
+}
+
+
+//-------------------------------------------------------------------
+// Actual function to evaluate the Univariate Density Derivative.
+//-------------------------------------------------------------------
+
+void
+UnivariateDensityDerivative::Evaluate()
+{
+
+  //int num_of_influential_neighbors=(int)ceil(ry/rx);
+  //printf("Num of influential right or left neighbors = %d\n",num_of_influential_neighbors);
+
+  double *temp3;
+  temp3=new double[p+r];
+
+
+  for(int j=0; j<M; j++){
+    pD[j]=0.0;
+
+    int target_cluster_number=min_KDE((int)floor(py[j]/rx),K-1);
+    double temp1=py[j]-pClusterCenter[target_cluster_number];
+    double dist=abs(temp1);
+    while (dist <= ry && target_cluster_number <K && target_cluster_number >=0){
+
+      //printf("j=%d y=%f Influential cluster=%d\n",j,py[j],target_cluster_number);
+      //Do something
+      double temp2=exp(-temp1*temp1/two_h_square);
+      double temp1h=temp1/h;
+      temp3[0]=1;
+      for(int i=1; i<p+r; i++){
+        temp3[i]=temp3[i-1]*temp1h;
+      }
+
+      for(int k=0; k<=p-1; k++){
+        int dummy=0;
+        for(int l=0; l <= (int)floor((double)r/2); l++){
+          for(int m=0; m <= r-(2*l); m++){
+            pD[j]=pD[j]+(a_terms[dummy]*B_terms[(target_cluster_number*p*(r+1))+((r+1)*k)+m]*temp2*temp3[k+r-(2*l)-m]);
+            dummy++;
+          }
+        }
+      }
+      //
+
+
+      target_cluster_number++;
+      temp1=py[j]-pClusterCenter[target_cluster_number];
+      dist=abs(temp1);
+    }
+
+    target_cluster_number=min_KDE((int)floor(py[j]/rx),K-1)-1;
+    if (target_cluster_number >=0){
+      double temp1=py[j]-pClusterCenter[target_cluster_number];
+      double dist=abs(temp1);
+      while (dist <= ry && target_cluster_number <K && target_cluster_number >=0){
+        //printf("j=%d y=%f Influential cluster=%d\n",j,py[j],target_cluster_number);
+        //Do something
+        double temp2=exp(-temp1*temp1/two_h_square);
+          double temp1h=temp1/h;
+        temp3[0]=1;
+        for(int i=1; i<p+r; i++){
+          temp3[i]=temp3[i-1]*temp1h;
+        }
+
+        for(int k=0; k<=p-1; k++){
+          int dummy=0;
+          for(int l=0; l <= (int)floor((double)r/2); l++){
+            for(int m=0; m <= r-(2*l); m++){
+              pD[j]=pD[j]+(a_terms[dummy]*B_terms[(target_cluster_number*p*(r+1))+((r+1)*k)+m]*temp2*temp3[k+r-(2*l)-m]);
+              dummy++;
+            }
+          }
+        }
+        //
+        target_cluster_number--;
+        temp1=py[j]-pClusterCenter[target_cluster_number];
+        dist=abs(temp1);
+      }
+    }
+
+  }
+
+
+  delete []temp3;
+}
+
+
+
+/*
+Total variation denoising of 1-D signals, a.k.a. Fused lasso
+signal approximator, by Laurent Condat.
+
+Version 2.0, Aug. 30, 2017.
+
+Given a real vector y of length N and a real lambda>=0, the
+goal is to compute the real vector x minimizing
+    ||x-y||_2^2/2 + lambda.TV(x),
+where ||x-y||_2^2 = sum_{n=1}^{N} (x[n]-y[n])^2 and
+TV(x) = sum_{n=1}^{N-1} |x[n+1]-x[n]|.
+
+I proposed a fast and exact algorithm (say, the version 1.0)
+for this problem in L. Condat, "A direct algorithm for 1D
+total variation denoising," IEEE Signal Proc. Letters, vol.
+20, no. 11, pp. 1054-1057, Nov. 2013.
+It has worst case complexity O(N^2) but it is recognized as
+the fastest in practice (using the C code on my webpage).
+
+The present code is a C implementation of a NEW algorithm,
+which combines the advantages of the v1 algorithm with the
+optimal O(N) complexity of the taut string algorithm.
+That is, it is exact, numerically robust (averages of values
+computed by Welford-Knuth running mean algorithm, not by sum
+divided by length), roughly as fast as the v1 algorithm, and
+it has linear time complexity.
+Speed: the computation time of this C code is typically
+85%-120% of the computation time of the C code of the v1.
+
+In a nutshell, the algorithm is based on the classical Pool
+Adjacent Violators Algorithm for isotonic regression, to
+maintain two nonincreasing and nondecreasing (instead of
+constant in the v1) lower and upper approximations of the
+signal.
+
+If lambda=0, the algorithm returns x=y, but not exactly, only
+up to machine precision.
+
+Usage rights : Copyright Laurent Condat.
+This file is distributed under the terms of the CeCILL
+licence (compatible with the GNU GPL), which can be
+found at the URL "http://www.cecill.info".
+*/
+/* double is recommended; in that case the precision is of order 1e-11. With float, the precision for a typical signal with values in [0,255] is of order 5e-3 only. */
+
+
+/*
+In the notations above, input is y, output is x, width is N.
+We must have width>=1 and lambda>=0.
+The initial content of the output buffer does not matter.
+The buffers input and output must be allocated of size at least width.
+The algorithm can operate in place, with output=input; in that case the input is replaced by the output.
+
+See the Matlab code on my webpage for comments.
+*/
+vector<double> TV1D_denoise_v2(vector<double> input,  double lambda) {
+
+
+  if(lambda == 0)
+  {
+    cout << "Lambda = 0, TVD will only be a minimization by the sum of squares" << endl ;
+  }
+
+
+  unsigned int width = input.size();
+  vector<double> output(width);
+  vector<double> indstart_low(width);
+  vector<double> indstart_up(width);
+  unsigned int j_low = 0, j_up = 0, jseg = 0, indjseg = 0, i=1, indjseg2, ind;
+  double output_low_first = input[0]-lambda;
+  double output_low_curr = output_low_first;
+  double output_up_first = input[0]+lambda;
+  double output_up_curr = output_up_first;
+  double twolambda=2.0*lambda;
+  if (width==1) {output = input;}
+  else
+  {
+
+    indstart_low[0] = 0;
+    indstart_up[0] = 0;
+    width--;
+    for (; i<width; i++) {
+        if (input[i]>=output_low_curr) {
+          if (input[i]<=output_up_curr) {
+              output_up_curr+=(input[i]-output_up_curr)/(i-indstart_up[j_up]+1);
+              output[indjseg]=output_up_first;
+              while ((j_up>jseg)&&(output_up_curr<=output[ind=indstart_up[j_up-1]]))
+                output_up_curr+=(output[ind]-output_up_curr)*
+                  ((double)(indstart_up[j_up--]-ind)/(i-ind+1));
+              if (j_up==jseg) {
+                while ((output_up_curr<=output_low_first)&&(jseg<j_low)) {
+                  indjseg2=indstart_low[++jseg];
+                output_up_curr+=(output_up_curr-output_low_first)*
+                  ((double)(indjseg2-indjseg)/(i-indjseg2+1));
+                while (indjseg<indjseg2) output[indjseg++]=output_low_first;
+                output_low_first=output[indjseg];
+                }
+              output_up_first=output_up_curr;
+              indstart_up[j_up=jseg]=indjseg;
+              } else output[indstart_up[j_up]]=output_up_curr;
+          } else
+              output_up_curr=output[i]=input[indstart_up[++j_up]=i];
+            output_low_curr+=(input[i]-output_low_curr)/(i-indstart_low[j_low]+1);
+            output[indjseg]=output_low_first;
+            while ((j_low>jseg)&&(output_low_curr>=output[ind=indstart_low[j_low-1]]))
+              output_low_curr+=(output[ind]-output_low_curr)*
+                  ((double)(indstart_low[j_low--]-ind)/(i-ind+1));
+            if (j_low==jseg) {
+              while ((output_low_curr>=output_up_first)&&(jseg<j_up)) {
+              indjseg2=indstart_up[++jseg];
+              output_low_curr+=(output_low_curr-output_up_first)*
+                ((double)(indjseg2-indjseg)/(i-indjseg2+1));
+              while (indjseg<indjseg2) output[indjseg++]=output_up_first;
+              output_up_first=output[indjseg];
+              }
+              if ((indstart_low[j_low=jseg]=indjseg)==i) output_low_first=output_up_first-twolambda;
+              else output_low_first=output_low_curr;
+            } else output[indstart_low[j_low]]=output_low_curr;
+        } else {
+            output_up_curr+=((output_low_curr=output[i]=input[indstart_low[++j_low] = i])-
+              output_up_curr)/(i-indstart_up[j_up]+1);
+            output[indjseg]=output_up_first;
+            while ((j_up>jseg)&&(output_up_curr<=output[ind=indstart_up[j_up-1]]))
+              output_up_curr+=(output[ind]-output_up_curr)*
+                  ((double)(indstart_up[j_up--]-ind)/(i-ind+1));
+            if (j_up==jseg) {
+              while ((output_up_curr<=output_low_first)&&(jseg<j_low)) {
+              indjseg2=indstart_low[++jseg];
+              output_up_curr+=(output_up_curr-output_low_first)*
+                ((double)(indjseg2-indjseg)/(i-indjseg2+1));
+              while (indjseg<indjseg2) output[indjseg++]=output_low_first;
+              output_low_first=output[indjseg];
+              }
+            if ((indstart_up[j_up=jseg]=indjseg)==i) output_up_first=output_low_first+twolambda;
+            else output_up_first=output_up_curr;
+            } else output[indstart_up[j_up]]=output_up_curr;
+        }
+    }
+    /* here i==width (with value the actual width minus one) */
+    if (input[i]+lambda<=output_low_curr) {
+          while (jseg<j_low) {
+          indjseg2=indstart_low[++jseg];
+          while (indjseg<indjseg2) output[indjseg++]=output_low_first;
+          output_low_first=output[indjseg];
+      }
+      while (indjseg<i) output[indjseg++]=output_low_first;
+        output[indjseg]=input[i]+lambda;
+    } else if (input[i]-lambda>=output_up_curr) {
+      while (jseg<j_up) {
+          indjseg2=indstart_up[++jseg];
+          while (indjseg<indjseg2) output[indjseg++]=output_up_first;
+          output_up_first=output[indjseg];
+      }
+      while (indjseg<i) output[indjseg++]=output_up_first;
+        output[indjseg]=input[i]-lambda;
+    } else {
+          output_low_curr+=(input[i]+lambda-output_low_curr)/(i-indstart_low[j_low]+1);
+          output[indjseg]=output_low_first;
+          while ((j_low>jseg)&&(output_low_curr>=output[ind=indstart_low[j_low-1]]))
+            output_low_curr+=(output[ind]-output_low_curr)*
+                  ((double)(indstart_low[j_low--]-ind)/(i-ind+1));
+          if (j_low==jseg) {
+            if (output_up_first>=output_low_curr)
+              while (indjseg<=i) output[indjseg++]=output_low_curr;
+            else {
+              output_up_curr+=(input[i]-lambda-output_up_curr)/(i-indstart_up[j_up]+1);
+              output[indjseg]=output_up_first;
+              while ((j_up>jseg)&&(output_up_curr<=output[ind=indstart_up[j_up-1]]))
+                output_up_curr+=(output[ind]-output_up_curr)*
+                  ((double)(indstart_up[j_up--]-ind)/(i-ind+1));
+              while (jseg<j_up) {
+              indjseg2=indstart_up[++jseg];
+              while (indjseg<indjseg2) output[indjseg++]=output_up_first;
+              output_up_first=output[indjseg];
+              }
+              indjseg=indstart_up[j_up];
+              while (indjseg<=i) output[indjseg++]=output_up_curr;
+            }
+          } else {
+            while (jseg<j_low) {
+            indjseg2=indstart_low[++jseg];
+            while (indjseg<indjseg2) output[indjseg++]=output_low_first;
+            output_low_first=output[indjseg];
+            }
+            indjseg=indstart_low[j_low];
+            while (indjseg<=i) output[indjseg++]=output_low_curr;
+          }
+    }
+  }
+  return output;
+}
+
 
 
 #endif

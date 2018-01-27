@@ -131,6 +131,9 @@ int main (int nNumberofArgs,char *argv[])
   bool_default_map["only_take_largest_basin"] = false;
   string_default_map["BaselevelJunctions_file"] = "NULL";
   bool_default_map["extend_channel_to_node_before_receiver_junction"] = true;
+  bool_default_map["remove_basins_by_outlet_elevation"] = false;
+  float_default_map["lower_outlet_elevation_threshold"] = 0;
+  float_default_map["upper_outlet_elevation_threshold"] = 25;
 
   // IMPORTANT: S-A analysis and chi analysis wont work if you have a truncated
   // basin. For this reason the default is to test for edge effects
@@ -152,7 +155,11 @@ int main (int nNumberofArgs,char *argv[])
 
   // knickpoint analysis. This is still under development.
   bool_default_map["ksn_knickpoint_analysis"] = false;
-
+  int_default_map["force_skip_knickpoint_analysis"] = 2;
+  int_default_map["force_n_iteration_knickpoint_analysis"] = 20;
+  float_default_map["MZS_threshold"] = 3.5;
+  float_default_map["TVD_lambda"] = 10;
+ 
   // basic parameters for calculating chi
   float_default_map["A_0"] = 1;
   float_default_map["m_over_n"] = 0.5;
@@ -218,10 +225,11 @@ int main (int nNumberofArgs,char *argv[])
 
   // switches for chi analysis
   // These just print simple chi maps
-
   bool_default_map["print_chi_coordinate_raster"] = false;
+  bool_default_map["mask_chi_coordinate_raster_with_basins"] = false;
   bool_default_map["print_simple_chi_map_to_csv"] = false;
   bool_default_map["print_chi_data_maps"] = false;
+
 
   // these are routines that run segmentation
   bool_default_map["print_simple_chi_map_with_basins_to_csv"] = false;
@@ -233,7 +241,6 @@ int main (int nNumberofArgs,char *argv[])
   bool_default_map["print_sources_to_csv"] = false;
   bool_default_map["print_sources_to_raster"] = false;
   bool_default_map["print_baselevel_keys"] = false;
-
 
   // These enable calculation of chi based on discharge
   bool_default_map["use_precipitation_raster_for_chi"] = false;
@@ -760,6 +767,16 @@ int main (int nNumberofArgs,char *argv[])
     BaseLevelJunctions = JunctionNetwork.Prune_Junctions_Largest(BaseLevelJunctions, FlowInfo, FlowAcc);
   }
 
+  // Finally, remove basins above or below a threshold if that is what the user wants. 
+  if (this_bool_map["remove_basins_by_outlet_elevation"])
+  {
+    cout << "I am only going to take basins within an elevation window." << endl;
+    cout << "The upper and lower thresholds are: " <<  this_float_map["lower_outlet_elevation_threshold"] << " and: " << this_float_map["upper_outlet_elevation_threshold"] << endl;
+    BaseLevelJunctions = JunctionNetwork.Prune_Junctions_Elevation_Window(BaseLevelJunctions, FlowInfo, 
+                                  filled_topography, this_float_map["lower_outlet_elevation_threshold"],
+                                  this_float_map["upper_outlet_elevation_threshold"]);
+  }
+
   // Correct number of base level junctions
   int N_BaseLevelJuncs = BaseLevelJunctions.size();
   cout << "The number of basins I will analyse is: " << N_BaseLevelJuncs << endl;
@@ -768,6 +785,8 @@ int main (int nNumberofArgs,char *argv[])
     cout << "I am stopping here since I don't have any basins to analyse." << endl;
     exit(EXIT_FAILURE);
   }
+  
+
 
   // This is for debugging
   //for (int BN = 0; BN< N_BaseLevelJuncs; BN++)
@@ -822,7 +841,33 @@ int main (int nNumberofArgs,char *argv[])
     {
       string chi_coord_string = OUT_DIR+OUT_ID+"_chi_coordQ";
       chi_coordinate.write_raster(chi_coord_string,raster_ext);
+      
+      // Now get the masked chi coordinate if you want it
+      if(this_bool_map["mask_chi_coordinate_raster_with_basins"])
+      {
+        // you need to get a differen chi raster
+        vector<int> BaseLevelNodeList;
+        
+        // See if the basins are extended to the penulimate node and get the appropriate
+        // node list
+        if(this_bool_map["extend_channel_to_node_before_receiver_junction"])
+        {
+          BaseLevelNodeList = JunctionNetwork.get_node_list_of_penultimate_node_from_junction_list(BaseLevelJunctions, FlowInfo);
+        }
+        else
+        {
+          BaseLevelNodeList = JunctionNetwork.get_node_list_from_junction_list(BaseLevelJunctions);
+        }
+        
+        // Now get the masked chi raster
+        LSDRaster MaskedChi = FlowInfo.get_upslope_chi_from_multiple_starting_nodes(BaseLevelNodeList,
+                                      movern,A_0,thresh_area_for_chi,Discharge);
+        string chi_coord_string_m = OUT_DIR+OUT_ID+"_Maskedchi_coordQ";
+        MaskedChi.write_raster(chi_coord_string_m,raster_ext);
+      }
     }
+    
+
 
 
   }
@@ -834,6 +879,31 @@ int main (int nNumberofArgs,char *argv[])
     {
       string chi_coord_string = OUT_DIR+OUT_ID+"_chi_coord";
       chi_coordinate.write_raster(chi_coord_string,raster_ext);
+      
+      // Now get the masked chi coordinate if you want it
+      if(this_bool_map["mask_chi_coordinate_raster_with_basins"])
+      {
+        // you need to get a different chi raster
+        vector<int> BaseLevelNodeList;
+        
+        // See if the basins are extended to the penulimate node and get the appropriate
+        // node list
+        if(this_bool_map["extend_channel_to_node_before_receiver_junction"])
+        {
+          BaseLevelNodeList = JunctionNetwork.get_node_list_of_penultimate_node_from_junction_list(BaseLevelJunctions, FlowInfo);
+        }
+        else
+        {
+          BaseLevelNodeList = JunctionNetwork.get_node_list_from_junction_list(BaseLevelJunctions);
+        }
+        
+        // Now get the masked chi raster
+        LSDRaster MaskedChi = FlowInfo.get_upslope_chi_from_multiple_starting_nodes(BaseLevelNodeList,
+                                      movern,A_0,thresh_area_for_chi);
+        string chi_coord_string_m = OUT_DIR+OUT_ID+"_Maskedchi";
+        MaskedChi.write_raster(chi_coord_string_m,raster_ext);
+      }
+      
     }
   }
 
@@ -897,7 +967,8 @@ int main (int nNumberofArgs,char *argv[])
         || this_bool_map["print_baselevel_keys"]
         || this_bool_map["print_basin_raster"]
         || this_bool_map["MCMC_movern_analysis"]
-        || this_bool_map["print_chi_data_maps"])
+        || this_bool_map["print_chi_data_maps"]
+        || this_bool_map["ksn_knickpoint_analysis"])
   {
     cout << "I am getting the source and outlet nodes for the overlapping channels" << endl;
     cout << "The n_nodes to visit are: " << n_nodes_to_visit << endl;
@@ -1597,20 +1668,37 @@ int main (int nNumberofArgs,char *argv[])
 
   if(this_bool_map["ksn_knickpoint_analysis"])
   {
-    n_iterations = 1;
-    skip = 0;
+
+    // Recalculation of the m_chi
+    // Ill optimaize that later - Boris
+    n_iterations = this_int_map["force_n_iteration_knickpoint_analysis"];
+    skip = this_int_map["force_skip_knickpoint_analysis"];
+    LSDChiTools ChiTool(FlowInfo);
     ChiTool.chi_map_automator(FlowInfo, source_nodes, outlet_nodes, baselevel_node_of_each_basin,
                           filled_topography, DistanceFromOutlet,
                           DrainageArea, chi_coordinate, target_nodes,
                           n_iterations, skip, minimum_segment_length, sigma);
     ChiTool.segment_counter(FlowInfo, maximum_segment_length);
-    ChiTool.ksn_knickpoint_detection(FlowInfo);
-    string csv_full_fname_knockpoint = OUT_DIR+OUT_ID+"_KsnKn.csv";
-    ChiTool.print_knickpoint_to_csv(FlowInfo,csv_full_fname_knockpoint);
-    // Testing something
-    string csv_full_fname = OUT_DIR+OUT_ID+"_MChiSegmented_TESTKNICKPOINT.csv";
-    cout << "Let me print A Test File " << csv_full_fname << endl;
-    ChiTool.print_data_maps_to_file_full(FlowInfo, csv_full_fname);
+ 
+
+    // Actual knickpoint calculation
+    ChiTool.ksn_knickpoint_automator(FlowInfo, OUT_DIR, OUT_ID,this_float_map["MZS_threshold"], this_float_map["TVD_lambda"]);
+
+
+
+    // string csv_full_fname_knockpoint = OUT_DIR+OUT_ID+"_KsnKn.csv";
+    // ChiTool.print_knickpoint_to_csv(FlowInfo,csv_full_fname_knockpoint);
+    // string csv_full_fname_knockzone = OUT_DIR+OUT_ID+"_KsnKz.csv";
+    // ChiTool.print_knickzone_to_csv(FlowInfo,csv_full_fname_knockzone);
+
+    // string csv_full_fname = OUT_DIR+OUT_ID+"_MChiSegmented_Ks.csv";
+    // cout << "Let me print A Test File " << csv_full_fname << endl;
+    // ChiTool.print_mchisegmented_knickpoint_version(FlowInfo, csv_full_fname);
+    // cout << "I am printing a file containing the receiver of each sources" << endl;
+    // ChiTool.get_previous_mchi_for_all_sources(FlowInfo);
+    // string csv_intersource_fullname = OUT_DIR+OUT_ID+"_SourcesLinks.csv";
+    // ChiTool.print_intersources_mchi_map(csv_intersource_fullname);
+    
   }
 
 

@@ -204,6 +204,13 @@ class LSDFlowInfo
   /// @date 01/016/12
   void retrieve_receiver_information(int current_node,int& reveiver_node, int& receiver_row,
                                              int& receiver_col);
+  ///@brief Gives the reciever information for a given node.
+  ///@param current_node Integer
+  ///@param reveiver_node Empty integer to be assigned the index of the reciever
+  ///node.
+  /// @author BG
+  /// @date 06/01/2018
+  void retrieve_receiver_information(int current_node,int& reveiver_node);
 
   ///@brief Get the row and column indices of a given node.
   ///@param current_node Integer index of a given node.
@@ -215,6 +222,12 @@ class LSDFlowInfo
   /// @date 01/016/12
   void retrieve_current_row_and_col(int current_node,int& curr_row,
                                              int& curr_col);
+
+  ///@brief Get the index from row/col
+  ///@param int row/col of the nodeindex 2DArray
+  ///@author BG
+  ///@date 27/12/2017
+  int get_NodeIndex_from_row_col(int row, int col);
 
   ///@brief Get the X and Y coordinates of a given node.
   ///@param current_node Integer index of a given node.

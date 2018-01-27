@@ -230,9 +230,9 @@ void LSDChiNetwork::create(LSDFlowInfo& FlowInfo, int SourceNode, int OutletNode
   float elev;
   float drain_area;
 
-  int last_cn = 0;    // this is 1 if this is the first node in a channel
-  int last_receiver_node = -1;
-  int last_receiver_channel = -1;
+  //int last_cn = 0;    // this is 1 if this is the first node in a channel
+  //int last_receiver_node = -1;
+  //int last_receiver_channel = -1;
 
   vector<int> empty_int;
   vector<float> empty_float;
@@ -331,9 +331,9 @@ void LSDChiNetwork::create(LSDFlowInfo& FlowInfo, int SourceNode, int OutletNode
   float drain_area;
   float chi;
 
-  int last_cn = 0;    // this is 1 if this is the first node in a channel
-  int last_receiver_node = -1;
-  int last_receiver_channel = -1;
+  //int last_cn = 0;    // this is 1 if this is the first node in a channel
+  //int last_receiver_node = -1;
+  //int last_receiver_channel = -1;
 
   vector<int> empty_int;
   vector<float> empty_float;
@@ -1696,9 +1696,8 @@ void LSDChiNetwork::find_most_likeley_segments_dchi(int channel,
 
   LSDMostLikelyPartitionsFinder channel_MLE_finder(minimum_segment_length, reverse_Chi, reverse_Elevation);
 
-  int n_nodes = reverse_Chi.size();
   channel_MLE_finder.thin_data_target_dx_preserve_data(dchi, node_reference);
-  n_nodes = node_reference.size();
+  //int n_nodes = node_reference.size();
 
   // now create a single sigma value vector
   vector<float> sigma_values;
@@ -1749,11 +1748,11 @@ void LSDChiNetwork::find_most_likeley_segments_monte_carlo(int channel, int mini
 
   LSDMostLikelyPartitionsFinder channel_MLE_finder(minimum_segment_length, reverse_Chi, reverse_Elevation);
 
-  int n_nodes = reverse_Chi.size();
+  //int n_nodes = reverse_Chi.size();
 
   // now thin the data, preserving the data (not interpolating)
   channel_MLE_finder.thin_data_monte_carlo_skip(mean_skip, skip_range, node_reference);
-  n_nodes = node_reference.size();
+  //n_nodes = node_reference.size();
 
   // now create a single sigma value vector
   vector<float> sigma_values;
@@ -1805,11 +1804,11 @@ void LSDChiNetwork::find_most_likeley_segments_monte_carlo_dchi(int channel, int
 
   LSDMostLikelyPartitionsFinder channel_MLE_finder(minimum_segment_length, reverse_Chi, reverse_Elevation);
 
-  int n_nodes = reverse_Chi.size();
+  //int n_nodes = reverse_Chi.size();
 
   // now thin the data, preserving the data (not interpolating)
   channel_MLE_finder.thin_data_monte_carlo_dchi(mean_dchi, variation_dchi, node_reference);
-  n_nodes = node_reference.size();
+  //n_nodes = node_reference.size();
 
   // now create a single sigma value vector
   vector<float> sigma_values;
@@ -5749,8 +5748,8 @@ Array2D<float> LSDChiNetwork::calculate_channel_heads(int min_seg_length_for_cha
     //float sigma = 0.2;
     float test_value;
     float max_test_value = 0;
-    int best_chan_seg = 0;
-    int best_hill_seg = 0;
+    //int best_chan_seg;
+    //int best_hill_seg;
     int start_node = 0;
     float chan_gradient = 0;
     float hill_gradient = 0;
@@ -5805,8 +5804,8 @@ Array2D<float> LSDChiNetwork::calculate_channel_heads(int min_seg_length_for_cha
         if (test_value > max_test_value)
         {
            max_test_value = test_value;
-           best_hill_seg = hill_seg_length;
-           best_chan_seg = chan_seg_length;
+           //best_hill_seg = hill_seg_length;
+           //best_chan_seg = chan_seg_length;
            hill_gradient = results_hill[0];
            chan_gradient = results_chan[0];
            hill_intercept = results_hill[1];

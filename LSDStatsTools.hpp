@@ -52,6 +52,7 @@
 
 #include <vector>
 #include <map>
+#include <math.h>
 #include "TNT/tnt.h"
 using namespace std;
 using namespace TNT;
@@ -65,6 +66,7 @@ vector<string> extract_keys(map<string, int> input_map);
 vector<string> extract_keys(map<string, float> input_map);
 vector<string> extract_keys(map<string, bool> input_map);
 vector<string> extract_keys(map<string, string> input_map);
+vector<string> extract_keys(map<string, double> input_map);
 
 // tools for reversing arrays
 Array2D<double> reverse_array_rows(Array2D<double>& data);
@@ -82,6 +84,7 @@ float get_mean(vector<float>& y_data);
 float get_mean_ignore_ndv(vector<float>& y_data, float ndv);
 float get_mean_ignore_ndv(Array2D<float>& data, float ndv);
 float get_median(vector<float> y_data);
+float get_median(vector<float> y_data, float ndv);
 float get_median_sorted(vector<float> sorted_y_data);
 float get_median_absolute_deviation(vector<float> y_data, float median);
 vector<float> get_IQR_and_median(vector<float> y_data);
@@ -90,13 +93,26 @@ float get_variance_ignore_ndv(Array2D<float>& data, float ndv, float mean);
 float get_range_ignore_ndv(Array2D<float>& data, float ndv);
 float get_range_from_vector(vector<float>& y_data, float ndv);
 float Get_Minimum(vector<float>& y_data, float ndv);
+int Get_Minimum(vector<int>& y_data, float ndv);
+vector<int> Get_Index_Minimum(vector<int>& y_data, float ndv);
 float Get_Maximum(vector<float>& y_data, float ndv);
+vector<int> Get_Index_Maximum(vector<float>& y_data, float ndv);
 float get_durbin_watson_statistic(vector<float> residuals);
 float get_standard_deviation(vector<float>& y_data, float mean);
+float get_standard_deviation(vector<float>& y_data, float mean, float ndv);
 float get_standard_error(vector<float>& y_data, float standard_deviation);
 vector<float> get_common_statistics(vector<float>& y_data);
 vector<float> calculate_descriptive_stats(vector<float>& data);
 float get_percentile(vector<float>& data, float percentile);
+
+
+// sort a vector of vector in regards to a first vector, they all need the same number of element
+// BG - some days in Januray 2018
+vector<vector<float> > sort_vectors_from_one(vector<float> to_sort, vector<vector<float> > follow_the_sort);
+// reorganise a vector from a vector of new IDx
+vector<float> reorganize_vector_from_new_idx(vector<float> vecval, vector<int> vecid);
+
+
 
 // orthogonal regression
 // 01/04/2017 SMM No foolin
@@ -400,15 +416,15 @@ void bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, float bi
 
 // Regular binning algoritm for data stored in a 1D vector Similar to above but spits out more stats
 void bin_data(vector<float>& InputVectorX, vector<float>& InputVectorY, float bin_width,
-              vector<float>& midpoints_output, vector<float>&  MeanX_output, 
+              vector<float>& midpoints_output, vector<float>&  MeanX_output,
               vector<float>&  MedianX_output, vector<float>&  StandardDeviationX_output,
-              vector<float>& StandardErrorX_output, vector<float>& MADX_output, 
+              vector<float>& StandardErrorX_output, vector<float>& MADX_output,
               vector<float>& MeanY_output, vector<float>& MinimumY_output,
               vector<float>& FirstQuartileY_output, vector<float>& MedianY_output,
               vector<float>& ThirdQuartileY_output, vector<float>& MaximumY_output,
-              vector<float>&  StandardDeviationY_output, vector<float>& StandardErrorY_output, 
+              vector<float>&  StandardDeviationY_output, vector<float>& StandardErrorY_output,
               vector<float>& MADY_output, vector<int>& number_observations_output,
-              float NoDataValue); 
+              float NoDataValue);
 
 
 //look for empty bins output from the log binning function and removes them to avoid
@@ -482,20 +498,26 @@ double deg(double radians);
 // Get the angle between two vectors
 float angle_between_vectors(float x1, float y1, float x2, float y2);
 
+// Get the clockwise angle between two vectors
+float clockwise_angle_between_vector_and_north(float x1, float y1, float x2, float y2);
+
+// get clockwise angle between two vectors specifying the origin
+float clockwise_angle_between_two_vectors(float x0, float y0, float x1, float y1, float x2, float y2);
+
 // Get the angle between two vectors in radians
 // We need to calculate the (x1,y1) and (x2,y2) coordinates by moving
 // the vectors to intercept (0,0)
-// the bool vectors_point_downstream is true if the vector's first element is the 
-// upstream node in a channel and false if the first node is downstream. 
+// the bool vectors_point_downstream is true if the vector's first element is the
+// upstream node in a channel and false if the first node is downstream.
 float angle_between_two_vector_datasets(vector<float>& x1_data, vector<float>& y1_data,
                                         vector<float>& x2_data, vector<float>& y2_data,
                                         bool vectors_point_downstream);
 
 // This function takes x and y data as vectors and returns a 2 element vector
-// where the 0 element is the x1 component of a directional vector 
+// where the 0 element is the x1 component of a directional vector
 // and the 1 element is the y1 component of a directional vector
-// vector vector vector, Victor. 
-vector<float> get_directional_vector_coords_from_dataset(vector<float> x1_data, vector<float>& y_data, 
+// vector vector vector, Victor.
+vector<float> get_directional_vector_coords_from_dataset(vector<float> x1_data, vector<float>& y_data,
                       bool vectors_point_downstream);
 
 // Get the data for a boxplot from an unsorted vector of floats, which does not
@@ -697,5 +719,158 @@ Array2D<float> normalize_terrain_index(Array2D<float> Data, float lower_percenti
 // Adapted from: http://stackoverflow.com/a/2922778/1627162
 //SWDG - 25/1/17
 int PointInPolygon(int VertexCount, float XCoords[], float YCoords[], float XCoord, float YCoord);
+
+
+vector<float> get_value_from_map_and_node(vector<int> vecnode, map<int,float>& map_int_float);
+
+
+// Impementation of outlier detection algorithms based on the MAD
+// BG - 08/01/2018
+vector<float> get_absolute_deviation(vector<float> vecval, float NDV);
+float get_MAD(vector<float> vecval, float NDV);
+vector<float> get_modified_z_score(vector<float> vecval,float NDV);
+vector<int> is_outlier_MZS(vector<float> vecval, float NDV, float threshold);
+
+
+
+
+// Implementation of the Kernel Density estimation method from a vector of float
+// I am using this review paper about it for the implementation:
+// Sheather 2004 - DOI 10.1214/088342304000000297
+// I may try to find a recent one but this last is quite well cited and post 2000 and clear ( I don't want to be a SHEATER ahah, I am not sure if this can be consider as a joke but I am laugthing)
+//
+// This is the fully automated version, an attempt to provide a non parametric KDE estimation
+//
+// Work in progress, like a lot
+// BG - 04/01/2018  - Bonne annee
+
+pair<float,vector<float> > auto_KDE(vector<float> vpoint);
+vector<float> gaussian_KDE(vector<float> vpoint, float h);
+
+
+//-------------------------------------------------------------------
+// The code was written by Vikas C. Raykar
+// and is copyrighted under the Lessr GPL:
+//
+// Copyright (C) 2006 Vikas C. Raykar
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as
+// published by the Free Software Foundation; version 2.1 or later.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU Lesser General Public License for more details.
+// You should have received a copy of the GNU Lesser General Public
+// License along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+// MA 02111-1307, USA.
+//
+// The author may be contacted via email at: vikas(at)cs(.)umd(.)edu
+//-------------------------------------------------------------------
+
+//-------------------------------------------------------------
+// File    : UnivariateDensityDerivative.h
+// Purpose : Header file for UnivariateDensityDerivative.cpp
+// Author  : Vikas C. Raykar (vikas@cs.umd.edu)
+// Date    : September 17, 2005
+//-------------------------------------------------------------
+// Fast implementation of the r^{th} kernel density derivative
+// estimate based on the Gaussian kernel.
+// [HANDLES ONLY UNIVARIATE CASE]
+//
+// Data is assumed to be scaled to the unit interval [0 1].
+//
+// Implementation based on:
+//
+// V. C. Raykar and R. Duraiswami 'Very fast optimal bandwidth
+// selection for univariate kernel density estimation'
+// Technical Report CS-TR-4774, Dept. of Computer
+// Science, University of Maryland, College Park.
+// ------------------------------------------------------------
+//
+// INPUTS [7]
+// ----------------
+// NSources     --> number of sources, N.
+// MTargets     --> number of targets, M.
+// pSources     --> pointer to sources, px(N).
+// pTargets       --> pointer to the targets, py(M).
+// Bandwidth    --> the source bandwidth, h.
+// Order          --> order of the derivative, r.
+// epsilon        --> desired error, eps.
+//
+// OUTPUTS [1]
+// ----------------
+// pDensityDerivative --> pointer the the evaluated Density
+//             Derivative, pD(M).
+//-------------------------------------------------------------------
+
+
+// Adapted into LSDTT by B.G. - January 2018
+
+class UnivariateDensityDerivative{
+  public:
+    //constructor
+    UnivariateDensityDerivative(int NSources,
+      int MTargets,
+      double *pSources,
+      double *pTargets,
+      double Bandwidth,
+        int Order,
+      double epsilon,
+      double *pDensityDerivative);
+
+    //destructor
+    ~UnivariateDensityDerivative();
+
+    //function to evaluate the Density Derivative
+    void Evaluate();
+
+
+    //function to evaluate the Hermite polynomial.
+    double hermite(double x, int r);
+
+  private:
+    int N;        //number of sources.
+    int M;        //number of targets.
+    double *px;     //pointer to sources, (N).
+    double *py;       //pointer to the targets, (M).
+    double  h;      //the source bandwidth.
+    int r;              //the rth density derivative.
+    double eps;         //the desired error
+    double *pD;         //pointer the the evaluated Density Derivative, (M).
+
+    double rx;
+    double rr;
+    double ry;
+    int K;
+    int p;
+    double h_square;
+    double two_h_square;
+
+    double *pClusterCenter;
+    int *pClusterIndex;
+
+    int num_of_a_terms;
+    double *a_terms;
+
+    int num_of_B_terms;
+    double *B_terms;
+
+    double pi;
+    double q;
+
+    int factorial(int n);
+    void choose_parameters();
+    void space_sub_division();
+    void compute_a();
+    void compute_B();
+
+
+
+};
+
+
+vector<double> TV1D_denoise_v2(vector<double> input,  double lambda);
 
 #endif

@@ -366,6 +366,23 @@ void LSDParameterParser::parse_all_parameters(map<string,float> default_map_f,
   parse_int_parameters(default_map_i);
   parse_bool_parameters(default_map_b);
   parse_string_parameters(default_map_s);
+
+}
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// This parses all the default parameter maps.
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+void LSDParameterParser::parse_all_parameters(map<string,float> default_map_f,
+                      map<string,int> default_map_i, map<string,bool> default_map_b,
+                      map<string,string> default_map_s,
+                      map<string,double> default_map_d)
+{
+  parse_float_parameters(default_map_f);
+  parse_int_parameters(default_map_i);
+  parse_bool_parameters(default_map_b);
+  parse_string_parameters(default_map_s);
+  parse_double_parameters(default_map_d);
+
 }
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -398,6 +415,42 @@ void LSDParameterParser::parse_float_parameters(map<string,float> default_map)
     else  // the key is not in the parsed parameters. Use the default.
     {
       float_parameters[these_keys[i]] = default_map[these_keys[i]];
+      defaults_used_map[these_keys[i]] = dtoa(default_map[these_keys[i]]);
+
+    }
+
+  }
+}
+
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// Parse double parameters (for coords) FJC 20/11/17
+//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+void LSDParameterParser::parse_double_parameters(map<string,double> default_map)
+{
+  // the idea is to look through the default map, getting the keys, and then
+  // looking for the keys in the parameter maps
+  vector<string> these_keys = extract_keys(default_map);
+
+  // loop through the keys
+  int n_keys = int(these_keys.size());
+  for(int i = 0; i<n_keys; i++)
+  {
+    cout << "Key is: " << these_keys[i] << endl;
+
+    // If the key is contained in the parsed parameters, use the parsed parameter
+    if(parameter_map.find(these_keys[i]) != parameter_map.end())
+    {
+      cout << "Found key " << these_keys[i];
+
+      // convert the value to float
+      double_parameters[these_keys[i]] = atof(parameter_map[these_keys[i]].c_str());
+      parameters_read_map[these_keys[i]] = parameter_map[these_keys[i]];
+      cout << " it is: " << parameter_map[these_keys[i]] << " check: " << double_parameters[these_keys[i]] << endl;
+
+    }
+    else  // the key is not in the parsed parameters. Use the default.
+    {
+      double_parameters[these_keys[i]] = default_map[these_keys[i]];
       defaults_used_map[these_keys[i]] = dtoa(default_map[these_keys[i]]);
 
     }
