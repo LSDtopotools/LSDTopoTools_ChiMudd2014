@@ -795,19 +795,21 @@ void LSDBasin::print_perimeter_to_csv(LSDFlowInfo& FlowInfo, string perimeter_fn
   // open the file
   ofstream perim_out;
   perim_out.open(perimeter_fname.c_str());
-  perim_out << "node,x,y,latitude,longitude" << endl;
+  perim_out << "node,x,y,latitude,longitude,row,col" << endl;
   perim_out.precision(9);
 
   float curr_x,curr_y;
   double curr_lat,curr_long;
+  int this_row =0, this_col =0 ;
 
   LSDCoordinateConverterLLandUTM converter;
   int n_nodes = int(Perimeter_nodes.size());
   for(int i = 0; i< n_nodes; i++)
   {
     FlowInfo.get_x_and_y_from_current_node(Perimeter_nodes[i], curr_x, curr_y);
+    FlowInfo.retrieve_current_row_and_col(Perimeter_nodes[i], this_row, this_col);
     FlowInfo.get_lat_and_long_from_current_node(Perimeter_nodes[i], curr_lat, curr_long,converter);
-    perim_out << Perimeter_nodes[i] << "," << curr_x << "," << curr_y <<"," << curr_lat << "," << curr_long << endl;
+    perim_out << Perimeter_nodes[i] << "," << curr_x << "," << curr_y <<"," << curr_lat << "," << curr_long << "," << this_row << "," << this_col << endl;
   }
   perim_out.close();
 
@@ -823,6 +825,12 @@ void LSDBasin::print_perimeter_hypsometry_to_csv(LSDFlowInfo& FlowInfo, string p
 {
 
   set_Perimeter(FlowInfo);
+  clean_perimeter(FlowInfo);
+
+  // TESTING
+  string perim_test = "/home/clubb/Data_for_papers/drainage_capture/Santa_Cruz/FUCK_THIS.csv";
+  print_perimeter_to_csv(FlowInfo, perim_test);
+
   //  open the file
   ofstream perim_out;
   perim_out.open(perimeter_fname.c_str());
@@ -836,10 +844,6 @@ void LSDBasin::print_perimeter_hypsometry_to_csv(LSDFlowInfo& FlowInfo, string p
   cout << "N perimeter nodes: " << n_nodes << endl;
 
   int outlet_node = get_Outlet_node();
-
-  // clean perimeter
-  //clean_perimeter(FlowInfo);
-  //print_perimeter_to_csv(FlowInfo, perimeter_fname);
 
   // sort perimeter nodes
   vector<int> Reordered_nodes = order_perimeter_nodes(FlowInfo);
@@ -875,10 +879,13 @@ void LSDBasin::print_perimeter_hypsometry_to_csv(LSDFlowInfo& FlowInfo, string p
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // Order perimeter nodes from the outlet
+// Must CLEAN the perimeter first using clean_perimeter function
 // FJC 16/01/18
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 vector<int> LSDBasin::order_perimeter_nodes(LSDFlowInfo& FlowInfo)
 {
+  // first clean the perimeter nodes
+  //clean_perimeter(FlowInfo);
   cout << "Ordering the perimeter nodes..." << endl;
   vector<int> sorted_nodes;
   Array2D<int> PerimeterNodes(NRows,NCols,0);
@@ -899,13 +906,16 @@ vector<int> LSDBasin::order_perimeter_nodes(LSDFlowInfo& FlowInfo)
     FlowInfo.retrieve_current_row_and_col(Perimeter_nodes[i], this_row, this_col);
     PerimeterNodes[this_row][this_col] = 1;
   }
+  // The outlet always needs to be in the perimeter
+  PerimeterNodes[Outlet_i][Outlet_j] = 1;
   cout << "Got the array of perimeter nodes" << endl;
 
   //find the nearest perimeter to the outlet node
-  VisitedBefore[Outlet_i][Outlet_j] = 1;
+  VisitedBefore[Outlet_i][Outlet_j] = 2;
   // push back the outlet node, node 0
   sorted_nodes.push_back(outlet_node);
   int next_i, next_j;
+  bool first_node = true; // bool to check if you're at the first node. This makes a difference because if you're at the first node we don't want to go back to the outlet.
 
   // N, S, E, and W will always be the shortest distances, so do these first
   if (PerimeterNodes[Outlet_i][Outlet_j-1] == 1) // West
@@ -967,104 +977,172 @@ vector<int> LSDBasin::order_perimeter_nodes(LSDFlowInfo& FlowInfo)
 
   bool reached_outlet = false;
   int this_i, this_j;
-  int last_i, last_j;
-  bool evil_node = false;
   // now start at the outlet node and find the nearest perimeter node.
   while (reached_outlet == false)
   {
-    // keep track of the last node so you can go back if you need to
-    last_i = this_i;
-    last_j = this_j;
     // start at the next node and find the one with the closest distance that
     // hasn't already been visited
     this_i = next_i;
     this_j = next_j;
-
-    // check if you've already been to this node.
-    if (VisitedBefore[this_i][this_j] == 1)
-    {
-      //cout << "Wait, you've been to this node before! Is it an evil node?" << endl;
-      if (evil_node = false)
-      {
-        break;
-      }
-    }
-    else
-    {
-      VisitedBefore[this_i][this_j] = 1;
-    }
+    VisitedBefore[this_i][this_j] = 1;
 
     vector<float> Distances(8, 100); // distances to each node in the order N, NE, E, SE, S, SW, W, NW
 
     if (PerimeterNodes[this_i-1][this_j] == 1) // north
     {
-      if (VisitedBefore[this_i-1][this_j] == 0)
+      if (first_node == true)
       {
-        // get the distance
-        Distances[0] = DataResolution;
+        if (VisitedBefore[this_i-1][this_j] == 0)
+        {
+          // get the distance
+          Distances[0] = DataResolution;
+        }
+      }
+      else
+      {
+        if (VisitedBefore[this_i-1][this_j] != 1)
+        {
+          // get the distance
+          Distances[0] = DataResolution;
+        }
       }
     }
     if (PerimeterNodes[this_i-1][this_j+1] == 1) // northeast
     {
-      if (VisitedBefore[this_i-1][this_j+1] == 0)
+      if (first_node == true)
       {
-        // get the distance
-        Distances[1] = sqrt(DataResolution*DataResolution+DataResolution*DataResolution);
+        if (VisitedBefore[this_i-1][this_j+1] == 0)
+        {
+          // get the distance
+          Distances[1] = sqrt(DataResolution*DataResolution+DataResolution*DataResolution);
+        }
+      }
+      else
+      {
+        if (VisitedBefore[this_i-1][this_j+1] != 1)
+        {
+          // get the distance
+          Distances[1] = sqrt(DataResolution*DataResolution+DataResolution*DataResolution);
+        }
       }
     }
     if (PerimeterNodes[this_i][this_j+1] == 1) // east
     {
-      if (VisitedBefore[this_i][this_j+1] == 0)
+      if (first_node == true)
       {
-        // get the distance
-        Distances[2] = DataResolution;
+        if (VisitedBefore[this_i][this_j+1] == 0)
+        {
+          // get the distance
+          Distances[2] = DataResolution;
+        }
+      }
+      else
+      {
+        if (VisitedBefore[this_i][this_j+1] != 1)
+        {
+          // get the distance
+          Distances[2] = DataResolution;
+        }
       }
     }
     if (PerimeterNodes[this_i+1][this_j+1] == 1) // southeast
     {
-      if (VisitedBefore[this_i+1][this_j+1] == 0)
+      if (first_node == true)
       {
-        // get the distance
-        Distances[3] = sqrt(DataResolution*DataResolution+DataResolution*DataResolution);
+        if (VisitedBefore[this_i+1][this_j+1] == 0)
+        {
+          // get the distance
+          Distances[3] = sqrt(DataResolution*DataResolution+DataResolution*DataResolution);
+        }
+      }
+      else
+      {
+        if (VisitedBefore[this_i+1][this_j+1] != 1)
+        {
+          // get the distance
+          Distances[3] = sqrt(DataResolution*DataResolution+DataResolution*DataResolution);
+        }
       }
     }
     if (PerimeterNodes[this_i+1][this_j] == 1) //south
     {
-      if (VisitedBefore[this_i+1][this_j] == 0)
+      if (first_node == true)
       {
-        // get the distance
-        Distances[4] = DataResolution;
+        if (VisitedBefore[this_i+1][this_j] == 0)
+        {
+          // get the distance
+          Distances[4] = DataResolution;
+        }
+      }
+      else
+      {
+        if (VisitedBefore[this_i+1][this_j] != 1)
+        {
+          // get the distance
+          Distances[4] = DataResolution;
+        }
       }
     }
     if (PerimeterNodes[this_i+1][this_j-1] == 1) // southwest
     {
-      if (VisitedBefore[this_i+1][this_j-1] == 0)
+      if (first_node == true)
       {
-        // get the distance
-        Distances[5] = sqrt(DataResolution*DataResolution+DataResolution*DataResolution);
+        if (VisitedBefore[this_i+1][this_j-1] == 0)
+        {
+          // get the distance
+          Distances[5] = sqrt(DataResolution*DataResolution+DataResolution*DataResolution);
+        }
+      }
+      else
+      {
+        if (VisitedBefore[this_i+1][this_j-1] != 1)
+        {
+          // get the distance
+          Distances[5] = sqrt(DataResolution*DataResolution+DataResolution*DataResolution);
+        }
       }
     }
     if (PerimeterNodes[this_i][this_j-1] == 1) // west
     {
-      if (VisitedBefore[this_i][this_j-1] == 0)
+      if (first_node == true)
       {
-        // get the distance
-        Distances[6] = DataResolution;
+        if (VisitedBefore[this_i][this_j-1] == 0)
+        {
+          // get the distance
+          Distances[6] = DataResolution;
+        }
+      }
+      else
+      {
+        if (VisitedBefore[this_i][this_j-1] != 1)
+        {
+          // get the distance
+          Distances[6] = DataResolution;
+        }
       }
     }
     if (PerimeterNodes[this_i-1][this_j-1] == 1) // northwest
     {
-      if (VisitedBefore[this_i-1][this_j-1] == 0)
+      if (first_node == true)
       {
-        // get the distance
-        Distances[7] = sqrt(DataResolution*DataResolution+DataResolution*DataResolution);
+        if (VisitedBefore[this_i-1][this_j-1] == 0)
+        {
+          // get the distance
+          Distances[7] = sqrt(DataResolution*DataResolution+DataResolution*DataResolution);
+        }
+      }
+      else
+      {
+        if (VisitedBefore[this_i-1][this_j-1] != 1)
+        {
+          // get the distance
+          Distances[7] = sqrt(DataResolution*DataResolution+DataResolution*DataResolution);
+        }
       }
     }
-    //cout << "Finding the closest perimeter node..." << endl;
 
     // now search the vector of distances for the one with the smallest distance.
     int min_idx = distance(Distances.begin(), min_element(Distances.begin(), Distances.end()));
-    //cout << "Min IDX is: " << min_idx << " Distance is: " << *min_element(Distances.begin(), Distances.end()) << endl;
     if ( min_idx == 0 )
     {
       next_i = this_i-1;
@@ -1106,30 +1184,34 @@ vector<int> LSDBasin::order_perimeter_nodes(LSDFlowInfo& FlowInfo)
       next_j = this_j-1;
     }
     // push back the node to the sorted vector
-
     next_node = FlowInfo.retrieve_node_from_row_and_column(next_i, next_j);
-    //cout << "The next node is: " << next_node << endl;
-    //cout << "This i: " << this_i << " this j: " << this_j << " next i: " << next_i << " next j" << next_j << endl;
-    if (next_i == Outlet_i && next_j == Outlet_j)
+    if (next_node == outlet_node)
     {
       reached_outlet = true;
       cout << "You've reached the outlet, wooohooo" << endl;
+      int this_node = FlowInfo.retrieve_node_from_row_and_column(this_i, this_j);
+      sorted_nodes.push_back(this_node);
     }
     else if ( Distances[min_idx] == 100)
     {
-      //out << "I can't find a neighbouring perimeter node that you haven't been to." << endl;
-      //reached_outlet = true;
-      //cout << "I'll remove this node and go back one" << endl;
       VisitedBefore[next_i][next_j] = 1;
+      int last_node = sorted_nodes.back();
+      int last_i, last_j;;
+      FlowInfo.retrieve_current_row_and_col(last_node, last_i, last_j);
       next_i = last_i;
       next_j = last_j;
-      evil_node = true;
+      if (PerimeterNodes[next_i][next_j] != 1)
+      {
+        cout << "This isn't even a perimeter node. WHAT THE FUCK" << endl;
+      }
+      break;
     }
     else
     {
       int this_node = FlowInfo.retrieve_node_from_row_and_column(this_i, this_j);
       sorted_nodes.push_back(this_node);
     }
+    first_node = false;
   }
 
   return sorted_nodes;
@@ -2372,88 +2454,160 @@ void LSDBasin::organise_perimeter(LSDFlowInfo& flowpy)
 void LSDBasin::clean_perimeter(LSDFlowInfo& flowpy)
 {
 
-  vector<int> light_perimeter;
-  nodes_of_basins;
+  vector<int> light_perimeter; // output perimeter that should be thinned
+  // nodes_of_basins; map containing the nodes of the basin (global variable, but not initialized yet)
   int row = 0, col = 0, cptndd = 0, cptndd_tot = 0, this_row = 0, this_col = 0, this_node = 0;
+  // tester help to loop through neightboors
   vector<int> tester;
   tester.push_back(-1);
   tester.push_back(1);
 
-
-  // filling a map of basin nodes to check the nobasin around each node
+  // filling the map of basin nodes to check the nobasin around each node
   for(vector<int>::iterator yo = BasinNodes.begin(); yo!= BasinNodes.end(); yo++)
   {
     nodes_of_basins[*yo] = 1;
   }
 
+
+  // looping through the the perimeter nodes
   for(vector<int>::iterator uh = Perimeter_nodes.begin();uh != Perimeter_nodes.end(); uh++)
   {
-    flowpy.retrieve_current_row_and_col(*uh,row,col);
-    for(int i = 0; i < 2; i++)
+    // the first node is the outlet (I think it is all the time?) so I want it
+    if (*uh == BasinNodes[0])
     {
-      this_row = row+tester[i];
-      this_col = col;
-      if(this_row>=0 && this_row<get_NRows())
+      light_perimeter.push_back(*uh);
+    }
+    else
+    {
+      flowpy.retrieve_current_row_and_col(*uh,row,col);
+      // looping through the direct row neightboors and incrementing a counter if a direct neighboor is outside the basin
+      for(int i = 0; i < 2; i++)
       {
-        this_node = flowpy.retrieve_node_from_row_and_column(this_row,this_col);
-        if(nodes_of_basins[this_node] !=1)
+        this_row = row+tester[i]; // tester[0] = -1 and tester 1 = 1
+        this_col = col;
+        if(this_row>=0 && this_row<get_NRows())
         {
-          cptndd++;
-          cptndd_tot++;
+          this_node = flowpy.retrieve_node_from_row_and_column(this_row,this_col);
+          if(nodes_of_basins[this_node] !=1) // -> means not in the basin
+          {
+            cptndd++; // direct neighboors
+            cptndd_tot++; // all neighboors (include diagonal)
+          }
         }
       }
 
+      // looping through the direct col neightboors and incrementing a counter if a direct neighboor is outside the basin
 
-    }
-    for(int i = 0; i < 2; i++)
-    {
-      this_row = row;
-      this_col = col+tester[i];
-      if(this_col>=0 && this_col<get_NCols())
+      for(int i = 0; i < 2; i++)
       {
-        this_node = flowpy.retrieve_node_from_row_and_column(this_row,this_col);
-        if(nodes_of_basins[this_node] !=1)
-        {
-          cptndd++;
-          cptndd_tot++;
-        }
-      }
-
-    }
-
-    for(int i = 0; i<2;i++)
-    {
-      for(int j =0; j<2 ; j++)
-      {
-        this_row = row+tester[i];
-        this_col = col+tester[j];
+        this_row = row;
+        this_col = col+tester[i];
         if(this_col>=0 && this_col<get_NCols())
         {
           this_node = flowpy.retrieve_node_from_row_and_column(this_row,this_col);
           if(nodes_of_basins[this_node] !=1)
           {
+            cptndd++;
             cptndd_tot++;
           }
         }
+
       }
+
+      for(int i = 0; i<2;i++)
+      {
+        for(int j =0; j<2 ; j++)
+        {
+          this_row = row+tester[i];
+          this_col = col+tester[j];
+          if(this_col>=0 && this_col<get_NCols())
+          {
+            this_node = flowpy.retrieve_node_from_row_and_column(this_row,this_col);
+            if(nodes_of_basins[this_node] !=1)
+            {
+              cptndd_tot++;
+            }
+          }
+        }
+      }
+      if(cptndd>0 && cptndd_tot < 6)
+      {
+        int truc = flowpy.retrieve_node_from_row_and_column(row,col);
+        light_perimeter.push_back(truc);
+        Perimeter_nodes_map[truc] = 1;
+      }
+
+      cptndd = 0;
+      cptndd_tot = 0;
     }
-
-
-    if(cptndd>0 && cptndd_tot < 6)
-    {
-      int truc = flowpy.retrieve_node_from_row_and_column(row,col);
-      light_perimeter.push_back(truc);
-      Perimeter_nodes_map[truc] = 1;
-    }
-
-    cptndd = 0;
-    cptndd_tot = 0;
   }
+
+  cout << "Cleaned perimeter, you used to have " << Perimeter_nodes.size() << " nodes, now you have " << light_perimeter.size() << " nodes." << endl;
 
   Perimeter_nodes = light_perimeter;
 
 
 }
+
+
+ void LSDBasin::write_elevation_csv(string output_name, LSDFlowInfo& flowpy, LSDRaster& filled)
+ {
+
+  
+    // open the file
+  ofstream perim_out;
+  perim_out.open(output_name.c_str());
+  perim_out << "x,y,z" << endl;
+  perim_out.precision(5);
+  for(vector<int>::iterator Santa = BasinNodes.begin();Santa!=BasinNodes.end();Santa++)
+  {
+    float this_x,this_y,this_z;
+    int this_node;
+    this_node = *Santa;
+    flowpy.get_x_and_y_from_current_node(this_node,this_x,this_y);
+    this_z = filled.get_value_of_point(this_x,this_y);
+    perim_out << this_x << ","<< this_y << ","<< this_z << endl;
+  }
+  perim_out.close();
+
+
+
+
+ }
+
+// //-------------------------------------------------------------------------//
+// // perimeter cleaning Fiona
+// // 30/01/18
+// //-------------------------------------------------------------------------//
+// void LSDBasin::clean_perimeter_fiona(LSDFlowInfo& FlowInfo)
+// {
+//   // this is another cleaning function. It looks for perimeter nodes which don't border any internal basin nodes and removes them.
+//
+//   // vector for new perimeter
+//   vector<int> thinned_perimeter;
+//
+//   // loop through each perimeter node and check for internal neighbours
+//   for (int i = 0; i < int(Perimeter_nodes.size()); i++)
+//   {
+//     int this_node = Perimeter_nodes[i];
+//
+//     // we need to keep the outlet node which should be the first one.
+//     if (this_node == BasinNodes[0])
+//     {
+//       thinned_perimeter.push_back(this_node);
+//     }
+//     else // not the outlet node
+//     {
+//
+//     }
+//
+//
+//   }
+//
+//
+// }
+
+
 
 
 

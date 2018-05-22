@@ -1177,6 +1177,17 @@ float LSDFlowInfo::get_DrainageArea_square_km(int this_node)
 
   return DrainageAreaKm;
 }
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// get the drainage area of a node in m^2
+// FJC 01/05/18
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+float LSDFlowInfo::get_DrainageArea_square_m(int this_node)
+{
+  int NContributingPixels = NContributingNodes[this_node];
+  float DrainageArea = NContributingPixels*DataResolution*DataResolution;
+
+  return DrainageArea;
+}
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // recursive add_to_stack routine, from Braun and Willett eq. 12 and 13
@@ -4634,11 +4645,16 @@ vector< Array2D<float> > LSDFlowInfo::HilltopFlowRouting(LSDRaster Elevation, LS
     cout << "\nFATAL ERROR: unable to write to " << ss_filename.str() << endl;
     exit(EXIT_FAILURE);
   }
-  ofs << "X,Y,i,j,hilltop_id,Cht,S,R,Lh,BasinID,a,b,StreamID,HilltopSlope,DivergentCount,PlanarCountFlag,E_Star,R_Star,EucDist\n";
+  ofs << "easting,northing,i,j,hilltop_id,Cht,S,R,Lh,BasinID,a,b,StreamID,HilltopSlope,DivergentCount,PlanarCountFlag,E_Star,R_Star,EucDist\n";
 
   //calculate northing and easting
+  cout << "XMinimum is " << XMinimum << endl;
+  cout << "YMinimum is " << YMinimum << endl;
+  cout << "ymax is " << ymax << endl;
+
   for (i=0;i<NRows;++i) northing.push_back(ymax - DataResolution*(i - 0.5));
   for (j=0;j<NCols;++j) easting.push_back(XMinimum + DataResolution*(j + 0.5));
+
 
   //convert aspects to radians with east as theta = 0/2*pi
   for (i=0; i<NRows; ++i)
@@ -5026,8 +5042,8 @@ vector< Array2D<float> > LSDFlowInfo::HilltopFlowRouting(LSDRaster Elevation, LS
 
             ++s_count;
 
-            X = XMinimum + j*DataResolution;
-            Y = YMinimum - (NRows-i)*DataResolution;
+            X = easting[j];
+            Y = northing[i];
             relief = zeta[i][j] - zeta[a][b];
             mean_slope = relief/(length * DataResolution);
 
@@ -8156,11 +8172,7 @@ float LSDFlowInfo::get_flow_length_between_nodes(int UpstreamNode, int Downstrea
 	float length = 0;
 	float root_2 = 1.4142135623;
 
-  if (UpstreamNode == DownstreamNode)
-  {
-    cout << "You've picked the same node! Flow Length is 0." << endl;
-  }
-  else
+  if (UpstreamNode != DownstreamNode)
   {
   	int upstream_test = is_node_upstream(DownstreamNode, UpstreamNode);
   	if (upstream_test != 1)
@@ -8317,6 +8329,32 @@ void LSDFlowInfo::snap_to_hilltops(vector<float> x_locs, vector<float> y_locs, i
 
     }
   }
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// Get slope between nodes
+// FJC 03/05/18
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+float LSDFlowInfo::get_slope_between_nodes(int upslope_node, int downslope_node, LSDRaster& Elevation)
+{
+  float slope = NoDataValue;
+  int upslope_row, upslope_col, downslope_row, downslope_col;
+  bool us_node = is_node_upstream(downslope_node, upslope_node);
+  if (us_node == false)
+  {
+    cout << "Warning! Your downslope node is not downslope of the upslope one. Returning NDV." << endl;
+  }
+  else
+  {
+    retrieve_current_row_and_col(upslope_node, upslope_row, upslope_col);
+    retrieve_current_row_and_col(downslope_node, downslope_row, downslope_col);
+    float upslope_elev = Elevation.get_data_element(upslope_row, upslope_col);
+    float downslope_elev = Elevation.get_data_element(downslope_row, downslope_col);
+    float FlowDist = get_flow_length_between_nodes(upslope_node, downslope_node);
+
+    slope = (upslope_elev - downslope_elev)/FlowDist;
+  }
+  return slope;
 }
 
 

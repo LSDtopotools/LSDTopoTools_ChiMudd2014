@@ -87,15 +87,15 @@ using namespace TNT;
 ///row and col indices for individual channel segments.
 class LSDIndexChannel
 {
-	public:
-	/// @brief The create function. This is default and throws an error.
-	LSDIndexChannel()		{ create(); }
+  public:
+  /// @brief The create function. This is default and throws an error.
+  LSDIndexChannel()		{ create(); }
   /// @brief Create LSDIndexChannel object between a start and end node.
   /// @param StartNode Integer starting node.
   /// @param EndNode Integer ending node.
   /// @param FlowInfo LSDFlowInfo object.
   LSDIndexChannel(int StartNode, int EndNode, LSDFlowInfo& FlowInfo)
-							{ create(StartNode, EndNode, FlowInfo); }
+                 { create(StartNode, EndNode, FlowInfo); }
   /// @brief Create LSDIndexChannel object between starting junction and node and ending junction and node.
   /// @param StartJunction Integer starting junction.
   /// @param StartNode Integer starting node.
@@ -103,32 +103,31 @@ class LSDIndexChannel
   /// @param EndNode Integer ending node.
   /// @param FlowInfo LSDFlowInfo object.
   LSDIndexChannel(int StartJunction, int StartNode,
-	                int EndJunction, int EndNode, LSDFlowInfo& FlowInfo)
-							{ create(StartJunction,StartNode,
-							  EndJunction,EndNode, FlowInfo); }
+                  int EndJunction, int EndNode, LSDFlowInfo& FlowInfo)
+              { create(StartJunction,StartNode,EndJunction,EndNode, FlowInfo); }
 
-	LSDIndexChannel(vector<float>& X_coords, vector<float>& Y_coords, LSDFlowInfo& FlowInfo, float threshold_area, float threshold_distance)
-							{ create(X_coords, Y_coords, FlowInfo, threshold_area, threshold_distance); }
+  LSDIndexChannel(vector<float>& X_coords, vector<float>& Y_coords, LSDFlowInfo& FlowInfo, float threshold_area, float threshold_distance)
+            { create(X_coords, Y_coords, FlowInfo, threshold_area, threshold_distance); }
 
-	// get functions
+  // get functions
 
-	/// @return Starting junction ID.
+  /// @return Starting junction ID.
   int get_StartJunction() const			{ return StartJunction; }
-	/// @return Ending junciton ID.
+  /// @return Ending junciton ID.
   int get_EndJunction() const				{ return EndJunction; }
-	/// @return Starting node ID.
+  /// @return Starting node ID.
   int get_StartNode() const				{ return StartNode; }
-	/// @return Ending Node ID.
+  /// @return Ending Node ID.
   int get_EndNode() const					{ return EndNode; }
 
-	/// @return Number of rows as an integer.
-	int get_NRows() const				{ return NRows; }
-	/// @return Number of columns as an integer.
+  /// @return Number of rows as an integer.
+  int get_NRows() const				{ return NRows; }
+  /// @return Number of columns as an integer.
   int get_NCols() const				{ return NCols; }
   /// @return Minimum X coordinate as an integer.
-	float get_XMinimum() const			{ return XMinimum; }
-	/// @return Minimum Y coordinate as an integer.
-	float get_YMinimum() const			{ return YMinimum; }
+  float get_XMinimum() const			{ return XMinimum; }
+  /// @return Minimum Y coordinate as an integer.
+  float get_YMinimum() const			{ return YMinimum; }
 	/// @return Data resolution as an integer.
 	float get_DataResolution() const	{ return DataResolution; }
 	/// @return No Data Value as an integer.
@@ -216,7 +215,7 @@ class LSDIndexChannel
   /// @param Y_coordinates vector to write Y_coords
   /// @author FJC
   /// @date 17/02/17
-  void get_coordinates_of_channel_nodes(vector<double>& X_coordinates, vector<double>& Y_coordinates);
+  void get_coordinates_of_channel_nodes(vector<double>& X_coordinates, vector<double>& Y_coordinates, LSDFlowInfo& FlowInfo);
 
   /// @brief Function to get vectors with the X and Y coordinates of nodes in the channel
   /// @param X_coordinates vector to write X_coords
@@ -226,16 +225,26 @@ class LSDIndexChannel
   void get_coordinates_of_channel_nodes(vector<float>& X_coordinates, vector<float>& Y_coordinates);
 
 
-	/// @brief Function to get write index channel to csv
-	/// @param path the path name
-	/// @param filename prefix for the csv file
-	/// @author FJC
+  /// @brief Function to get write index channel to csv
+  /// @param path the path name
+  /// @param filename prefix for the csv file
+  /// @author FJC
   /// @date 17/02/17
-	void write_channel_to_csv(string path, string filename);
+  void write_channel_to_csv(string path, string filename);
 
-	protected:
+  /// @brief Function to get write index channel to csv
+  /// @detail Similar to above but mimics code in other objects to ensure you get the same channels
+  /// @param path the path name
+  /// @param filename prefix for the csv file
+  /// @param FlowInfo
+  /// @param FlowDistance
+  /// @author SMM
+  /// @date 20/03/18
+  void write_channel_to_csv(string path, string filename, LSDFlowInfo& FlowInfo, LSDRaster& FlowDistance, LSDRaster& Elevation);
 
-	///Number of rows.
+  protected:
+
+  ///Number of rows.
   int NRows;
   ///Number of columns.
 	int NCols;

@@ -183,7 +183,7 @@ class LSDFlowInfo
   /// @date 27/7/2017
   void  get_lat_and_long_locations(double X, double Y, double& lat,
                    double& longitude, LSDCoordinateConverterLLandUTM Converter);
-                   
+
   /// @brief this check to see if a point is within the raster
   /// @param X_coordinate the x location of the point
   /// @param Y_coordinate the y location of the point
@@ -331,6 +331,13 @@ class LSDFlowInfo
   /// @author FJC
   /// @date 06/02/17
   float get_DrainageArea_square_km(int this_node);
+
+  /// @brief returns the draiange area of a node in square m
+  /// @param this_node node of interest
+  /// @return draiange area in square km
+  /// @author FJC
+  /// @date 01/05/18
+  float get_DrainageArea_square_m(int this_node);
 
   // get functions
 
@@ -738,14 +745,14 @@ class LSDFlowInfo
   /// @brief This funtion gets all the upslope chi of a starting node (assuming
   ///  chi at starting node is 0) and returns a map
   /// @param starting_nodes an integer containing the node index
-  /// of the node from which you want to start the chi analysis. 
+  /// of the node from which you want to start the chi analysis.
   /// @param m_over_n the m/n ratio. Chi is quite sensitive to this
-  /// @param A_0 the reference discharge. 
+  /// @param A_0 the reference discharge.
   /// @param mimum_pixels This minimum number of contributing pixels needed before chi is calculated
   /// @return Returns a map where the key is the node index and the value is chi
   /// @author SMM
   /// @date 13/07/2017
-    map<int,float> get_upslope_chi_from_single_starting_node(int starting_node, 
+    map<int,float> get_upslope_chi_from_single_starting_node(int starting_node,
                                  float m_over_n, float A_0, int minimum_pixels);
 
 
@@ -753,7 +760,7 @@ class LSDFlowInfo
   ///  chi at starting node is 0) and returns a map
   /// @details This version allows computation with discharge
   /// @param starting_nodes an integer containing the node index
-  /// of the node from which you want to start the chi analysis. 
+  /// of the node from which you want to start the chi analysis.
   /// @param m_over_n the m/n ratio. Chi is quite sensitive to this
   /// @param A_0 the reference discharge.
   /// @param mimum_pixels This minimum number of contributing pixels needed before chi is calculated
@@ -761,7 +768,7 @@ class LSDFlowInfo
   /// @return Returns a map where the key is the node index and the value is chi
   /// @author SMM
   /// @date 13/07/2017
-    map<int,float> get_upslope_chi_from_single_starting_node(int starting_node, 
+    map<int,float> get_upslope_chi_from_single_starting_node(int starting_node,
                                  float m_over_n, float A_0, int minimum_pixels, LSDRaster& Discharge);
 
 
@@ -988,7 +995,7 @@ void get_nodeindices_from_csv(string csv_filename, vector<int>& NIs, vector<floa
   /// @author SWDG
   /// @date 12/2/14
   vector< Array2D<float> > HilltopFlowRouting(LSDRaster Elevation, LSDRaster Hilltop_ID, LSDRaster Slope,
-               LSDRaster Aspect, LSDRaster HilltopCurv, LSDRaster PlanCurvature, LSDIndexRaster StreamNetwork, LSDIndexRaster Basins, 
+               LSDRaster Aspect, LSDRaster HilltopCurv, LSDRaster PlanCurvature, LSDIndexRaster StreamNetwork, LSDIndexRaster Basins,
                string Prefix, bool print_paths_switch, int thinning, string trace_path, bool basin_filter_switch,
                vector<int> Target_Basin_Vector);
 
@@ -1118,7 +1125,7 @@ void get_nodeindices_from_csv(string csv_filename, vector<int>& NIs, vector<floa
   LSDIndexRaster find_cells_influenced_by_nodata(LSDIndexRaster& Bordered_mask,
                                  LSDRaster& Topography);
 
-  
+
   /// @brief This function looks at all uplope nodes and sees if any are bordered
   ///  by nodata.
   /// @param nodeindex The node index of the node in question
@@ -1133,7 +1140,7 @@ void get_nodeindices_from_csv(string csv_filename, vector<int>& NIs, vector<floa
   ///  to function for finding concave hull of basin
   /// @param outlet node The node of the outlet
   /// @param Topography this is the LSDRaster containing topographic data
-  /// @return A vector with the node indices of nodes that are adjacent to 
+  /// @return A vector with the node indices of nodes that are adjacent to
   ///  nodata within the basin
   /// @author SMM
   /// @date 25/04/2017
@@ -1195,6 +1202,15 @@ void get_nodeindices_from_csv(string csv_filename, vector<int>& NIs, vector<floa
   /// @author FJC
   /// @date 29/09/2016
 	float get_flow_length_between_nodes(int UpstreamNode, int DownstreamNode);
+
+  /// @brief This function gets the slope between two nodes based on flow length
+  /// @param upslope_node the upstream node
+  /// @param downslope_node the downstream node
+  /// @param Elevation elevation raster
+  /// @return slope between the nodes
+  /// @author FJC
+  /// @date 04/05/18
+  float get_slope_between_nodes(int upslope_node, int downslope_node, LSDRaster& Elevation);
 
   /// @brief This function gets the Euclidian distance between two nodes
   /// @param node_A the first node

@@ -440,10 +440,24 @@ class LSDChiTools
                                         vector<float>& MLE_values, vector<float>& RMSE_values,
                                         float sigma, vector<float> chi_distances_to_test);
 
+    /// @brief This computes a the disorder metric of Hergarten et al 2016 by basin
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param basin_key The key into the basin you want to test all collinearity of.
+    /// @author SMM
+    /// @date 24/03/2018
+    float test_collinearity_by_basin_disorder(LSDFlowInfo& FlowInfo, 
+                                        int basin_key);
 
 
-
-
+    /// @brief This computes a the disorder metric of Hergarten et al 2016 by basin.
+    /// It uses a permutation algorithm to find all combinations of tributary channels
+    /// and computes the disorder statistic of each of these
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param basin_key The key into the basin you want to test all collinearity of.
+    /// @author SMM
+    /// @date 13/04/2018
+    vector<float> test_collinearity_by_basin_disorder_with_uncert(LSDFlowInfo& FlowInfo, 
+                                        int basin_key);
 
     /// @brief This wraps the collinearity tester, looping through different m over n
     ///  values and calculating goodness of fit statistics.
@@ -536,35 +550,6 @@ class LSDChiTools
                         string file_prefix, float sigma,
                         vector<float> chi_distance_fractions);
 
-
-    /// @brief This wraps the collinearity tester, looping through different m over n
-    ///  values and calculating goodness of fit statistics.
-    /// @detail Uses discrete points rather than all the tributary data. It uses monte carlo
-    ///   sampling to get the points, so one can repeatedly sample the MLE values for
-    ///   a fixed number of points
-    /// @param FlowInfo an LSDFlowInfo object
-    /// @param JN an LSDJunctionNetwork object
-    /// @param start_movern the starting m/n ratio
-    /// @param delta_movern the change in m/n
-    /// @param n_novern the number of m/n values to use
-    /// @param only_use_mainstem_as_reference a boolean, if true only compare channels to mainstem .
-    /// @param The file prefix for the data files
-    /// @param sigma The uncertainty for the MLE calculation. In practice this simply scales MLE.
-    /// @param n_fracs the number of chi distance fractions you want to use
-    /// @param MC_iteration The number of iteration you want to use
-    /// @param max_frac the maximum chi fraction you want to examine.
-    /// @author SMM
-    /// @date 28/08/2017
-    void calculate_goodness_of_fit_collinearity_fxn_movern_using_points_MC(LSDFlowInfo& FlowInfo, LSDJunctionNetwork& JN,
-                        float start_movern, float delta_movern, int n_movern,
-                        bool only_use_mainstem_as_reference,
-                        string file_prefix, float sigma,
-                        int n_fracs,
-                        int MC_iterations,
-                        float max_frac);
-
-
-
     /// @brief This wraps the collinearity tester, looping through different m over n
     ///  values and calculating goodness of fit statistics.
     ///  Same as above but can use a discharge raster to calculate chi
@@ -593,9 +578,91 @@ class LSDChiTools
 
 
 
+    /// @brief This wraps the collinearity tester, looping through different m over n
+    ///  values and calculating goodness of fit statistics. 
+    /// @detail Uses discrete points rather than all the tributary data. It uses monte carlo
+    ///   sampling to get the points, so one can repeatedly sample the MLE values for
+    ///   a fixed number of points
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param JN an LSDJunctionNetwork object
+    /// @param start_movern the starting m/n ratio
+    /// @param delta_movern the change in m/n
+    /// @param n_novern the number of m/n values to use
+    /// @param only_use_mainstem_as_reference a boolean, if true only compare channels to mainstem .
+    /// @param The file prefix for the data files
+    /// @param sigma The uncertainty for the MLE calculation. In practice this simply scales MLE.
+    /// @param n_fracs the number of chi distance fractions you want to use
+    /// @param MC_iteration The number of iteration you want to use
+    /// @param max_frac the maximum chi fraction you want to examine.
+    /// @author SMM
+    /// @date 24/03/2017
+    void calculate_goodness_of_fit_collinearity_fxn_movern_using_points_MC(LSDFlowInfo& FlowInfo, LSDJunctionNetwork& JN,
+                        float start_movern, float delta_movern, int n_movern,
+                        bool only_use_mainstem_as_reference,
+                        string file_prefix, float sigma,
+                        int n_fracs,
+                        int MC_iterations,
+                        float max_frac);
 
 
+    /// @brief This wraps the collinearity tester, looping through different m over n
+    ///  values and calculating goodness of fit statistics. This one uses discharge
+    /// @detail Uses discrete points rather than all the tributary data. It uses monte carlo
+    ///   sampling to get the points, so one can repeatedly sample the MLE values for
+    ///   a fixed number of points
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param JN an LSDJunctionNetwork object
+    /// @param start_movern the starting m/n ratio
+    /// @param delta_movern the change in m/n
+    /// @param n_novern the number of m/n values to use
+    /// @param only_use_mainstem_as_reference a boolean, if true only compare channels to mainstem .
+    /// @param The file prefix for the data files
+    /// @param sigma The uncertainty for the MLE calculation. In practice this simply scales MLE.
+    /// @param n_fracs the number of chi distance fractions you want to use
+    /// @param MC_iteration The number of iteration you want to use
+    /// @param max_frac the maximum chi fraction you want to examine.
+    /// @param Discharge A discharge raster
+    /// @author SMM
+    /// @date 27/04/2018
+    void calculate_goodness_of_fit_collinearity_fxn_movern_with_discharge_using_points_MC(LSDFlowInfo& FlowInfo, LSDJunctionNetwork& JN,
+                        float start_movern, float delta_movern, int n_movern,
+                        bool only_use_mainstem_as_reference,
+                        string file_prefix, float sigma,
+                        int n_fracs,
+                        int MC_iterations,
+                        float max_frac, LSDRaster& Discharge);
 
+
+    /// @brief This wraps the disorder collinearity tester, looping through different concavity
+    ///  values and calculating disorder statistics.
+    /// @detail Uses the disorder metric of Hergarten et al ESURF 2016
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param start_movern the starting m/n ratio
+    /// @param delta_movern the change in m/n
+    /// @param n_novern the number of m/n values to use
+    /// @param The file prefix for the data files
+    /// @param use_uncert a bool that if true triggers the uncertainty algorithms
+    /// @author SMM
+    /// @date 24/03/2018
+    void calculate_goodness_of_fit_collinearity_fxn_movern_using_disorder(LSDFlowInfo& FlowInfo,
+                        LSDJunctionNetwork& JN, float start_movern, float delta_movern, int n_movern,
+                        string file_prefix, bool use_uncert);
+
+    /// @brief This wraps the disorder collinearity tester, looping through different concavity
+    ///  values and calculating disorder statistics.
+    /// @detail Uses the disorder metric of Hergarten et al ESURF 2016. Uses a discharge raster to calculate chi
+    /// @param FlowInfo an LSDFlowInfo object
+    /// @param start_movern the starting m/n ratio
+    /// @param delta_movern the change in m/n
+    /// @param n_novern the number of m/n values to use
+    /// @param The file prefix for the data files
+    /// @param use_uncert a bool that if true triggers the uncertainty algorithms
+    /// @param Discharge and LSDRaster with the discharge. 
+    /// @author SMM
+    /// @date 27/04/2018
+    void calculate_goodness_of_fit_collinearity_fxn_movern_with_discharge_using_disorder(LSDFlowInfo& FlowInfo,
+                        LSDJunctionNetwork& JN, float start_movern, float delta_movern, int n_movern,
+                        string file_prefix, bool use_uncert, LSDRaster& Discharge);
 
     /// @brief This function drives a Monte Carlo-Markov chain model It wraps
     /// the dmovern tuning and the main chain.
@@ -1145,7 +1212,7 @@ class LSDChiTools
     /// @param OUT_ID: string containing the output prefix
     /// @author BG
     /// @date 05/01/2018
-    void ksn_knickpoint_automator(LSDFlowInfo& FlowInfo, string OUT_DIR, string OUT_ID, float MZS_th, float lambda_TVD);
+    void ksn_knickpoint_automator(LSDFlowInfo& FlowInfo, string OUT_DIR, string OUT_ID, float MZS_th, float lambda_TVD, float lambda_TVD_b_chi,int stepped_combining_window,int window_stepped, float n_std_dev, int kp_node_search);
 
     void ksn_knickpoint_outlier_automator(LSDFlowInfo& FlowInfo, float MZS_th);
 
@@ -1153,7 +1220,7 @@ class LSDChiTools
     /// @param FlowiInfo: a LSDFlowInfo object
     /// @author BG
     /// @date 17/01/2018
-    void ksn_knickpoints_combining(LSDFlowInfo& Flowinfo);
+    void ksn_knickpoints_combining(LSDFlowInfo& Flowinfo, int kp_node_search);
 
     /// @brief Detection of the knickpoints by looping through the source keys
     /// @param FlowiInfo: a LSDFlowInfo object
@@ -1217,18 +1284,31 @@ class LSDChiTools
     /// @date 08/01/2018
     void lump_this_vec(vector<int> this_vec, int n_nodlump);
 
-    void TVD_on_my_ksn(const float lambda);
-    vector<float> TVD_this_vec(vector<int> this_vec, const float lambda);
+    /// @brief Apply the TVD filter () L.Condat 2013 on the m_chi and b_chi signals
+    /// @param this_vec: vector of int containing the node index
+    /// @param n_nodlump: the lumping half_window (number of nodes)
+    /// @author BG
+    /// @date 08/01/2018
+    void TVD_on_my_ksn(const float lambda, float lambda_TVD_b_chi);
+
+    vector<float> TVD_this_vec(vector<int> this_vec, const float lambda, float lambda_TVD_b_chi);
     vector<double> correct_TVD_vec(vector<double> this_val);
     float get_dksn_from_composite_kp(vector<int> vecnode);
+    float get_dseg_drop_from_composite_kp(vector<int> vecnode);
     float get_kp_sharpness_length(vector<int> vecnode, LSDFlowInfo& Flowinfo);
-    pair<pair<int,float>,pair<float,float> > get_ksn_centroid_coordinates(LSDFlowInfo& Flowinfo, vector<int> vecnode);
-    vector<vector<int> > group_local_kp(vector<int> vecnode_kp, vector<int> vecnode_river,LSDFlowInfo& Flowinfo);
+    int get_ksn_centroid_coordinates(LSDFlowInfo& Flowinfo, vector<int> vecnode,vector<int> vecnode_river, float total_dksn);
+    vector<vector<int> > group_local_kp(vector<int> vecnode_kp, vector<int> vecnode_river,LSDFlowInfo& Flowinfo, int kp_node_search);
     vector<vector<int> > old_group_local_kp(vector<int> vecnode_kp, vector<int> vecnode_river,LSDFlowInfo& Flowinfo);
-
+    void derive_the_segmented_elevation();
+    vector<int> get_vecnode_river_from_extent(int first_node, int last_node, vector<int> vecnode_river);
     
     
     void print_final_ksn_knickpoint(LSDFlowInfo& FlowInfo, string filename);
+    void raw_stepped_knickpoint_detection(int SK, vector<int> vecnode);
+    void stepped_knickpoints_combining(LSDFlowInfo& Flowinfo, int kp_node_search);
+    void TVD_this_vec_v2(vector<int> this_vec, float lambda, float lambda_TVD_b_chi, int max_node, string type);
+    void stepped_knickpoints_detection_v2(LSDFlowInfo& Flowinfo, int window, float n_std_dev);
+    map<string,vector<float> > get_windowed_stats_for_knickpoints(vector<int> vecnode,int HW);
 
 
 
@@ -1320,6 +1400,8 @@ class LSDChiTools
 
     /// map of source key and associated vector of nodes
     map<int,vector<int> > map_node_source_key;
+        /// map of source key and associated vector of nodes
+    map<int,vector<int> > map_source_key_vecnode_of_receiver;
     /// map of source key and associated vector of nodes containing knickpoints used for the ksnkp calculation
     map<int,vector<int> > map_node_source_key_kp;
     /// map of raw changes in ksn, key is node and value is delta ksn from bottom to top
@@ -1340,19 +1422,46 @@ class LSDChiTools
     map<int,float> lumped_m_chi_map;
         /// Map[node_index] = TVDed m_chi
     map<int,float> TVD_m_chi_map;
+    /// Map[node_index] = TVDed m_chi
+    map<int,float> TVD_b_chi_map;
     /// Debugging map to check the TVD correctin (deprecated - I'll clean my code when I'll be sure I'll need it)
     map<int,float>TVD_m_chi_map_non_corrected;
     /// Grouped and processed knickpoints
     map<int,float> ksn_kp_map;
-    /// diffusion of a knickpoint, or sharpness of a knickpoint, I cannot decide which worf I prefer
+    /// diffusion of a knickpoint, or sharpness of a knickpoint, I cannot decide which word I prefer
     map<int,float> sharpness_ksn_length;
+    /// diffusion of a knickpoint, or sharpness of a stepped knickpoint, I cannot decide which word I prefer
+    map<int,float> sharpness_stepped_length;
     /// cextent of composite knickpoints
     map<int,pair<int,int> > ksn_extent;
+    map<int,pair<int,int> > stepped_extent;
+    /// contains the centroid of each knickpoints
     map<int,pair<float,float> > ksn_centroid;
+    /// contains the centroid of each stepped knickpoints
+    map<int,pair<float,float> > stepped_centroid;
+    /// Unique ID for each knickpoints
     map<int,int> ksn_kp_ID;
     map<int,float> flow_distance_kp_centroid_map;
+    map<int,float> flow_distance_stepped_kp_centroid_map;
     map<int,int> nearest_node_centroid_kp;
+    map<int,int> nearest_node_centroid_kp_stepped;
+
     map<int,int> map_outlier_MZS_combined;
+    map<int,float> kp_segdrop;
+    map<int,float> raw_segchange;
+    map<int,float> TVD_segelev_diff;
+    map<int,float> segelev_diff;
+    map<int,float> segelev_diff_second;
+    map<int,float> raw_delta_segelev_from_TVDb_chi;
+    map<int,vector<int> > map_node_source_key_kp_stepped;
+
+    /// Map of intermediate values for each node during TVD segmentation
+    map<int,float> intermediate_TVD_m_chi;
+    map<int,float> intermediate_TVD_b_chi;
+    map<int,float> mean_for_kp;
+    map<int,float> std_for_kp;
+
+
 
 
 

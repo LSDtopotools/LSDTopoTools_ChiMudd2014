@@ -648,6 +648,24 @@ PointData LoadChannelTree(string Filename, int multistem_option, int trib_number
 // Get point data from vectors of X and Y coordinates
 // FJC 17/02/17
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+PointData get_point_data_from_coordinates(vector<float>& X_coordinates, vector<float>& Y_coordinates)
+{
+  // convert to doubles
+  vector<double> x(X_coordinates.begin(), X_coordinates.end());
+  vector<double> y(Y_coordinates.begin(), Y_coordinates.end());
+
+
+  PointData Points;
+  Points.X = x;
+  Points.Y = y;
+
+  return Points;
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// Get point data from vectors of X and Y coordinates
+// FJC 17/02/17
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 PointData get_point_data_from_coordinates(vector<double>& X_coordinates, vector<double>& Y_coordinates)
 {
   PointData Points;

@@ -253,6 +253,16 @@ class LSDJunctionNetwork
   /// @date 23/04/2017
   vector<float> calculate_junction_angle_statistics_upstream_of_junction(int target_junction, LSDFlowInfo& FlowInfo);
 
+  /// @brief Overloaded function similar to above but removes any junctions not greater than
+  /// threshold SO
+  /// @param target_junction The target junction
+  /// @param FlowInfo an LSDFlowInfo object
+  /// @param threshold_SO threshold stream order to keep junctions (greater than this)
+  /// @return A vector of that has the stats of the upslope junction angles
+  /// @author FJC
+  /// @date 08/03/18
+  vector<float> calculate_junction_angle_statistics_upstream_of_junction(int target_junction, LSDFlowInfo& FlowInfo, int threshold_SO);
+
   /// @brief This takes the junction angle statistics for all basins of a given order
   /// @param FlowInfo the LSDFlowInfo object
   /// @param BasinOrder the basin order of interest
@@ -271,6 +281,15 @@ class LSDJunctionNetwork
                              vector<float>& junction_angle_averages,
                              vector<float>& junction_angle_stderr,
                              vector<int>& N_junctions);
+
+  /// @brief This function takes a vector of basin junctions and prints statistics of all the junctions
+  /// upstream of each basin junction to a CSV.  The statstics are separated by stream order.
+  /// @param JunctionList list of basin junctions
+  /// @param FlowInfo LSDFlowInfo object
+  /// @param csv_outname name of output csv
+  /// @author FJC
+  /// @date 08/03/18
+  void print_junction_angles_from_basin_list(vector<int> JunctionList, LSDFlowInfo& FlowInfo, string csv_outname);
 
 
   /// @brief This prints the junction angles to a csv file
@@ -503,7 +522,7 @@ class LSDJunctionNetwork
   /// @author SMM
   /// @date 18/01/18
   vector<int> Prune_Junctions_Threshold_Elevation(vector<int>& BaseLevelJunctions_Initial,
-                                              LSDFlowInfo& FlowInfo, LSDRaster& Elev, 
+                                              LSDFlowInfo& FlowInfo, LSDRaster& Elev,
                                               float threshold_elevation, bool keep_junctions_below_threshold);
 
   /// @brief This function takes a list of junctions retains ONLY the junctions
@@ -518,7 +537,7 @@ class LSDJunctionNetwork
   /// @author SMM
   /// @date 19/01/18
   vector<int> Prune_Junctions_Elevation_Window(vector<int>& BaseLevelJunctions_Initial,
-                                              LSDFlowInfo& FlowInfo, LSDRaster& Elev, 
+                                              LSDFlowInfo& FlowInfo, LSDRaster& Elev,
                                               float lower_threshold, float upper_threshold);
 
 
@@ -1769,6 +1788,42 @@ vector<int> GetChannelHeadsChiMethodFromValleys(vector<int> ValleyNodes,
 /// @author FJC
 /// @date 17/04/17
 vector<int> get_channel_pixels_along_line(vector<int> line_rows, vector<int> line_cols, int threshold_SO, LSDFlowInfo& FlowInfo);
+
+/// @brief function to take a vector of basin outlet junctions and write data about the longest channel in each to csv.
+/// @param BasinJunctions vector of basin junctions
+/// @param FlowInfo
+/// @param DistanceFromOutlet
+/// @param Elevation elev raster
+/// @param csv_filename the output csv file name
+/// @author FJC
+/// @date 06/04/18
+void write_river_profiles_to_csv(vector<int>& BasinJunctions, LSDFlowInfo& FlowInfo, LSDRaster& DistanceFromOutlet, LSDRaster& Elevation, string csv_filename);
+
+/// @brief function to take a vector of basin outlet junctions and write data about all tribs to csv
+/// @param BasinJunctions vector of basin junctions
+/// @param FlowInfo
+/// @param DistanceFromOutlet
+/// @param Elevation elev raster
+/// @param csv_filename the output csv file name
+/// @author FJC
+/// @date 02/05/18
+void write_river_profiles_to_csv_all_tributaries(vector<int>& BasinJunctions, LSDFlowInfo& FlowInfo, LSDRaster& DistanceFromOutlet, LSDRaster& Elevation, string csv_filename);
+
+/// @brief function get the total length of channels upstream of a node
+/// @param this_node node of interest
+/// @param FlowInfo LSDFlowInfo object
+/// @author FJC
+/// @date 30/04/18
+float GetTotalChannelLengthUpstream(int this_node, LSDFlowInfo& FlowInfo);
+
+/// @brief function to write data about channels downstream of all channel heads for a specified length
+/// @param channel_length length downstream to stop writing info
+/// @param FlowInfo
+/// @param Elevation elev raster
+/// @param csv_filename the output csv file name
+/// @author FJC
+/// @date 02/05/18
+void write_river_profiles_to_csv_all_sources(float channel_length, int slope_window_size, LSDFlowInfo& FlowInfo, LSDRaster& Elevation, string csv_filename);
 
   protected:
 

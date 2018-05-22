@@ -150,6 +150,7 @@ PointData LoadChannelTree(string Filename, int multistem_option = 0, int trib_nu
 // FJC 17/02/17
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+PointData get_point_data_from_coordinates(vector<float>& X_coordinates, vector<float>& Y_coordinates);
 PointData get_point_data_from_coordinates(vector<double>& X_coordinates, vector<double>& Y_coordinates);
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -813,6 +813,13 @@ vector<int> get_source_node_from_perimeter(vector<int> perimeter, LSDFlowInfo& f
 
   void clean_perimeter(LSDFlowInfo& flowpy);
 
+
+  /// @brief Write a csv file with X,Y,Z
+  /// @param Name of the file and flowinfo object
+  /// @author BG
+  /// @date true
+  void write_elevation_csv(string output_name, LSDFlowInfo& flowpy, LSDRaster& filled);
+
   protected:
 
   //These instance variables are set at initialisation
