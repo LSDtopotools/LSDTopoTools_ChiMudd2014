@@ -1847,8 +1847,6 @@ int main (int nNumberofArgs,char *argv[])
     }
   }
 
-
-
   if(this_bool_map["ksn_knickpoint_analysis"])
   {
     cout << "I am beginning the knickpoint detection and quantification: my first step is too use Mudd et al., 2014 segmentation algorithm" << endl;
@@ -1857,9 +1855,7 @@ int main (int nNumberofArgs,char *argv[])
     n_iterations = this_int_map["force_n_iteration_knickpoint_analysis"];
     skip = this_int_map["force_skip_knickpoint_analysis"];
 
-
     chi_coordinate = FlowInfo.get_upslope_chi_from_all_baselevel_nodes(movern,this_float_map["force_A0_knickpoint_analysis"],thresh_area_for_chi);
-
 
     LSDChiTools ChiTool(FlowInfo);
     ChiTool.chi_map_automator(FlowInfo, source_nodes, outlet_nodes, baselevel_node_of_each_basin,
@@ -1868,25 +1864,6 @@ int main (int nNumberofArgs,char *argv[])
                           n_iterations, skip, minimum_segment_length, sigma);
     ChiTool.segment_counter(FlowInfo, maximum_segment_length);
  
-<<<<<<< HEAD
- 
-    // Print the segments to a csv file
-    string csv_full_fname = OUT_DIR+OUT_ID+"_KP_MChiSegmented.csv";
-    cout << "Let me print all the data for you into a csv file called " << csv_full_fname << endl;
-    ChiTool.print_data_maps_to_file_full(FlowInfo, csv_full_fname);
-    cout << "That is your file printed!" << endl;
-
-    if ( this_bool_map["convert_csv_to_geojson"])
-    {
-      cout << "Now let me print your chi network to a geojson" << endl;
-      string gjson_name = OUT_DIR+OUT_ID+"_MChiSegmented.geojson";
-      LSDSpatialCSVReader thiscsv(csv_full_fname);
-      thiscsv.print_data_to_geojson(gjson_name);
-    }
- 
-    
-=======
->>>>>>> 0791eb481737e45079586e8348dd35208557c192
     float TVD_lambda = this_float_map["TVD_lambda"];
     if( this_float_map["TVD_lambda"] < 0)
     {
@@ -1910,7 +1887,6 @@ int main (int nNumberofArgs,char *argv[])
       else if(this_float_map["m_over_n"] <= 0.90){ TVD_lambda = 5000;}
       else if(this_float_map["m_over_n"] <= 0.95){ TVD_lambda = 10000;}
 
-
       else{TVD_lambda = 2000;}
     }
     else
@@ -1919,7 +1895,20 @@ int main (int nNumberofArgs,char *argv[])
     }
     // Actual knickpoint calculation
     ChiTool.ksn_knickpoint_automator(FlowInfo, OUT_DIR, OUT_ID,this_float_map["MZS_threshold"], TVD_lambda, this_float_map["TVD_lambda_bchi"], this_int_map["stepped_combining_window"], this_int_map["window_stepped_kp_detection"], this_float_map["std_dev_coeff_stepped_kp"], this_int_map["kp_node_combining"]);
-    
+
+    // Print the segments to a csv file
+    string csv_full_fname = OUT_DIR+OUT_ID+"_KP_MChiSegmented.csv";
+    cout << "Let me print all the data for you into a csv file called " << csv_full_fname << endl;
+    ChiTool.print_data_maps_to_file_full(FlowInfo, csv_full_fname);
+    cout << "That is your file printed!" << endl;
+
+    if ( this_bool_map["convert_csv_to_geojson"])
+    {
+      cout << "Now let me print your chi network to a geojson" << endl;
+      string gjson_name = OUT_DIR+OUT_ID+"_MChiSegmented.geojson";
+      LSDSpatialCSVReader thiscsv(csv_full_fname);
+      thiscsv.print_data_to_geojson(gjson_name);
+    }
   }
 
 
