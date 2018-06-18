@@ -8396,7 +8396,7 @@ void LSDJunctionNetwork::write_river_profiles_to_csv(vector<int>& BasinJunctions
   ofstream chan_out;
   chan_out.open(csv_filename.c_str());
 
-  chan_out << "id,node,row,column,distance_from_source,elevation,drainage_area,latitude,longitude,x,y" << endl;
+  chan_out << "id,node,row,column,distance_from_source,elevation,drainage_area,latitude,longitude,easting,northing" << endl;
 
   // for each basin, get the profile
   for (int i = 0; i < int(BasinJunctions.size()); i++)
@@ -8435,14 +8435,14 @@ void LSDJunctionNetwork::write_river_profiles_to_csv(vector<int>& BasinJunctions
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // This function takes a vector of basin outlet junctions and writes data about
-// the longest channel in each to a csv.
+// all the tributaries to a csv
 // FJC 06/05/18
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 void LSDJunctionNetwork::write_river_profiles_to_csv_all_tributaries(vector<int>& BasinJunctions, LSDFlowInfo& FlowInfo, LSDRaster& DistanceFromOutlet, LSDRaster& Elevation, string csv_filename)
 {
   int this_node, row, col;
   double latitude, longitude, x_loc, y_loc;
-  float TotalLength, ThisLength;
+  float dist_from_outlet, drainage_area;
   LSDCoordinateConverterLLandUTM Converter;
 
   // for each basin, get the profile
@@ -8451,10 +8451,10 @@ void LSDJunctionNetwork::write_river_profiles_to_csv_all_tributaries(vector<int>
     // open the csv
     ofstream chan_out;
     string jn_name = itoa(BasinJunctions[i]);
-    string this_fname = csv_filename+"_"+jn_name+".csv";
+    string this_fname = csv_filename+".csv";
     chan_out.open(this_fname.c_str());
 
-    chan_out << "basin_id,id,node,row,column,distance_from_outlet,elevation,total_length_upstream,latitude,longitude,x,y" << endl;
+    chan_out << "basin_id,id,node,row,column,distance_from_outlet,elevation,drainage_area,latitude,longitude,easting,northing" << endl;
 
     // get all the channel heads upstream of this junction
     vector<int> SourceNodes, SourceJunctions;
@@ -8485,17 +8485,17 @@ void LSDJunctionNetwork::write_river_profiles_to_csv_all_tributaries(vector<int>
         FlowInfo.retrieve_current_row_and_col(this_node,row,col);
         FlowInfo.get_lat_and_long_locations(row, col, latitude, longitude, Converter);
         FlowInfo.get_x_and_y_locations(row, col, x_loc, y_loc);
-        ThisLength = FlowInfo.get_flow_length_between_nodes(this_node, DownstreamNode);
-        TotalLength = GetTotalChannelLengthUpstream(this_node, FlowInfo);
+        dist_from_outlet = FlowInfo.get_flow_length_between_nodes(this_node, DownstreamNode);
+        drainage_area = FlowInfo.get_DrainageArea_square_m(this_node);
 
         chan_out << BasinJunctions[i] << ","
                  << SourceJunctions[j] << ","
                  << this_node << ","
                  << row << ","
                  << col << ","
-                 << ThisLength << ","
+                 << dist_from_outlet << ","
                  << Elevation.get_data_element(row,col) << ","
-                 << TotalLength << ",";
+                 << drainage_area << ",";
         chan_out.precision(9);
         chan_out << latitude << ","
                  << longitude << ",";
@@ -8559,7 +8559,7 @@ void LSDJunctionNetwork::write_river_profiles_to_csv_all_sources(float channel_l
   string this_fname = csv_filename+".csv";
   chan_out.open(this_fname.c_str());
 
-  chan_out << "source_id,node,row,column,distance_from_source,elevation,drainage_area,latitude,longitude,x,y" << endl;
+  chan_out << "id,node,row,column,distance_from_source,elevation,drainage_area,latitude,longitude,easting,northing" << endl;
 
   for (int i = 0; i < int(SourcesVector.size()); i++)
   {
@@ -8603,9 +8603,12 @@ void LSDJunctionNetwork::write_river_profiles_to_csv_all_sources(float channel_l
             cout << "I've reached a base level before the defined channel length, exiting" << endl;
             reached_end = true;
           }
-          //cout << "This node: " << this_node << " receiver node: " << receiver_node << endl;
-          channel_nodes.push_back(this_node);
-          this_node = receiver_node;
+          else
+          {
+            //cout << "This node: " << this_node << " receiver node: " << receiver_node << endl;
+            channel_nodes.push_back(this_node);
+            this_node = receiver_node;
+          }
         }
         else
         {

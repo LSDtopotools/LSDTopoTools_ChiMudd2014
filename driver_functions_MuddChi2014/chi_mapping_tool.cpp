@@ -79,8 +79,8 @@ int main (int nNumberofArgs,char *argv[])
     cout << "|| plots and to map out slopes in chi space.           ||" << endl;
     cout << "|| This program was developed by Simon M. Mudd         ||" << endl;
     cout << "|| Fiona J. Clubb and Boris Gailleton                  ||" << endl;
-    cout << "||  at the University of Edinburgh                     ||" << endl;
-    cout << "|| and Martin D Hurst at the University of Glasgow.    ||" << endl;
+    cout << "||  at the University of Edinburgh                     ||" << endl;  
+    cout << "|| and Martin D Hurst at the University of Glasgow.    ||" << endl;    
     cout << "=========================================================" << endl;
     cout << "This program requires two inputs: " << endl;
     cout << "* First the path to the parameter file." << endl;
@@ -163,7 +163,7 @@ int main (int nNumberofArgs,char *argv[])
   bool_default_map["print_DrainageArea_raster"] = false;
   bool_default_map["write_hillshade"] = false;
   bool_default_map["print_basic_M_chi_map_to_csv"] = false;
-
+                                                                                            
   // knickpoint analysis. This is still under development.
   bool_default_map["ksn_knickpoint_analysis"] = false;
   int_default_map["force_skip_knickpoint_analysis"] = 2;
@@ -356,7 +356,7 @@ int main (int nNumberofArgs,char *argv[])
     cout << endl << endl << "=======================================" << endl;
     cout << "You have set the full concavity analysis in motion!"  << endl;
     cout << "This can take a while. If you justy want a basic, efficient calculation," << endl;
-    cout << "Just use the disorder metric. " << endl;
+    cout << "use the disorder metric. " << endl;
     cout << "Set: " << endl;
     cout << "movern_disorder_test: true" << endl; 
     cout << "disorder_use_uncert = true" << endl;
@@ -881,7 +881,6 @@ int main (int nNumberofArgs,char *argv[])
       {
         BaseLevelJunctions = BaseLevelJunctions_Initial;
       }
-
     }
   }
   else
@@ -1407,7 +1406,8 @@ int main (int nNumberofArgs,char *argv[])
   if (this_bool_map["MCMC_movern_analysis"])
   {
     cout << "I am going to explore m/n using the MCMC method" << endl;
-    cout << "WARNING!!! This could take a while." << endl;
+    cout << "THIS DOESN'T WORK!!! IT IS FOR TESTING ONLY!!!!" << endl;
+    cout << "ALSO THIS METHOD THAT DOESN'T WORK WILL TAKE FOREVER!!!" << endl;
     // Lets make a new chi tool: this won't be segmented since we only
     // need it for m/n
     LSDChiTools ChiTool_MCMC(FlowInfo);
@@ -1478,6 +1478,9 @@ int main (int nNumberofArgs,char *argv[])
   if (this_bool_map["movern_residuals_test"])
   {
     cout << "I am going to explore m/n using the residuals method" << endl;
+    cout << "THIS DOENS'T WORK!!! IT IS HERE FOR TESTING ONLY!!!" << endl;
+    cout << "The disorder test follows similar rationale but actually works." << endl;
+    cout << "Turn it on with movern_disorder_test:true" << endl;
     // Lets make a new chi tool: this won't be segmented since we only
     // need it for m/n
     LSDChiTools ChiTool_residuals(FlowInfo);
@@ -1865,7 +1868,25 @@ int main (int nNumberofArgs,char *argv[])
                           n_iterations, skip, minimum_segment_length, sigma);
     ChiTool.segment_counter(FlowInfo, maximum_segment_length);
  
+<<<<<<< HEAD
+ 
+    // Print the segments to a csv file
+    string csv_full_fname = OUT_DIR+OUT_ID+"_KP_MChiSegmented.csv";
+    cout << "Let me print all the data for you into a csv file called " << csv_full_fname << endl;
+    ChiTool.print_data_maps_to_file_full(FlowInfo, csv_full_fname);
+    cout << "That is your file printed!" << endl;
 
+    if ( this_bool_map["convert_csv_to_geojson"])
+    {
+      cout << "Now let me print your chi network to a geojson" << endl;
+      string gjson_name = OUT_DIR+OUT_ID+"_MChiSegmented.geojson";
+      LSDSpatialCSVReader thiscsv(csv_full_fname);
+      thiscsv.print_data_to_geojson(gjson_name);
+    }
+ 
+    
+=======
+>>>>>>> 0791eb481737e45079586e8348dd35208557c192
     float TVD_lambda = this_float_map["TVD_lambda"];
     if( this_float_map["TVD_lambda"] < 0)
     {
